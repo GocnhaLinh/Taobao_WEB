@@ -13,7 +13,7 @@ interface ReviewCardProps {
   review: ReviewItem;
 }
 
-export const ReviewCard: React.FC<ReviewCardProps> = ({ review }) => {
+export const ReviewCard: React.FC<ReviewCardProps> = React.memo(({ review }) => {
   return (
     <div className="p-4 bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl space-y-2">
       <div className="flex justify-between items-center">
@@ -27,4 +27,4 @@ export const ReviewCard: React.FC<ReviewCardProps> = ({ review }) => {
       <p className="text-xs text-slate-600 dark:text-slate-300 italic">"{review.comment}"</p>
     </div>
   );
-};
+});

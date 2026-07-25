@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { Badge } from '../../../components/ui/Badge';
 import { Ticket, Copy, Check, Percent, Tag, Calendar, Trash2, Edit3, Power, Clock } from 'lucide-react';
 
 export interface CouponItem {
@@ -21,7 +20,7 @@ interface CouponCardProps {
   onDeleteRequest?: (coupon: CouponItem) => void;
 }
 
-export const CouponCard: React.FC<CouponCardProps> = ({
+export const CouponCard: React.FC<CouponCardProps> = React.memo(({
   coupon,
   onEdit,
   onToggleStatus,
@@ -216,4 +215,4 @@ export const CouponCard: React.FC<CouponCardProps> = ({
       </div>
     </div>
   );
-};
+});

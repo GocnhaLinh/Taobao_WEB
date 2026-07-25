@@ -1,14 +1,22 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useCallback } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Package, Plus, Search, RefreshCw, Clock, Archive } from "lucide-react";
 import { Button } from "../../components/ui/Button";
 import { Input } from "../../components/ui/Input";
 import { useNotification } from "../../lib/notification";
 import { useConfirm } from "../../lib/useConfirm";
+import { useDebounce } from "../../lib/useDebounce";
 import { ProductCard } from "./components/ProductCard";
-import { ProductFormModal } from "./components/ProductFormModal";
-import { VariantFormModal } from "./components/VariantFormModal";
-import { ProductDetailModal } from "./components/ProductDetailModal";
+
+const ProductFormModal = React.lazy(() =>
+  import("./components/ProductFormModal").then((m) => ({ default: m.ProductFormModal })),
+);
+const VariantFormModal = React.lazy(() =>
+  import("./components/VariantFormModal").then((m) => ({ default: m.VariantFormModal })),
+);
+const ProductDetailModal = React.lazy(() =>
+  import("./components/ProductDetailModal").then((m) => ({ default: m.ProductDetailModal })),
+);
 import {
   fetchProducts,
   fetchDeletedProducts,
@@ -30,6 +38,7 @@ export const ProductsFeature: React.FC = () => {
 
   const [activeTab, setActiveTab] = useState<"ACTIVE" | "DELETED">("ACTIVE");
   const [searchQuery, setSearchQuery] = useState("");
+  const debouncedSearch = useDebounce(searchQuery, 400);
 
   // Modals state
   const [isProductModalOpen, setIsProductModalOpen] = useState(false);
@@ -46,7 +55,6 @@ export const ProductsFeature: React.FC = () => {
   const {
     data: activeProducts = [],
     isLoading: isLoadingActive,
-    refetch: refetchActive,
   } = useQuery({
     queryKey: ["products", "active"],
     queryFn: fetchProducts,
@@ -55,7 +63,6 @@ export const ProductsFeature: React.FC = () => {
   const {
     data: deletedProducts = [],
     isLoading: isLoadingDeleted,
-    refetch: refetchDeleted,
   } = useQuery({
     queryKey: ["products", "deleted"],
     queryFn: fetchDeletedProducts,
@@ -73,8 +80,7 @@ export const ProductsFeature: React.FC = () => {
   });
 
   const refreshAll = () => {
-    refetchActive();
-    if (activeTab === "DELETED") refetchDeleted();
+    queryClient.invalidateQueries({ queryKey: ["products"] });
   };
 
   // Product Mutations
@@ -175,95 +181,84 @@ export const ProductsFeature: React.FC = () => {
   });
 
   // Event Handlers
-  const handleOpenAddProduct = () => {
+  // ✅ useCallback giữ stable reference — React.memo trên child components mới có tác dụng
+  const handleOpenAddProduct = useCallback(() => {
     setEditingProduct(null);
     setIsProductModalOpen(true);
-  };
+  }, []);
 
-  const handleOpenEditProduct = (p: Product) => {
+  const handleOpenEditProduct = useCallback((p: Product) => {
     setEditingProduct(p);
     setIsProductModalOpen(true);
-  };
+  }, []);
 
-  const handleProductSubmit = (data: any) => {
+  const handleProductSubmit = useCallback((data: any) => {
     if (editingProduct) {
       updateProductMutation.mutate({ id: editingProduct.id, ...data });
     } else {
       createProductMutation.mutate(data);
     }
-  };
+  }, [editingProduct, updateProductMutation, createProductMutation]);
 
-  const handleOpenAddVariant = (productId: string) => {
+  const handleOpenAddVariant = useCallback((productId: string) => {
     setTargetProductId(productId);
     setEditingVariant(null);
     setIsVariantModalOpen(true);
-  };
+  }, []);
 
-  const handleOpenEditVariant = (v: ProductVariant) => {
+  const handleOpenEditVariant = useCallback((v: ProductVariant) => {
     setTargetProductId(v.productId);
     setEditingVariant(v);
     setIsVariantModalOpen(true);
-  };
+  }, []);
 
-  const handleVariantSubmit = (data: any) => {
+  const handleVariantSubmit = useCallback((data: any) => {
     if (editingVariant) {
       updateVariantMutation.mutate({ id: editingVariant.id, ...data });
     } else {
       createVariantMutation.mutate(data);
     }
-  };
+  }, [editingVariant, updateVariantMutation, createVariantMutation]);
 
-  const handleDeleteProduct = async (p: Product) => {
+  const handleDeleteProduct = useCallback(async (p: Product) => {
     const isConfirmed = await confirm({
       title: "Xác Nhận Xóa Sản Phẩm",
       description: `Bạn có chắc chắn muốn chuyển sản phẩm "${p.productName}" vào Thùng rác không?`,
       confirmText: "Chuyển vào Thùng rác",
       variant: "warning",
     });
+    if (isConfirmed) deleteProductMutation.mutate(p.id);
+  }, [confirm, deleteProductMutation]);
 
-    if (isConfirmed) {
-      deleteProductMutation.mutate(p.id);
-    }
-  };
-
-  const handleRestoreProduct = async (p: Product) => {
+  const handleRestoreProduct = useCallback(async (p: Product) => {
     const isConfirmed = await confirm({
       title: "Xác Nhận Khôi Phục Sản Phẩm",
       description: `Bạn có chắc chắn muốn khôi phục sản phẩm "${p.productName}" từ Thùng rác về danh sách hoạt động không?`,
       confirmText: "Khôi phục ngay",
       variant: "info",
     });
+    if (isConfirmed) restoreProductMutation.mutate(p.id);
+  }, [confirm, restoreProductMutation]);
 
-    if (isConfirmed) {
-      restoreProductMutation.mutate(p.id);
-    }
-  };
-
-  const handleForceDeleteProduct = async (p: Product) => {
+  const handleForceDeleteProduct = useCallback(async (p: Product) => {
     const isConfirmed = await confirm({
       title: "Xác Nhận Xóa Vĩnh Viễn",
-      description: `Bạn có chắc muốn XÓA VĨNH VIỄN sản phẩm "${p.productName}" không? Dữ liệu sẽ mất hoàn toàn và không thể hoàn tác!`,
+      description: `Bạn có chắc muốn XÓA VĨNH VIỀN sản phẩm "${p.productName}" không? Dữ liệu sẽ mất hoàn toàn và không thể hoàn tác!`,
       confirmText: "Xóa Vĩnh Viễn",
       variant: "danger",
     });
+    if (isConfirmed) forceDeleteProductMutation.mutate(p.id);
+  }, [confirm, forceDeleteProductMutation]);
 
-    if (isConfirmed) {
-      forceDeleteProductMutation.mutate(p.id);
-    }
-  };
-
-  const handleDeleteVariant = async (v: ProductVariant) => {
+  const handleDeleteVariant = useCallback(async (v: ProductVariant) => {
     const isConfirmed = await confirm({
       title: "Xác Nhận Xóa Biến Thể",
       description: `Bạn có chắc chắn muốn xóa biến thể mẫu mã SKU "${v.sku}" khỏi sản phẩm không?`,
       confirmText: "Xóa Biến Thể",
       variant: "danger",
     });
-
-    if (isConfirmed) {
-      deleteVariantMutation.mutate(v.id);
-    }
-  };
+    if (isConfirmed) deleteVariantMutation.mutate(v.id);
+  }, [confirm, deleteVariantMutation]);
 
   // Filter products
   const rawList = activeTab === "ACTIVE" ? activeProducts : deletedProducts;
@@ -278,8 +273,8 @@ export const ProductsFeature: React.FC = () => {
     }
   }, [rawList]);
   const filteredProducts = useMemo(() => {
-    if (!searchQuery.trim()) return rawList;
-    const q = searchQuery.toLowerCase();
+    if (!debouncedSearch.trim()) return rawList;
+    const q = debouncedSearch.toLowerCase();
     return rawList.filter(
       (p) =>
         p.productName.toLowerCase().includes(q) ||
@@ -288,7 +283,7 @@ export const ProductsFeature: React.FC = () => {
         p.brand?.name.toLowerCase().includes(q) ||
         p.variants?.some((v) => v.sku.toLowerCase().includes(q)),
     );
-  }, [rawList, searchQuery]);
+  }, [rawList, debouncedSearch]);
 
   const isLoadingCurrent =
     activeTab === "ACTIVE" ? isLoadingActive : isLoadingDeleted;
@@ -400,39 +395,41 @@ export const ProductsFeature: React.FC = () => {
         )}
       </div>
 
-      {/* Modals */}
-      <ProductDetailModal
-        isOpen={Boolean(detailProduct)}
-        onClose={() => setDetailProduct(null)}
-        product={detailProduct}
-        onEditProduct={handleOpenEditProduct}
-        onAddVariant={handleOpenAddVariant}
-        onEditVariant={handleOpenEditVariant}
-      />
+      {/* Lazy-loaded Modals */}
+      <React.Suspense fallback={null}>
+        <ProductDetailModal
+          isOpen={Boolean(detailProduct)}
+          onClose={() => setDetailProduct(null)}
+          product={detailProduct}
+          onEditProduct={handleOpenEditProduct}
+          onAddVariant={handleOpenAddVariant}
+          onEditVariant={handleOpenEditVariant}
+        />
 
-      <ProductFormModal
-        isOpen={isProductModalOpen}
-        onClose={() => setIsProductModalOpen(false)}
-        onSubmit={handleProductSubmit}
-        isLoading={
-          createProductMutation.isPending || updateProductMutation.isPending
-        }
-        editingProduct={editingProduct}
-        categories={categories}
-        brands={brands}
-      />
+        <ProductFormModal
+          isOpen={isProductModalOpen}
+          onClose={() => setIsProductModalOpen(false)}
+          onSubmit={handleProductSubmit}
+          isLoading={
+            createProductMutation.isPending || updateProductMutation.isPending
+          }
+          editingProduct={editingProduct}
+          categories={categories}
+          brands={brands}
+        />
 
-      <VariantFormModal
-        isOpen={isVariantModalOpen}
-        onClose={() => setIsVariantModalOpen(false)}
-        onSubmit={handleVariantSubmit}
-        isLoading={
-          createVariantMutation.isPending || updateVariantMutation.isPending
-        }
-        editingVariant={editingVariant}
-        productId={targetProductId}
-        categoryName={rawList.find((p) => p.id === targetProductId)?.category?.name}
-      />
+        <VariantFormModal
+          isOpen={isVariantModalOpen}
+          onClose={() => setIsVariantModalOpen(false)}
+          onSubmit={handleVariantSubmit}
+          isLoading={
+            createVariantMutation.isPending || updateVariantMutation.isPending
+          }
+          editingVariant={editingVariant}
+          productId={targetProductId}
+          categoryName={rawList.find((p) => p.id === targetProductId)?.category?.name}
+        />
+      </React.Suspense>
 
       {/* Reusable Confirm Dialog */}
       {ConfirmDialog}

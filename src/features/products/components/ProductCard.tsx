@@ -7,10 +7,8 @@ import {
   ChevronDown,
   ChevronUp,
   Tag,
-  TrendingUp,
   Coins,
   Truck,
-  Sparkles,
   RotateCcw,
 } from "lucide-react";
 import { Badge } from "../../../components/ui/Badge";
@@ -30,7 +28,7 @@ interface ProductCardProps {
   onForceDeleteProduct?: (p: Product) => void;
 }
 
-export const ProductCard: React.FC<ProductCardProps> = ({
+export const ProductCard: React.FC<ProductCardProps> = React.memo(({
   product,
   onEditProduct,
   onDeleteProduct,
@@ -344,4 +342,4 @@ export const ProductCard: React.FC<ProductCardProps> = ({
       </div>
     </div>
   );
-};
+});

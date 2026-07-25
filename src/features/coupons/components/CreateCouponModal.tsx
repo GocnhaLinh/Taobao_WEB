@@ -23,6 +23,8 @@ export const CreateCouponModal: React.FC<CreateCouponModalProps> = ({
   const [minOrder, setMinOrder] = useState('');
   const [maxDiscount, setMaxDiscount] = useState('');
   const [expiryDate, setExpiryDate] = useState('');
+  // BUG CP3 FIX: Thêm field status — trước đây hardcode 'ACTIVE', không tạo được DISABLED
+  const [status, setStatus] = useState<'ACTIVE' | 'DISABLED'>('ACTIVE');
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -34,18 +36,25 @@ export const CreateCouponModal: React.FC<CreateCouponModalProps> = ({
       type,
       value: Number(value),
       minOrder: Number(minOrder),
-      maxDiscount: maxDiscount ? Number(maxDiscount) : undefined,
-      status: 'ACTIVE',
-      expiryDate: expiryDate ? new Date(expiryDate).toISOString() : new Date(Date.now() + 90 * 86400000).toISOString(),
+      // maxDiscount chỉ áp dụng cho PERCENT
+      maxDiscount: type === 'PERCENT' && maxDiscount ? Number(maxDiscount) : undefined,
+      // BUG CP3 FIX: dùng status từ state thay vì hardcode 'ACTIVE'
+      status,
+      expiryDate: expiryDate
+        ? new Date(expiryDate).toISOString()
+        : new Date(Date.now() + 90 * 86400000).toISOString(),
       usageCount: 0,
     };
 
     onCreate(newCoupon);
+    // Reset form
     setCode('');
+    setType('FIXED');
     setValue('');
     setMinOrder('');
     setMaxDiscount('');
     setExpiryDate('');
+    setStatus('ACTIVE');
     onClose();
   };
 
@@ -98,34 +107,46 @@ export const CreateCouponModal: React.FC<CreateCouponModalProps> = ({
             required
           />
 
-          {type === 'PERCENT' ? (
+          {/* BUG CP3 FIX: Thêm field chọn Status khi tạo mới */}
+          <div>
+            <CustomSelect
+              label="Trạng thái ban đầu"
+              value={status}
+              onChange={(v) => setStatus(v as 'ACTIVE' | 'DISABLED')}
+              options={[
+                { value: 'ACTIVE', label: '✅ Hoạt động ngay (ACTIVE)' },
+                { value: 'DISABLED', label: '⏸ Tạm tắt (DISABLED)' },
+              ]}
+            />
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          {/* maxDiscount: luôn hiển thị, disabled khi type=FIXED */}
+          <div>
             <Input
               label="Giảm tối đa (VNĐ)"
               type="number"
-              placeholder="VD: 200000"
+              placeholder={type === 'FIXED' ? 'Không áp dụng cho FIXED' : 'VD: 200000'}
               value={maxDiscount}
               onChange={(e) => setMaxDiscount(e.target.value)}
+              disabled={type === 'FIXED'}
+              className={type === 'FIXED' ? 'opacity-50 cursor-not-allowed' : ''}
             />
-          ) : (
-            <Input
-              label="Ngày hết hạn *"
-              type="date"
-              value={expiryDate}
-              onChange={(e) => setExpiryDate(e.target.value)}
-              required
-            />
-          )}
-        </div>
+            {type === 'FIXED' && (
+              <p className="text-[11px] text-slate-400 mt-1">
+                Chỉ áp dụng cho voucher giảm theo %.
+              </p>
+            )}
+          </div>
 
-        {type === 'PERCENT' && (
           <Input
-            label="Ngày hết hạn *"
+            label="Ngày hết hạn"
             type="date"
             value={expiryDate}
             onChange={(e) => setExpiryDate(e.target.value)}
-            required
           />
-        )}
+        </div>
 
         <div className="flex items-center justify-end gap-3 pt-4 border-t border-slate-200 dark:border-white/10">
           <Button variant="ghost" type="button" onClick={onClose}>

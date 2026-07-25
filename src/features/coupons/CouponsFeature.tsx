@@ -3,11 +3,19 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from '../../lib/i18n';
 import { useNotification } from '../../lib/notification';
 import { useConfirm } from '../../lib/useConfirm';
+import { useDebounce } from '../../lib/useDebounce';
 import { Button } from '../../components/ui/Button';
 import { CouponCard, type CouponItem } from './components/CouponCard';
-import { CreateCouponModal } from './components/CreateCouponModal';
-import { EditCouponModal } from './components/EditCouponModal';
-import { ValidateCouponModal } from './components/ValidateCouponModal';
+
+const CreateCouponModal = React.lazy(() =>
+  import('./components/CreateCouponModal').then((m) => ({ default: m.CreateCouponModal })),
+);
+const EditCouponModal = React.lazy(() =>
+  import('./components/EditCouponModal').then((m) => ({ default: m.EditCouponModal })),
+);
+const ValidateCouponModal = React.lazy(() =>
+  import('./components/ValidateCouponModal').then((m) => ({ default: m.ValidateCouponModal })),
+);
 import {
   getCouponsApi,
   createCouponApi,
@@ -15,7 +23,7 @@ import {
   deleteCouponApi,
 } from '../../services/couponService';
 import { CustomSelect } from '../../components/ui/CustomSelect';
-import { Ticket, Search, Plus, Tag, Percent, RefreshCw, Calculator, Power, Clock } from 'lucide-react';
+import { Ticket, Search, Plus, RefreshCw, Calculator, Power, Clock } from 'lucide-react';
 
 export const CouponsFeature: React.FC = () => {
   const { t } = useTranslation();
@@ -27,14 +35,16 @@ export const CouponsFeature: React.FC = () => {
   const [statusFilter, setStatusFilter] = useState('ALL');
   const [typeFilter, setTypeFilter] = useState('ALL');
 
+  const debouncedSearch = useDebounce(searchTerm, 400);
+
   // Modals
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isValidateModalOpen, setIsValidateModalOpen] = useState(false);
   const [editingCoupon, setEditingCoupon] = useState<CouponItem | null>(null);
 
   const { data, isLoading, refetch } = useQuery({
-    queryKey: ['coupons', searchTerm],
-    queryFn: () => getCouponsApi({ search: searchTerm || undefined }),
+    queryKey: ['coupons', debouncedSearch],
+    queryFn: () => getCouponsApi({ search: debouncedSearch || undefined }),
     retry: 1,
   });
 
@@ -326,26 +336,29 @@ export const CouponsFeature: React.FC = () => {
         )}
       </div>
 
-      {/* Create Coupon Modal */}
-      <CreateCouponModal
-        isOpen={isCreateModalOpen}
-        onClose={() => setIsCreateModalOpen(false)}
-        onCreate={handleCreateCoupon}
-      />
+      {/* Lazy-loaded Modals */}
+      <React.Suspense fallback={null}>
+        {/* Create Coupon Modal */}
+        <CreateCouponModal
+          isOpen={isCreateModalOpen}
+          onClose={() => setIsCreateModalOpen(false)}
+          onCreate={handleCreateCoupon}
+        />
 
-      {/* Edit Coupon Modal */}
-      <EditCouponModal
-        coupon={editingCoupon}
-        isOpen={Boolean(editingCoupon)}
-        onClose={() => setEditingCoupon(null)}
-        onUpdate={handleUpdateCoupon}
-      />
+        {/* Edit Coupon Modal */}
+        <EditCouponModal
+          coupon={editingCoupon}
+          isOpen={Boolean(editingCoupon)}
+          onClose={() => setEditingCoupon(null)}
+          onUpdate={handleUpdateCoupon}
+        />
 
-      {/* Validate / Test Coupon Modal */}
-      <ValidateCouponModal
-        isOpen={isValidateModalOpen}
-        onClose={() => setIsValidateModalOpen(false)}
-      />
+        {/* Validate / Test Coupon Modal */}
+        <ValidateCouponModal
+          isOpen={isValidateModalOpen}
+          onClose={() => setIsValidateModalOpen(false)}
+        />
+      </React.Suspense>
 
       {/* Reusable Confirm Dialog */}
       {ConfirmDialog}

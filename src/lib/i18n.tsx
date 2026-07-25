@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext, useState, useCallback, useMemo } from 'react';
 import { en } from '../locales/en';
 import { vi } from '../locales/vi';
 import { zh } from '../locales/zh';
@@ -23,17 +23,25 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     return (saved as Language) || 'vi'; // Default to Vietnamese
   });
 
-  const setLanguage = (lang: Language) => {
+  const setLanguage = useCallback((lang: Language) => {
     setLanguageState(lang);
     localStorage.setItem('app_lang', lang);
-  };
+  }, []);
 
-  const t = (key: TranslationKey) => {
-    return translations[language][key] || translations['en'][key] || key;
-  };
+  const t = useCallback(
+    (key: TranslationKey) => {
+      return translations[language][key] || translations['en'][key] || key;
+    },
+    [language]
+  );
+
+  const contextValue = useMemo(
+    () => ({ language, setLanguage, t }),
+    [language, setLanguage, t]
+  );
 
   return (
-    <LanguageContext.Provider value={{ language, setLanguage, t }}>
+    <LanguageContext.Provider value={contextValue}>
       {children}
     </LanguageContext.Provider>
   );

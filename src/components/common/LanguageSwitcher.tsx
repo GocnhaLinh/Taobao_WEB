@@ -31,6 +31,8 @@ export const LanguageSwitcher: React.FC = () => {
             <img
               src={lang.flagImg}
               alt={lang.label}
+              width={20}
+              height={14}
               className="h-3.5 w-5 object-cover rounded-xs"
             />
           </button>

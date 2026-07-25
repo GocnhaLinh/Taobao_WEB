@@ -8,13 +8,13 @@ import {
   Clock,
   Archive,
   Layers,
-  Sparkles,
   LayoutGrid,
   List,
   Award,
 } from "lucide-react";
 import { useTranslation } from "../../lib/i18n";
 import { useNotification } from "../../lib/notification";
+import { useDebounce } from "../../lib/useDebounce";
 import {
   fetchBrands,
   fetchDeletedBrands,
@@ -29,9 +29,14 @@ import { Button } from "../../components/ui/Button";
 import { Input } from "../../components/ui/Input";
 import { BrandCard } from "./components/BrandCard";
 import { BrandRow } from "./components/BrandRow";
-import { BrandFormModal } from "./components/BrandFormModal";
-import { BrandConfirmModal } from "./components/BrandConfirmModal";
 import type { ConfirmType } from "./components/BrandConfirmModal";
+
+const BrandFormModal = React.lazy(() =>
+  import("./components/BrandFormModal").then((m) => ({ default: m.BrandFormModal })),
+);
+const BrandConfirmModal = React.lazy(() =>
+  import("./components/BrandConfirmModal").then((m) => ({ default: m.BrandConfirmModal })),
+);
 
 type ActiveTabType = "ACTIVE" | "TRASH";
 type ViewMode = "row" | "card";
@@ -44,6 +49,7 @@ export const BrandsFeature: React.FC = () => {
   // Tab & Search & Pagination & View Mode
   const [activeTab, setActiveTab] = useState<ActiveTabType>("ACTIVE");
   const [searchQuery, setSearchQuery] = useState("");
+  const debouncedSearch = useDebounce(searchQuery, 400);
   const [currentPage, setCurrentPage] = useState(1);
 
   // Default view: Laptop (>= 1024px) -> row (hàng ngang), Mobile/Tablet (< 1024px) -> card
@@ -96,10 +102,9 @@ export const BrandsFeature: React.FC = () => {
     queryFn: fetchDeletedBrands,
   });
 
-  // Helper to invalidate and refetch all brand queries -- cần giải thích
+  // Helper to invalidate all brand queries (automatically refetches active queries)
   const refreshBrands = () => {
     queryClient.invalidateQueries({ queryKey: ["brands"] });
-    queryClient.refetchQueries({ queryKey: ["brands"] });
   };
 
   // Mutations
@@ -216,14 +221,14 @@ export const BrandsFeature: React.FC = () => {
   // Filtered & Paginated Brands
   const rawList = activeTab === "ACTIVE" ? activeBrands : deletedBrands;
   const filteredBrands = useMemo(() => {
-    if (!searchQuery.trim()) return rawList;
-    const q = searchQuery.toLowerCase();
+    if (!debouncedSearch.trim()) return rawList;
+    const q = debouncedSearch.toLowerCase();
     return rawList.filter(
       (b) =>
         b.name.toLowerCase().includes(q) ||
         (b.description && b.description.toLowerCase().includes(q)),
     );
-  }, [rawList, searchQuery]);
+  }, [rawList, debouncedSearch]);
 
   const totalPages = Math.ceil(filteredBrands.length / pageSize) || 1;
   const paginatedBrands = useMemo(() => {
@@ -447,24 +452,27 @@ export const BrandsFeature: React.FC = () => {
         )}
       </div>
 
-      {/* Form Modal (Add & Edit) */}
-      <BrandFormModal
-        isOpen={isFormModalOpen}
-        onClose={() => setIsFormModalOpen(false)}
-        onSubmit={handleFormSubmit}
-        initialData={editingBrand}
-        isLoading={isFormLoading}
-      />
+      {/* Lazy-loaded Modals */}
+      <React.Suspense fallback={null}>
+        {/* Form Modal (Add & Edit) */}
+        <BrandFormModal
+          isOpen={isFormModalOpen}
+          onClose={() => setIsFormModalOpen(false)}
+          onSubmit={handleFormSubmit}
+          initialData={editingBrand}
+          isLoading={isFormLoading}
+        />
 
-      {/* Confirmation Modal (Soft Delete, Restore, Hard Delete) */}
-      <BrandConfirmModal
-        isOpen={confirmModalState.isOpen}
-        onClose={closeConfirmModal}
-        onConfirm={handleConfirmAction}
-        brand={confirmModalState.brand}
-        type={confirmModalState.type}
-        isLoading={isConfirmLoading}
-      />
+        {/* Confirmation Modal (Soft Delete, Restore, Hard Delete) */}
+        <BrandConfirmModal
+          isOpen={confirmModalState.isOpen}
+          onClose={closeConfirmModal}
+          onConfirm={handleConfirmAction}
+          brand={confirmModalState.brand}
+          type={confirmModalState.type}
+          isLoading={isConfirmLoading}
+        />
+      </React.Suspense>
     </div>
   );
 };

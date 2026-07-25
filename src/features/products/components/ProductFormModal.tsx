@@ -203,9 +203,10 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({
               sku: variantSku.trim() || generateAutoSku(categories.find((c) => c.id === categoryId)?.name),
               price: sellingVND,
               originalPriceCNY: cny > 0 ? cny : undefined,
-              exchangeRate: rate > 0 ? rate : undefined,
+              // KHÔNG gửi exchangeRate — backend tự resolve từ fee config hệ thống
+              // tránh sai lệch nếu tỷ giá thay đổi giữa lúc mở modal và lúc submit
               weight: kg > 0 ? kg : undefined,
-              shippingCostVND: shipVND > 0 ? shipVND : undefined,
+              // KHÔNG gửi shippingCostVND — backend tự tính: weight × shippingCnPerKg
               stock: variantStock ? Number(variantStock) : 10,
               size: variantSize.trim() || undefined,
               color: variantColor.trim() || undefined,

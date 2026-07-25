@@ -57,16 +57,19 @@ export const VariantFormModal: React.FC<VariantFormModalProps> = ({
   const [isUploading, setIsUploading] = useState(false);
 
   useEffect(() => {
-    // Fetch live fee config settings from DB
     if (isOpen) {
       getFeeConfigApi()
         .then((cfg) => {
           if (cfg) {
-            if (!editingVariant && cfg.exchangeRate) {
-              setExchangeRate(cfg.exchangeRate.toString());
-            }
             if (cfg.shippingCnPerKg) {
               setShippingFeePerKg(cfg.shippingCnPerKg.toString());
+            }
+            if (cfg.exchangeRate) {
+              // Luôn fill tỷ giá hệ thống vào state feeExchangeRate để dùng làm fallback
+              // Nếu là Create mới hoặc Edit biến thể cũ chưa có tỷ giá → auto-fill vào ô input
+              if (!editingVariant || !editingVariant.exchangeRate) {
+                setExchangeRate(cfg.exchangeRate.toString());
+              }
             }
           }
         })
@@ -80,6 +83,7 @@ export const VariantFormModal: React.FC<VariantFormModalProps> = ({
       setStock(editingVariant.stock?.toString() || "0");
       setPrice(editingVariant.price?.toString() || "");
       setOriginalPriceCNY(editingVariant.originalPriceCNY?.toString() || "");
+      // Nếu biến thể đã có tỷ giá thì dùng, nếu không sẽ được fill bởi getFeeConfigApi() ở trên
       setExchangeRate(editingVariant.exchangeRate?.toString() || "");
       setWeight(editingVariant.weight?.toString() || "");
       if (editingVariant.weight && editingVariant.shippingCostVND) {
@@ -196,11 +200,12 @@ export const VariantFormModal: React.FC<VariantFormModalProps> = ({
       stock: parseInt(stock, 10) || 0,
       price: parseFloat(price) || 0,
       originalPriceCNY: cny > 0 ? cny : null,
-      exchangeRate: rate > 0 ? rate : null,
+      // Gửi undefined thay vì null khi không có tỷ giá → Backend sẽ tự động lấy tỷ giá hệ thống
+      exchangeRate: rate > 0 ? rate : undefined,
       weight: kg > 0 ? kg : null,
-      shippingCostVND: shipVND,
-      totalCostVND: totalCostVND > 0 ? totalCostVND : null,
-      profitVND: sellingVND > 0 ? profitVND : null,
+      // KHÔNG gửi shippingCostVND, totalCostVND, profitVND:
+      // Backend tự tính lại từ fee config hệ thống (weight × shippingCnPerKg)
+      // → tránh sai lệch khi shippingFeePerKg trên UI bị stale so với DB
       image: image || images[0] || null,
       images: images.length > 0 ? images : (image ? [image] : []),
     });

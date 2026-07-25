@@ -1,7 +1,8 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Plus, Search, ChevronLeft, ChevronRight, Clock, Archive, Layers, Building2, LayoutGrid, List, Navigation, CheckCircle2 } from 'lucide-react';
+import { Plus, Search, ChevronLeft, ChevronRight, Clock, Archive, Layers, Building2, LayoutGrid, List } from 'lucide-react';
 import { useNotification } from '../../lib/notification';
+import { useDebounce } from '../../lib/useDebounce';
 import {
   fetchWarehouses,
   fetchDeletedWarehouses,
@@ -10,17 +11,20 @@ import {
   deleteWarehouseApi,
   restoreWarehouseApi,
   hardDeleteWarehouseApi,
-  selectWarehouseByAddressApi,
 } from '../../services/warehouseService';
 import type { Warehouse } from '../../types';
 import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
-import { Badge } from '../../components/ui/Badge';
 import { WarehouseCard } from './components/WarehouseCard';
 import { WarehouseRow } from './components/WarehouseRow';
-import { WarehouseFormModal } from './components/WarehouseFormModal';
-import { WarehouseConfirmModal } from './components/WarehouseConfirmModal';
 import type { ConfirmType } from './components/WarehouseConfirmModal';
+
+const WarehouseFormModal = React.lazy(() =>
+  import('./components/WarehouseFormModal').then((m) => ({ default: m.WarehouseFormModal })),
+);
+const WarehouseConfirmModal = React.lazy(() =>
+  import('./components/WarehouseConfirmModal').then((m) => ({ default: m.WarehouseConfirmModal })),
+);
 
 type ActiveTabType = 'ACTIVE' | 'TRASH';
 type ViewMode = 'row' | 'card';
@@ -29,14 +33,10 @@ export const WarehousesFeature: React.FC = () => {
   const { showNotification } = useNotification();
   const queryClient = useQueryClient();
 
-  // Test Tool State
-  const [testProvince, setTestProvince] = useState('Hồ Chí Minh');
-  const [testDistrict, setTestDistrict] = useState('Quận 1');
-  const [matchedWarehouse, setMatchedWarehouse] = useState<Warehouse | null>(null);
-
   // Tab & Search & Pagination & View Mode
   const [activeTab, setActiveTab] = useState<ActiveTabType>('ACTIVE');
   const [searchQuery, setSearchQuery] = useState('');
+  const debouncedSearch = useDebounce(searchQuery, 400);
   const [currentPage, setCurrentPage] = useState(1);
 
   // Default view: Laptop (>= 1024px) -> row (hàng ngang), Mobile/Tablet (< 1024px) -> card
@@ -89,10 +89,9 @@ export const WarehousesFeature: React.FC = () => {
     queryFn: fetchDeletedWarehouses,
   });
 
-  // Helper to invalidate & refetch queries
+  // Helper to invalidate queries (automatically refetches active queries)
   const refreshWarehouses = () => {
     queryClient.invalidateQueries({ queryKey: ['warehouses'] });
-    queryClient.refetchQueries({ queryKey: ['warehouses'] });
   };
 
   // Mutations
@@ -157,18 +156,6 @@ export const WarehousesFeature: React.FC = () => {
     },
   });
 
-  const selectTestMutation = useMutation({
-    mutationFn: selectWarehouseByAddressApi,
-    onSuccess: (data) => {
-      const wh = data.warehouse || data;
-      setMatchedWarehouse(wh);
-      showNotification(data.message || `Đã tự động chọn: ${wh.name}`, 'success');
-    },
-    onError: (err: any) => {
-      showNotification(err.message || 'Lỗi tự động gán kho', 'error');
-    },
-  });
-
   // Event Handlers
   const handleOpenAdd = () => {
     setEditingWarehouse(null);
@@ -180,7 +167,16 @@ export const WarehousesFeature: React.FC = () => {
     setIsFormModalOpen(true);
   };
 
-  const handleFormSubmit = (data: any) => {
+  const handleFormSubmit = (data: {
+    code: string;
+    name: string;
+    province: string;
+    district?: string;
+    address?: string;
+    supportedProvinces?: string[];
+    supportedDistricts?: string[];
+    isDefault?: boolean;
+  }) => {
     if (editingWarehouse) {
       updateMutation.mutate({ id: editingWarehouse.id, ...data });
     } else {
@@ -205,16 +201,11 @@ export const WarehousesFeature: React.FC = () => {
     else if (type === 'HARD_DELETE') hardDeleteMutation.mutate(wh.id);
   };
 
-  const handleTestSelect = (e: React.FormEvent) => {
-    e.preventDefault();
-    selectTestMutation.mutate({ province: testProvince, district: testDistrict });
-  };
-
   // Filtered & Paginated Warehouses
   const rawList = activeTab === 'ACTIVE' ? activeWarehouses : deletedWarehouses;
   const filteredWarehouses = useMemo(() => {
-    if (!searchQuery.trim()) return rawList;
-    const q = searchQuery.toLowerCase();
+    if (!debouncedSearch.trim()) return rawList;
+    const q = debouncedSearch.toLowerCase();
     return rawList.filter(
       (wh) =>
         wh.name.toLowerCase().includes(q) ||
@@ -222,7 +213,7 @@ export const WarehousesFeature: React.FC = () => {
         wh.province.toLowerCase().includes(q) ||
         (wh.address && wh.address.toLowerCase().includes(q))
     );
-  }, [rawList, searchQuery]);
+  }, [rawList, debouncedSearch]);
 
   const totalPages = Math.ceil(filteredWarehouses.length / pageSize) || 1;
   const paginatedWarehouses = useMemo(() => {
@@ -490,24 +481,27 @@ export const WarehousesFeature: React.FC = () => {
         )}
       </div>
 
-      {/* Form Modal (Add & Edit) */}
-      <WarehouseFormModal
-        isOpen={isFormModalOpen}
-        onClose={() => setIsFormModalOpen(false)}
-        onSubmit={handleFormSubmit}
-        initialData={editingWarehouse}
-        isLoading={isFormLoading}
-      />
+      {/* Lazy-loaded Modals */}
+      <React.Suspense fallback={null}>
+        {/* Form Modal (Add & Edit) */}
+        <WarehouseFormModal
+          isOpen={isFormModalOpen}
+          onClose={() => setIsFormModalOpen(false)}
+          onSubmit={handleFormSubmit}
+          initialData={editingWarehouse}
+          isLoading={isFormLoading}
+        />
 
-      {/* Confirmation Modal (Soft Delete, Restore, Hard Delete) */}
-      <WarehouseConfirmModal
-        isOpen={confirmModalState.isOpen}
-        onClose={closeConfirmModal}
-        onConfirm={handleConfirmAction}
-        warehouse={confirmModalState.warehouse}
-        type={confirmModalState.type}
-        isLoading={isConfirmLoading}
-      />
+        {/* Confirmation Modal (Soft Delete, Restore, Hard Delete) */}
+        <WarehouseConfirmModal
+          isOpen={confirmModalState.isOpen}
+          onClose={closeConfirmModal}
+          onConfirm={handleConfirmAction}
+          warehouse={confirmModalState.warehouse}
+          type={confirmModalState.type}
+          isLoading={isConfirmLoading}
+        />
+      </React.Suspense>
     </div>
   );
 };

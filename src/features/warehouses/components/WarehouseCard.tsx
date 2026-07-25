@@ -11,7 +11,7 @@ interface WarehouseCardProps {
   onHardDelete?: (warehouse: Warehouse) => void;
 }
 
-export const WarehouseCard: React.FC<WarehouseCardProps> = ({
+export const WarehouseCard: React.FC<WarehouseCardProps> = React.memo(({
   warehouse,
   isTrashView = false,
   onEdit,
@@ -158,4 +158,4 @@ export const WarehouseCard: React.FC<WarehouseCardProps> = ({
       </div>
     </div>
   );
-};
+});

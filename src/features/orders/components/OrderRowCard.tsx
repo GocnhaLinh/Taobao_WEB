@@ -2,14 +2,14 @@ import React from 'react';
 import { Badge } from '../../../components/ui/Badge';
 import { useTranslation } from '../../../lib/i18n';
 import type { Order } from '../../../services/orderService';
-import { Eye, Package, Calendar, User } from 'lucide-react';
+import { Eye, Package, Calendar } from 'lucide-react';
 
 interface OrderRowCardProps {
   order: Order;
   onViewDetails?: (order: Order) => void;
 }
 
-export const OrderRowCard: React.FC<OrderRowCardProps> = ({ order, onViewDetails }) => {
+export const OrderRowCard: React.FC<OrderRowCardProps> = React.memo(({ order, onViewDetails }) => {
   const { t } = useTranslation();
   const itemCount = order.items?.reduce((sum, item) => sum + item.quantity, 0) || order.items?.length || 0;
   const userName = order.user?.fullName || order.userId || 'Khách hàng';
@@ -84,4 +84,4 @@ export const OrderRowCard: React.FC<OrderRowCardProps> = ({ order, onViewDetails
       </div>
     </div>
   );
-};
+});

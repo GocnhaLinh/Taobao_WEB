@@ -49,13 +49,33 @@ export const CategoryFormModal: React.FC<CategoryFormModalProps> = ({
 
   const [deletedValues, setDeletedValues] = useState<string[]>([]);
 
+  // Effect 1: Fetch category labels khi modal mở
+  // Dùng AbortController để huỷ request cũ nếu user đóng/mở modal nhanh
   useEffect(() => {
-    if (isOpen) {
-      fetchCategoryLabelsApi()
-        .then((items) => setDbLabels(items))
-        .catch((err) => console.warn('Could not fetch category labels:', err));
-    }
+    if (!isOpen) return;
 
+    const controller = new AbortController();
+
+    fetchCategoryLabelsApi()
+      .then((items) => {
+        if (!controller.signal.aborted) {
+          setDbLabels(items);
+        }
+      })
+      .catch((err) => {
+        if (!controller.signal.aborted) {
+          console.warn('Could not fetch category labels:', err);
+        }
+      });
+
+    return () => {
+      controller.abort();
+    };
+  }, [isOpen]);
+
+  // Effect 2: Populate / reset form data khi initialData thay đổi
+  // Tách riêng với Effect 1 để tránh fetch labels lại khi chỉ cần reset form
+  useEffect(() => {
     if (initialData) {
       setName(initialData.name);
       setSlug(initialData.slug);
@@ -65,7 +85,7 @@ export const CategoryFormModal: React.FC<CategoryFormModalProps> = ({
       setSlug('');
       setSex(defaultSex);
     }
-  }, [initialData, isOpen, defaultSex]);
+  }, [initialData, defaultSex]);
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {

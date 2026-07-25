@@ -27,6 +27,8 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
             <img
               src={logoImg}
               alt="Logo"
+              width={32}
+              height={32}
               className="h-8 w-8 rounded-xl object-cover border border-slate-200 dark:border-white/10"
             />
             <span className="font-wedding text-2xl text-slate-900 dark:text-white leading-normal pt-1.5 inline-block">Góc Nhà Linh</span>

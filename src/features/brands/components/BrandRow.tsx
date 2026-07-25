@@ -11,7 +11,7 @@ interface BrandRowProps {
   onHardDelete?: (brand: Brand) => void;
 }
 
-export const BrandRow: React.FC<BrandRowProps> = ({
+export const BrandRow: React.FC<BrandRowProps> = React.memo(({
   brand,
   isTrashView = false,
   onEdit,
@@ -141,4 +141,4 @@ export const BrandRow: React.FC<BrandRowProps> = ({
       </div>
     </div>
   );
-};
+});

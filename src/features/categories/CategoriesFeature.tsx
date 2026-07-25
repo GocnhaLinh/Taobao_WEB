@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { useTranslation } from "../../lib/i18n";
 import { useNotification } from "../../lib/notification";
+import { useDebounce } from "../../lib/useDebounce";
 import {
   fetchCategories,
   fetchDeletedCategories,
@@ -28,9 +29,14 @@ import { Button } from "../../components/ui/Button";
 import { Input } from "../../components/ui/Input";
 import { CategoryCard } from "./components/CategoryCard";
 import { CategoryRow } from "./components/CategoryRow";
-import { CategoryFormModal } from "./components/CategoryFormModal";
-import { CategoryConfirmModal } from "./components/CategoryConfirmModal";
 import type { ConfirmType } from "./components/CategoryConfirmModal";
+
+const CategoryFormModal = React.lazy(() =>
+  import("./components/CategoryFormModal").then((m) => ({ default: m.CategoryFormModal })),
+);
+const CategoryConfirmModal = React.lazy(() =>
+  import("./components/CategoryConfirmModal").then((m) => ({ default: m.CategoryConfirmModal })),
+);
 
 type ActiveTabType = "ACTIVE" | "TRASH";
 type ViewMode = "row" | "card";
@@ -43,6 +49,7 @@ export const CategoriesFeature: React.FC = () => {
   // Tab & Search & Pagination & View Mode
   const [activeTab, setActiveTab] = useState<ActiveTabType>("ACTIVE");
   const [searchQuery, setSearchQuery] = useState("");
+  const debouncedSearch = useDebounce(searchQuery, 400);
   const [currentPage, setCurrentPage] = useState(1);
 
   // Default view: Laptop (>= 1024px) -> row (hàng ngang), Mobile/Tablet (< 1024px) -> card
@@ -194,7 +201,7 @@ export const CategoriesFeature: React.FC = () => {
     setIsFormModalOpen(true);
   };
 
-  const handleFormSubmit = (data: { name: string; slug: string; sex: any }) => {
+  const handleFormSubmit = (data: { name: string; slug: string; sex?: string }) => {
     if (editingCategory) {
       updateMutation.mutate({ id: editingCategory.id, ...data });
     } else {
@@ -223,13 +230,13 @@ export const CategoriesFeature: React.FC = () => {
   const rawList = activeTab === "ACTIVE" ? activeCategories : deletedCategories;
 
   const filteredCategories = useMemo(() => {
-    if (!searchQuery.trim()) return rawList;
-    const q = searchQuery.toLowerCase();
+    if (!debouncedSearch.trim()) return rawList;
+    const q = debouncedSearch.toLowerCase();
     return rawList.filter(
       (c) =>
         c.name.toLowerCase().includes(q) || c.slug.toLowerCase().includes(q),
     );
-  }, [rawList, searchQuery]);
+  }, [rawList, debouncedSearch]);
 
   const totalPages = Math.ceil(filteredCategories.length / pageSize) || 1;
   const paginatedCategories = useMemo(() => {
@@ -455,25 +462,28 @@ export const CategoriesFeature: React.FC = () => {
         )}
       </div>
 
-      {/* Form Modal (Add & Edit) */}
-      <CategoryFormModal
-        isOpen={isFormModalOpen}
-        onClose={() => setIsFormModalOpen(false)}
-        onSubmit={handleFormSubmit}
-        initialData={editingCategory}
-        defaultSex="UNISEX"
-        isLoading={isFormLoading}
-      />
+      {/* Lazy-loaded Modals */}
+      <React.Suspense fallback={null}>
+        {/* Form Modal (Add & Edit) */}
+        <CategoryFormModal
+          isOpen={isFormModalOpen}
+          onClose={() => setIsFormModalOpen(false)}
+          onSubmit={handleFormSubmit}
+          initialData={editingCategory}
+          defaultSex="UNISEX"
+          isLoading={isFormLoading}
+        />
 
-      {/* Confirmation Modal (Soft Delete, Restore, Hard Delete) */}
-      <CategoryConfirmModal
-        isOpen={confirmModalState.isOpen}
-        onClose={closeConfirmModal}
-        onConfirm={handleConfirmAction}
-        category={confirmModalState.category}
-        type={confirmModalState.type}
-        isLoading={isConfirmLoading}
-      />
+        {/* Confirmation Modal (Soft Delete, Restore, Hard Delete) */}
+        <CategoryConfirmModal
+          isOpen={confirmModalState.isOpen}
+          onClose={closeConfirmModal}
+          onConfirm={handleConfirmAction}
+          category={confirmModalState.category}
+          type={confirmModalState.type}
+          isLoading={isConfirmLoading}
+        />
+      </React.Suspense>
     </div>
   );
 };
