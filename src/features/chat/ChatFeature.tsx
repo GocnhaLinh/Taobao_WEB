@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Send, UserCheck, XCircle, Clock, Volume2, VolumeX, MessageSquare } from 'lucide-react';
 import { useTranslation } from '../../lib/i18n';
+import { useDebounce } from '../../lib/useDebounce';
 import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
 import { Badge } from '../../components/ui/Badge';
@@ -31,6 +32,8 @@ export const ChatFeature: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [soundEnabled, setSoundEnabled] = useState(true);
 
+  const debouncedSearch = useDebounce(searchQuery, 400);
+
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const prevMessagesCountRef = useRef<number>(0);
 
@@ -47,7 +50,7 @@ export const ChatFeature: React.FC = () => {
   // Fetch all conversations for Admin
   const loadConversations = async () => {
     try {
-      const data = await fetchAdminConversations({ search: searchQuery });
+      const data = await fetchAdminConversations({ search: debouncedSearch });
       setConversations(data);
 
       // Keep active conversation reference updated
@@ -91,7 +94,7 @@ export const ChatFeature: React.FC = () => {
     loadConversations();
     const interval = setInterval(loadConversations, 4000);
     return () => clearInterval(interval);
-  }, [searchQuery]);
+  }, [debouncedSearch]);
 
   useEffect(() => {
     if (selectedConv) {

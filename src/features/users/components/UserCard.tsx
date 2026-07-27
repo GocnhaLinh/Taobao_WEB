@@ -1,6 +1,6 @@
 import React from 'react';
 import { Badge } from '../../../components/ui/Badge';
-import { User, Mail, Phone, Calendar, ShieldCheck, UserCheck } from 'lucide-react';
+import { Mail, Phone, Calendar, UserCheck } from 'lucide-react';
 
 export interface UserItem {
   id: string;
@@ -19,7 +19,7 @@ interface UserCardProps {
   user: UserItem;
 }
 
-export const UserCard: React.FC<UserCardProps> = ({ user }) => {
+export const UserCard: React.FC<UserCardProps> = React.memo(({ user }) => {
   const displayName = user.fullName || user.name || 'Khách hàng';
   const initial = displayName.charAt(0).toUpperCase();
   const isAdmin = user.role === 'ADMIN';
@@ -86,4 +86,4 @@ export const UserCard: React.FC<UserCardProps> = ({ user }) => {
       )}
     </div>
   );
-};
+});

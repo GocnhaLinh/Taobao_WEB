@@ -2,7 +2,6 @@ import React from 'react';
 import { Edit2, Trash2, RotateCcw } from 'lucide-react';
 import type { Category } from '../../../types';
 import { useTranslation } from '../../../lib/i18n';
-import { Button } from '../../../components/ui/Button';
 
 interface CategoryRowProps {
   category: Category;
@@ -13,7 +12,7 @@ interface CategoryRowProps {
   onHardDelete?: (category: Category) => void;
 }
 
-export const CategoryRow: React.FC<CategoryRowProps> = ({
+export const CategoryRow: React.FC<CategoryRowProps> = React.memo(({
   category,
   isTrashView = false,
   onEdit,
@@ -149,4 +148,4 @@ export const CategoryRow: React.FC<CategoryRowProps> = ({
       </div>
     </div>
   );
-};
+});

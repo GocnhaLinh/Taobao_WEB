@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from '../../lib/i18n';
+import { useDebounce } from '../../lib/useDebounce';
 import { getOrdersApi, type Order } from '../../services/orderService';
 import {
   RefreshCw,
@@ -12,8 +13,11 @@ import {
   TrendingUp,
 } from 'lucide-react';
 import { OrderRowCard } from './components/OrderRowCard';
-import { OrderDetailModal } from './components/OrderDetailModal';
 import { CustomSelect } from '../../components/ui/CustomSelect';
+
+const OrderDetailModal = React.lazy(() =>
+  import('./components/OrderDetailModal').then((m) => ({ default: m.OrderDetailModal })),
+);
 
 export const OrdersFeature: React.FC = () => {
   const { t } = useTranslation();
@@ -22,11 +26,14 @@ export const OrdersFeature: React.FC = () => {
   const [paymentFilter, setPaymentFilter] = useState<string>('ALL');
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
 
+  // Debounce 400ms — tránh gọi API mỗi lần gõ phím
+  const debouncedSearch = useDebounce(searchTerm, 400);
+
   const { data, isLoading, refetch } = useQuery({
-    queryKey: ['orders', searchTerm, statusFilter],
+    queryKey: ['orders', debouncedSearch, statusFilter], // ✅ dùng debounced
     queryFn: () =>
       getOrdersApi({
-        search: searchTerm || undefined,
+        search: debouncedSearch || undefined,            // ✅ dùng debounced
         status: statusFilter !== 'ALL' ? statusFilter : undefined,
       }),
     retry: 1,
@@ -197,12 +204,14 @@ export const OrdersFeature: React.FC = () => {
         )}
       </div>
 
-      {/* Order Detail Modal */}
-      <OrderDetailModal
-        order={selectedOrder}
-        isOpen={Boolean(selectedOrder)}
-        onClose={() => setSelectedOrder(null)}
-      />
+      {/* Lazy-loaded Order Detail Modal */}
+      <React.Suspense fallback={null}>
+        <OrderDetailModal
+          order={selectedOrder}
+          isOpen={Boolean(selectedOrder)}
+          onClose={() => setSelectedOrder(null)}
+        />
+      </React.Suspense>
     </div>
   );
 };

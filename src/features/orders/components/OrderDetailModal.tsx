@@ -1,9 +1,8 @@
 import React from 'react';
 import { Modal } from '../../../components/ui/Modal';
 import { Badge } from '../../../components/ui/Badge';
-import { useTranslation } from '../../../lib/i18n';
 import type { Order } from '../../../services/orderService';
-import { ShoppingBag, User, Calendar, MapPin, CreditCard, Truck, CheckCircle2, Clock } from 'lucide-react';
+import { ShoppingBag, User, Calendar, MapPin } from 'lucide-react';
 
 interface OrderDetailModalProps {
   order: Order | null;
@@ -16,7 +15,6 @@ export const OrderDetailModal: React.FC<OrderDetailModalProps> = ({
   isOpen,
   onClose,
 }) => {
-  const { t } = useTranslation();
   if (!order) return null;
 
   const userName = order.user?.fullName || order.userId || 'Khách hàng';

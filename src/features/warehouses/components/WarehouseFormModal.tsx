@@ -14,6 +14,7 @@ interface WarehouseFormModalProps {
     district?: string;
     address?: string;
     supportedProvinces?: string[];
+    supportedDistricts?: string[];
     isDefault?: boolean;
   }) => void;
   initialData?: Warehouse | null;
@@ -33,6 +34,7 @@ export const WarehouseFormModal: React.FC<WarehouseFormModalProps> = ({
   const [district, setDistrict] = useState('');
   const [address, setAddress] = useState('');
   const [supportedProvincesText, setSupportedProvincesText] = useState('');
+  const [supportedDistrictsText, setSupportedDistrictsText] = useState('');
   const [isDefault, setIsDefault] = useState(false);
 
   useEffect(() => {
@@ -45,6 +47,9 @@ export const WarehouseFormModal: React.FC<WarehouseFormModalProps> = ({
       setSupportedProvincesText(
         initialData.supportedProvinces ? initialData.supportedProvinces.join(', ') : ''
       );
+      setSupportedDistrictsText(
+        initialData.supportedDistricts ? initialData.supportedDistricts.join(', ') : ''
+      );
       setIsDefault(Boolean(initialData.isDefault));
     } else {
       setCode('');
@@ -53,6 +58,7 @@ export const WarehouseFormModal: React.FC<WarehouseFormModalProps> = ({
       setDistrict('');
       setAddress('');
       setSupportedProvincesText('');
+      setSupportedDistrictsText('');
       setIsDefault(false);
     }
   }, [initialData, isOpen]);
@@ -66,6 +72,11 @@ export const WarehouseFormModal: React.FC<WarehouseFormModalProps> = ({
       .map((p) => p.trim())
       .filter(Boolean);
 
+    const supportedDistricts = supportedDistrictsText
+      .split(',')
+      .map((d) => d.trim())
+      .filter(Boolean);
+
     onSubmit({
       code: code.trim().toUpperCase(),
       name: name.trim(),
@@ -73,6 +84,7 @@ export const WarehouseFormModal: React.FC<WarehouseFormModalProps> = ({
       district: district.trim() || undefined,
       address: address.trim() || undefined,
       supportedProvinces: supportedProvinces.length > 0 ? supportedProvinces : undefined,
+      supportedDistricts: supportedDistricts.length > 0 ? supportedDistricts : undefined,
       isDefault,
     });
   };
@@ -151,6 +163,21 @@ export const WarehouseFormModal: React.FC<WarehouseFormModalProps> = ({
           />
           <p className="text-[11px] text-slate-400 mt-1">
             Nhập danh sách tên các Tỉnh/Thành cách nhau bởi dấu phẩy để hệ thống tự gán kho khi đơn hàng được đặt.
+          </p>
+        </div>
+
+        {/* Supported Districts Input */}
+        <div>
+          <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+            Các Quận / Huyện hỗ trợ vận chuyển
+          </label>
+          <Input
+            placeholder="Ví dụ: Quận 1, Quận 3, Bình Thạnh, Thủ Đức..."
+            value={supportedDistrictsText}
+            onChange={(e) => setSupportedDistrictsText(e.target.value)}
+          />
+          <p className="text-[11px] text-slate-400 mt-1">
+            Nhập danh sách Quận/Huyện cách nhau bởi dấu phẩy (để trống nếu kho hỗ trợ toàn tỉnh).
           </p>
         </div>
 

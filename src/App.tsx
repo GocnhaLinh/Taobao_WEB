@@ -10,6 +10,9 @@ const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       refetchOnWindowFocus: false,
+      staleTime: 5 * 60 * 1000,  // 5 phút: data được coi là "còn mới" — ko gọi lại API
+      gcTime: 30 * 60 * 1000,    // 30 phút: giữ cache sau khi unmount
+      retry: 1,                  // Chỉ retry 1 lần nếu lỗi
     },
   },
 });

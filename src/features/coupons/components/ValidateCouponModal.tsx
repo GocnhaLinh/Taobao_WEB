@@ -3,7 +3,7 @@ import { Modal } from '../../../components/ui/Modal';
 import { Button } from '../../../components/ui/Button';
 import { Input } from '../../../components/ui/Input';
 import { validateCouponApi, type ValidateCouponResponse } from '../../../services/couponService';
-import { CheckCircle2, AlertCircle, Search, Ticket, Calculator } from 'lucide-react';
+import { CheckCircle2, AlertCircle, Search, Calculator } from 'lucide-react';
 
 interface ValidateCouponModalProps {
   isOpen: boolean;

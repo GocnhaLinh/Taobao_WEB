@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import logoImg from "../../assets/logo.jpg";
 import { Link, useLocation } from "react-router-dom";
 import {
@@ -6,7 +6,7 @@ import {
   Package,
   Layers,
   Award,
-  Warehouse as WarehouseIcon,
+  WarehouseIcon,
   Receipt,
   Users,
   Ticket,
@@ -18,7 +18,7 @@ import {
   Boxes,
   ShoppingCart,
   Sparkles,
-} from "lucide-react";
+} from "../../utils/icons";
 import { useTranslation } from "../../lib/i18n";
 import { LanguageSwitcher } from "../common/LanguageSwitcher";
 import { ThemeToggle } from "../common/ThemeToggle";
@@ -28,14 +28,14 @@ interface SidebarProps {
   onClose?: () => void;
 }
 
-export const Sidebar: React.FC<SidebarProps> = ({
+export const Sidebar: React.FC<SidebarProps> = React.memo(({
   isOpen = false,
   onClose,
 }) => {
   const location = useLocation();
   const { t } = useTranslation();
 
-  // Accordion states for each group
+  // Accordion routes check
   const isCatalogRoute = [
     "/products",
     "/categories",
@@ -49,34 +49,55 @@ export const Sidebar: React.FC<SidebarProps> = ({
     location.pathname,
   );
 
-  const [isCatalogOpen, setIsCatalogOpen] = useState(isCatalogRoute);
-  const [isSalesOpen, setIsSalesOpen] = useState(isSalesRoute);
-  const [isPromoOpen, setIsPromoOpen] = useState(isPromoRoute);
+  // Consolidated accordion state
+  const [openAccordions, setOpenAccordions] = useState({
+    catalog: isCatalogRoute,
+    sales: isSalesRoute,
+    promo: isPromoRoute,
+  });
 
   useEffect(() => {
-    if (isCatalogRoute) setIsCatalogOpen(true);
-    if (isSalesRoute) setIsSalesOpen(true);
-    if (isPromoRoute) setIsPromoOpen(true);
-  }, [location.pathname]);
+    setOpenAccordions((prev) => ({
+      catalog: isCatalogRoute || prev.catalog,
+      sales: isSalesRoute || prev.sales,
+      promo: isPromoRoute || prev.promo,
+    }));
+  }, [isCatalogRoute, isSalesRoute, isPromoRoute]);
 
-  const catalogItems = [
-    { path: "/products", label: t("products"), icon: Package },
-    { path: "/categories", label: t("categories"), icon: Layers },
-    { path: "/brands", label: t("brands"), icon: Award },
-    { path: "/warehouses", label: t("warehouses"), icon: WarehouseIcon },
-  ];
+  const toggleAccordion = (key: "catalog" | "sales" | "promo") => {
+    setOpenAccordions((prev) => ({
+      ...prev,
+      [key]: !prev[key],
+    }));
+  };
 
-  const salesItems = [
-    { path: "/orders", label: t("orders"), icon: Receipt },
-    { path: "/users", label: t("users"), icon: Users },
-    { path: "/chat", label: t("chat"), icon: MessageCircle },
-  ];
+  const catalogItems = useMemo(
+    () => [
+      { path: "/products", label: t("products"), icon: Package },
+      { path: "/categories", label: t("categories"), icon: Layers },
+      { path: "/brands", label: t("brands"), icon: Award },
+      { path: "/warehouses", label: t("warehouses"), icon: WarehouseIcon },
+    ],
+    [t],
+  );
 
-  const promoItems = [
-    { path: "/coupons", label: t("coupons"), icon: Ticket },
-    { path: "/reviews", label: t("reviews"), icon: Star },
-    { path: "/settings", label: t("feesRates"), icon: Settings },
-  ];
+  const salesItems = useMemo(
+    () => [
+      { path: "/orders", label: t("orders"), icon: Receipt },
+      { path: "/users", label: t("users"), icon: Users },
+      { path: "/chat", label: t("chat"), icon: MessageCircle },
+    ],
+    [t],
+  );
+
+  const promoItems = useMemo(
+    () => [
+      { path: "/coupons", label: t("coupons"), icon: Ticket },
+      { path: "/reviews", label: t("reviews"), icon: Star },
+      { path: "/settings", label: t("feesRates"), icon: Settings },
+    ],
+    [t],
+  );
 
   const sidebarContent = (
     <div className="h-full flex flex-col justify-between p-4 w-full overflow-y-auto overflow-x-hidden no-scrollbar">
@@ -87,6 +108,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
             <img
               src={logoImg}
               alt="Logo"
+              width={44}
+              height={44}
               className="h-11 w-11 rounded-2xl object-cover shadow-lg shadow-indigo-500/15 border border-slate-200 dark:border-white/10 shrink-0"
             />
             <div className="min-w-0 pt-2 pb-1">
@@ -128,7 +151,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
           {/* Group 1: Hàng hóa & Kho */}
           <div className="space-y-1">
             <button
-              onClick={() => setIsCatalogOpen(!isCatalogOpen)}
+              onClick={() => toggleAccordion("catalog")}
               className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl font-medium text-xs sm:text-sm transition-all duration-200 cursor-pointer ${
                 isCatalogRoute
                   ? "bg-indigo-50/70 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 font-semibold"
@@ -143,14 +166,14 @@ export const Sidebar: React.FC<SidebarProps> = ({
               </div>
               <ChevronDown
                 className={`h-4 w-4 transition-transform duration-200 shrink-0 ${
-                  isCatalogOpen
+                  openAccordions.catalog
                     ? "rotate-180 text-indigo-600 dark:text-indigo-400"
                     : "text-slate-400"
                 }`}
               />
             </button>
 
-            {isCatalogOpen && (
+            {openAccordions.catalog && (
               <div className="pl-6 space-y-1 py-1 animate-in slide-in-from-top-2 duration-150 border-l-2 border-slate-200 dark:border-white/10 ml-5">
                 {catalogItems.map((sub) => {
                   const SubIcon = sub.icon;
@@ -180,7 +203,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
           {/* Group 2: Đơn hàng & Khách hàng */}
           <div className="space-y-1">
             <button
-              onClick={() => setIsSalesOpen(!isSalesOpen)}
+              onClick={() => toggleAccordion("sales")}
               className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl font-medium text-xs sm:text-sm transition-all duration-200 cursor-pointer ${
                 isSalesRoute
                   ? "bg-indigo-50/70 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 font-semibold"
@@ -195,14 +218,14 @@ export const Sidebar: React.FC<SidebarProps> = ({
               </div>
               <ChevronDown
                 className={`h-4 w-4 transition-transform duration-200 shrink-0 ${
-                  isSalesOpen
+                  openAccordions.sales
                     ? "rotate-180 text-indigo-600 dark:text-indigo-400"
                     : "text-slate-400"
                 }`}
               />
             </button>
 
-            {isSalesOpen && (
+            {openAccordions.sales && (
               <div className="pl-6 space-y-1 py-1 animate-in slide-in-from-top-2 duration-150 border-l-2 border-slate-200 dark:border-white/10 ml-5">
                 {salesItems.map((sub) => {
                   const SubIcon = sub.icon;
@@ -232,7 +255,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
           {/* Group 3: Khuyến mãi & Cấu hình */}
           <div className="space-y-1">
             <button
-              onClick={() => setIsPromoOpen(!isPromoOpen)}
+              onClick={() => toggleAccordion("promo")}
               className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl font-medium text-xs sm:text-sm transition-all duration-200 cursor-pointer ${
                 isPromoRoute
                   ? "bg-indigo-50/70 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 font-semibold"
@@ -247,14 +270,14 @@ export const Sidebar: React.FC<SidebarProps> = ({
               </div>
               <ChevronDown
                 className={`h-4 w-4 transition-transform duration-200 shrink-0 ${
-                  isPromoOpen
+                  openAccordions.promo
                     ? "rotate-180 text-indigo-600 dark:text-indigo-400"
                     : "text-slate-400"
                 }`}
               />
             </button>
 
-            {isPromoOpen && (
+            {openAccordions.promo && (
               <div className="pl-6 space-y-1 py-1 animate-in slide-in-from-top-2 duration-150 border-l-2 border-slate-200 dark:border-white/10 ml-5">
                 {promoItems.map((sub) => {
                   const SubIcon = sub.icon;
@@ -296,6 +319,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
             className="h-9 w-9 rounded-full border-2 border-indigo-500/30 object-cover shrink-0"
             src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=256"
             alt="Profile"
+            width={36}
+            height={36}
           />
           <div className="flex-1 min-w-0">
             <h3 className="text-slate-900 dark:text-white font-bold text-xs leading-tight truncate">
@@ -331,4 +356,4 @@ export const Sidebar: React.FC<SidebarProps> = ({
       )}
     </>
   );
-};
+});

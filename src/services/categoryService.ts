@@ -2,7 +2,7 @@ import { axiosClient } from './axiosClient';
 import type { Category } from '../types';
 
 export const fetchCategories = async (): Promise<Category[]> => {
-  return axiosClient.get<any, Category[]>('/categories');
+  return axiosClient.get<any, Category[]>('/categories', { params: { status: 'ACTIVE' } });
 };
 
 export const fetchDeletedCategories = async (): Promise<Category[]> => {

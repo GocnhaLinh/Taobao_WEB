@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { Edit2, Trash2, RotateCcw, Award } from 'lucide-react';
 import type { Brand } from '../../../types';
-import { useTranslation } from '../../../lib/i18n';
 
 interface BrandCardProps {
   brand: Brand;
@@ -12,7 +11,7 @@ interface BrandCardProps {
   onHardDelete?: (brand: Brand) => void;
 }
 
-export const BrandCard: React.FC<BrandCardProps> = ({
+export const BrandCard: React.FC<BrandCardProps> = React.memo(({
   brand,
   isTrashView = false,
   onEdit,
@@ -20,7 +19,6 @@ export const BrandCard: React.FC<BrandCardProps> = ({
   onRestore,
   onHardDelete,
 }) => {
-  const { t } = useTranslation();
   const [imgError, setImgError] = useState(false);
 
   // Calculate remaining days until 30-day auto deletion
@@ -144,4 +142,4 @@ export const BrandCard: React.FC<BrandCardProps> = ({
       </div>
     </div>
   );
-};
+});

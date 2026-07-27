@@ -14,4 +14,32 @@ export default defineConfig({
       "@": path.resolve(__dirname, "./src"),
     },
   },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks(id: string) {
+          if (id.includes('node_modules')) {
+            if (
+              id.includes('react') ||
+              id.includes('react-dom') ||
+              id.includes('react-router-dom')
+            ) {
+              return 'vendor';
+            }
+            if (id.includes('@tanstack')) {
+              return 'query';
+            }
+            if (
+              id.includes('lucide-react') ||
+              id.includes('class-variance-authority')
+            ) {
+              return 'ui';
+            }
+          }
+        },
+      },
+    },
+    chunkSizeWarningLimit: 500,
+    target: 'es2020',
+  },
 })

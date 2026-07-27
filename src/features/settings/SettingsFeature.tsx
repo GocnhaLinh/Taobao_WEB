@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Sliders, Save, RefreshCw } from 'lucide-react';
-import { useTranslation } from '../../lib/i18n';
 import { useNotification } from '../../lib/notification';
 import { Button } from '../../components/ui/Button';
 import { ThemeSettingCard } from './components/ThemeSettingCard';
@@ -11,7 +10,6 @@ import { ServiceWarehouseFeeCard } from './components/ServiceWarehouseFeeCard';
 import { getFeeConfigApi, saveFeeConfigApi } from '../../services/settingsService';
 
 export const SettingsFeature: React.FC = () => {
-  const { t } = useTranslation();
   const { showNotification } = useNotification();
   const queryClient = useQueryClient();
 
@@ -46,17 +44,11 @@ export const SettingsFeature: React.FC = () => {
 
   const saveMutation = useMutation({
     mutationFn: saveFeeConfigApi,
-    onSuccess: (data) => {
-      queryClient.setQueryData(['feeConfig'], data);
+    onSuccess: () => {
+      // Chỉ invalidateQueries — không dùng setQueryData + invalidate cùng lúc
+      // vì invalidate sẽ refetch đè lên data vừa set (request dư thừa)
       queryClient.invalidateQueries({ queryKey: ['feeConfig'] });
       queryClient.invalidateQueries({ queryKey: ['products'] });
-      if (data?.exchangeRate !== undefined) setExchangeRate(data.exchangeRate.toString());
-      if (data?.shippingCnPerKg !== undefined) setShippingCnPerKg(data.shippingCnPerKg.toString());
-      if (data?.shippingVnPerKg !== undefined) setShippingVnPerKg(data.shippingVnPerKg.toString());
-      if (data?.warehouseFreeDays !== undefined) setWarehouseFreeDays(data.warehouseFreeDays.toString());
-      if (data?.warehouseFeePerDay !== undefined) setWarehouseFeePerDay(data.warehouseFeePerDay.toString());
-      if (data?.serviceFeePercent !== undefined) setServiceFeePercent(data.serviceFeePercent.toString());
-      if (data?.depositPercent !== undefined) setDepositPercent(data.depositPercent.toString());
       showNotification('Cập nhật cấu hình phí & tỷ giá thành công!', 'success');
     },
     onError: (err: any) => {
@@ -64,8 +56,7 @@ export const SettingsFeature: React.FC = () => {
     },
   });
 
-  const handleSubmit = (e?: React.FormEvent) => {
-    if (e) e.preventDefault();
+  const handleSubmit = () => {
 
     const exRate = parseFloat(exchangeRate);
     if (isNaN(exRate) || exRate <= 0) {
@@ -75,7 +66,10 @@ export const SettingsFeature: React.FC = () => {
 
     const shipCn = parseFloat(shippingCnPerKg);
     const shipVn = parseFloat(shippingVnPerKg);
-    const whDays = parseInt(warehouseFreeDays, 10);
+    // Validate số nguyên: parseInt('7.5') = 7 → pass validate isNaN/< 0 sai
+    // Dùng Number() rồi kiểm tra !Number.isInteger() để reject số thập phân
+    const whDaysRaw = Number(warehouseFreeDays);
+    const whDays = Number.isInteger(whDaysRaw) && whDaysRaw >= 0 ? whDaysRaw : NaN;
     const whFee = parseFloat(warehouseFeePerDay);
     const svcFee = parseFloat(serviceFeePercent);
     const depFee = parseFloat(depositPercent);
@@ -140,7 +134,7 @@ export const SettingsFeature: React.FC = () => {
         </div>
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-6">
+      <div className="space-y-6">
         <ThemeSettingCard />
         <ExchangeRateCard exchangeRate={exchangeRate} setExchangeRate={setExchangeRate} />
         <ShippingFeeCard
@@ -170,8 +164,9 @@ export const SettingsFeature: React.FC = () => {
             Hủy thay đổi
           </Button>
           <Button
-            type="submit"
+            type="button"
             variant="primary"
+            onClick={handleSubmit}
             isLoading={saveMutation.isPending}
             className="shadow-lg shadow-indigo-500/25 px-6"
           >
@@ -179,7 +174,7 @@ export const SettingsFeature: React.FC = () => {
             Lưu cấu hình Phí & Tỷ giá
           </Button>
         </div>
-      </form>
+      </div>
     </div>
   );
 };

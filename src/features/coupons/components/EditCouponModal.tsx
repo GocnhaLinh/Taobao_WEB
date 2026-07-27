@@ -25,6 +25,8 @@ export const EditCouponModal: React.FC<EditCouponModalProps> = ({
   const [minOrder, setMinOrder] = useState('');
   const [maxDiscount, setMaxDiscount] = useState('');
   const [status, setStatus] = useState('ACTIVE');
+  // BUG CP1 FIX: expiryDate có state nhưng trước đây thiếu input field trong form
+  // Chuyển ISO string → "YYYY-MM-DD" để dùng với input type="date"
   const [expiryDate, setExpiryDate] = useState('');
 
   useEffect(() => {
@@ -35,7 +37,10 @@ export const EditCouponModal: React.FC<EditCouponModalProps> = ({
       setMinOrder(coupon.minOrder.toString());
       setMaxDiscount(coupon.maxDiscount ? coupon.maxDiscount.toString() : '');
       setStatus(coupon.status);
-      setExpiryDate(coupon.expiryDate ? coupon.expiryDate : '');
+      // Chuyển ISO string → YYYY-MM-DD để hiển thị đúng trong input[type=date]
+      setExpiryDate(
+        coupon.expiryDate ? new Date(coupon.expiryDate).toISOString().split('T')[0] : '',
+      );
     }
   }, [coupon]);
 
@@ -50,8 +55,11 @@ export const EditCouponModal: React.FC<EditCouponModalProps> = ({
       type,
       value: Number(value),
       minOrder: Number(minOrder),
-      maxDiscount: maxDiscount ? Number(maxDiscount) : undefined,
+      // BUG CP2 FIX: maxDiscount luôn được gửi (không chỉ khi PERCENT)
+      // Nếu type=FIXED → clear về undefined vì không áp dụng
+      maxDiscount: type === 'PERCENT' && maxDiscount ? Number(maxDiscount) : undefined,
       status,
+      // BUG CP1 FIX: expiryDate được gửi lên, tránh backend set null khi thiếu
       expiryDate: expiryDate ? new Date(expiryDate).toISOString() : undefined,
     });
 
@@ -119,15 +127,35 @@ export const EditCouponModal: React.FC<EditCouponModalProps> = ({
           </div>
         </div>
 
-        {type === 'PERCENT' && (
+        {/* BUG CP2 FIX: Luôn hiển thị maxDiscount — disabled + hint khi type=FIXED
+            Trước đây chỉ show khi type=PERCENT → mất giá trị khi toggle PERCENT↔FIXED */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <Input
+              label="Giảm tối đa (VNĐ)"
+              type="number"
+              placeholder={type === 'FIXED' ? 'Không áp dụng cho FIXED' : 'VD: 200000'}
+              value={maxDiscount}
+              onChange={(e) => setMaxDiscount(e.target.value)}
+              disabled={type === 'FIXED'}
+              className={type === 'FIXED' ? 'opacity-50 cursor-not-allowed' : ''}
+            />
+            {type === 'FIXED' && (
+              <p className="text-[11px] text-slate-400 mt-1">
+                Chỉ áp dụng cho voucher giảm theo %.
+              </p>
+            )}
+          </div>
+
+          {/* BUG CP1 FIX: Thêm input expiryDate vào form — trước đây có state nhưng không có field */}
           <Input
-            label="Giảm tối đa (VNĐ)"
-            type="number"
-            placeholder="VD: 200000"
-            value={maxDiscount}
-            onChange={(e) => setMaxDiscount(e.target.value)}
+            label="Ngày hết hạn *"
+            type="date"
+            value={expiryDate}
+            onChange={(e) => setExpiryDate(e.target.value)}
+            required
           />
-        )}
+        </div>
 
         <div className="flex items-center justify-end gap-3 pt-4 border-t border-slate-200 dark:border-white/10">
           <Button variant="ghost" type="button" onClick={onClose}>
