@@ -36,9 +36,14 @@ export const CouponCard: React.FC<CouponCardProps> = React.memo(({
 
   const isPercent = coupon.type === 'PERCENT';
 
+  // Format expiry date for display
+  const expiryDisplay = coupon.expiryDate
+    ? new Date(coupon.expiryDate).toLocaleDateString('vi-VN')
+    : 'Vĩnh viễn';
+
   // Check if date has expired
   const isExpiredByDate = coupon.expiryDate
-    ? new Date(coupon.expiryDate.split('/').reverse().join('-')).getTime() < Date.now()
+    ? new Date(coupon.expiryDate).getTime() < Date.now()
     : false;
 
   const isExpired = coupon.status === 'EXPIRED' || isExpiredByDate;
@@ -209,7 +214,7 @@ export const CouponCard: React.FC<CouponCardProps> = React.memo(({
       <div className="px-5 py-2.5 bg-slate-50/50 dark:bg-white/[0.02] border-t border-slate-100 dark:border-white/5 flex items-center justify-between text-[11px] text-slate-400">
         <span className="flex items-center gap-1">
           <Calendar className="h-3 w-3" />
-          HSD: {coupon.expiryDate || 'Vĩnh viễn'}
+          HSD: {expiryDisplay}
         </span>
         <span>Lượt dùng: {coupon.usageCount ?? 0}</span>
       </div>

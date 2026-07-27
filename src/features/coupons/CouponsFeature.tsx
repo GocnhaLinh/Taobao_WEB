@@ -60,7 +60,7 @@ export const CouponsFeature: React.FC = () => {
       minOrder: c.minOrderValue,
       maxDiscount: c.maxDiscount ? Number(c.maxDiscount) : undefined,
       status: c.status?.toUpperCase() || 'ACTIVE',
-      expiryDate: c.expiredAt ? new Date(c.expiredAt).toLocaleDateString('vi-VN') : undefined,
+      expiryDate: c.expiredAt ?? undefined,
       usageCount: c.usageCount || 0,
     }));
 
@@ -149,11 +149,8 @@ export const CouponsFeature: React.FC = () => {
   const isCouponExpired = (c: CouponItem) => {
     if (c.status === 'EXPIRED') return true;
     if (c.expiryDate) {
-      const parts = c.expiryDate.split('/');
-      if (parts.length === 3) {
-        const time = new Date(`${parts[2]}-${parts[1]}-${parts[0]}`).getTime();
-        if (!isNaN(time) && time < Date.now()) return true;
-      }
+      const time = new Date(c.expiryDate).getTime();
+      if (!isNaN(time) && time < Date.now()) return true;
     }
     return false;
   };
