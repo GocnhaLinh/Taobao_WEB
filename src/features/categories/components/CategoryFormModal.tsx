@@ -85,7 +85,7 @@ export const CategoryFormModal: React.FC<CategoryFormModalProps> = ({
     };
   }, [isOpen]);
 
-  // Effect 2: Populate / reset form data khi initialData thay đổi
+  // Effect 2: Populate / reset form data khi initialData thay đổi hoặc modal mở lại
   useEffect(() => {
     if (initialData) {
       setName(initialData.name);
@@ -96,7 +96,7 @@ export const CategoryFormModal: React.FC<CategoryFormModalProps> = ({
       setSlug('');
       setSex(defaultSex);
     }
-  }, [initialData, defaultSex]);
+  }, [initialData, defaultSex, isOpen]);
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {

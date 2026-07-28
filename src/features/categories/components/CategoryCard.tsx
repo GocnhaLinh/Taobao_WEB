@@ -2,6 +2,7 @@ import React from 'react';
 import { Edit2, Trash2, RotateCcw } from 'lucide-react';
 import type { Category } from '../../../types';
 import { useTranslation } from '../../../lib/i18n';
+import { getGradientClass } from '../../../utils/gradientHelper';
 
 interface CategoryCardProps {
   category: Category;
@@ -24,61 +25,42 @@ export const CategoryCard: React.FC<CategoryCardProps> = React.memo(({
 }) => {
   const { t } = useTranslation();
 
-  // Calculate remaining days until 30-day auto deletion
   const getRemainingDaysInfo = (deletedAt?: string) => {
-    if (!deletedAt) {
-      return {
-        text: '⏱️ Tự xóa sau 30 ngày',
-        style: 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20 font-medium',
-      };
-    }
-
-    const deleteDate = new Date(deletedAt).getTime();
-    const now = new Date().getTime();
+    const deleteDate = deletedAt ? new Date(deletedAt).getTime() : Date.now();
+    const now = Date.now();
     const diffMs = now - deleteDate;
     const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
     const remainingDays = Math.max(30 - diffDays, 0);
 
+    if (!deletedAt) {
+      return {
+        text: t('autoDeleteDefault'),
+        style: 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20 font-medium',
+      };
+    }
+
     if (remainingDays <= 5) {
       return {
-        text: `⚠️ Sắp bị xóa vĩnh viễn (Còn ${remainingDays} ngày)`,
+        text: t('autoDeleteUrgent').replace('{days}', String(remainingDays)),
         style: 'bg-rose-500/15 text-rose-600 dark:text-rose-400 border-rose-500/30 animate-pulse font-bold',
       };
     }
     if (remainingDays <= 15) {
       return {
-        text: `⏱️ Tự xóa sau ${remainingDays} ngày`,
+        text: t('autoDeleteInDays').replace('{days}', String(remainingDays)),
         style: 'bg-amber-500/15 text-amber-600 dark:text-amber-400 border-amber-500/30 font-semibold',
       };
     }
     return {
-      text: `⏱️ Tự xóa sau ${remainingDays} ngày`,
+      text: t('autoDeleteInDays').replace('{days}', String(remainingDays)),
       style: 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20 font-medium',
     };
   };
 
-  const getSexLabel = (sexVal?: string) => {
-    if (!sexVal) return `👫 ${t('sexUnisex') || 'Unisex'}`;
-    const val = sexVal.toUpperCase();
-    if (val === 'MALE' || val === 'M') return `👨 ${t('sexMale') || 'Nam'}`;
-    if (val === 'FEMALE' || val === 'F') return `👩 ${t('sexFemale') || 'Nữ'}`;
-    if (val === 'KID' || val === 'KIDS') return `🧒 ${t('sexKid') || 'Trẻ em'}`;
-    if (val === 'OTHER') return `✨ ${t('sexOther') || 'Khác'}`;
-    if (val === 'UNISEX') return `👫 ${t('sexUnisex') || 'Unisex'}`;
-    // Custom label: look up icon from labelsMap
-    const customIcon = labelsMap[sexVal] || '🏷️';
-    return `${customIcon} ${sexVal}`;
-  };
-
-  const getSexBadgeStyle = (sexVal?: string) => {
-    const val = (sexVal || 'UNISEX').toUpperCase();
-    if (val === 'MALE' || val === 'M') return 'bg-blue-500/15 text-blue-600 dark:text-blue-400 border border-blue-500/30';
-    if (val === 'FEMALE' || val === 'F') return 'bg-rose-500/15 text-rose-600 dark:text-rose-400 border border-rose-500/30';
-    if (val === 'KID' || val === 'KIDS') return 'bg-amber-500/15 text-amber-600 dark:text-amber-400 border border-amber-500/30';
-    if (val === 'OTHER') return 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30';
-    if (val === 'UNISEX') return 'bg-indigo-500/15 text-indigo-600 dark:text-indigo-400 border border-indigo-500/30';
-    // Custom label style
-    return 'bg-violet-500/15 text-violet-600 dark:text-violet-400 border border-violet-500/30';
+  const getSexDisplay = (sexVal?: string) => {
+    if (!sexVal) return null;
+    const icon = labelsMap[sexVal];
+    return icon ? `${icon} ${sexVal}` : sexVal;
   };
 
   const remainingInfo = getRemainingDaysInfo(category.deletedAt);
@@ -94,9 +76,11 @@ export const CategoryCard: React.FC<CategoryCardProps> = React.memo(({
       <div>
         {/* Top Row: Sex Badge */}
         <div className="flex justify-between items-start mb-2.5">
-          <span className={`px-2.5 py-0.5 rounded-xl text-[11px] font-bold ${getSexBadgeStyle(category.sex)}`}>
-            {getSexLabel(category.sex)}
-          </span>
+          {getSexDisplay(category.sex) && (
+            <span className={`px-2.5 py-0.5 rounded-xl text-[11px] font-bold border ${getGradientClass(category.sex!)}`}>
+              {getSexDisplay(category.sex)}
+            </span>
+          )}
         </div>
 
         {/* Category Title & Slug */}
