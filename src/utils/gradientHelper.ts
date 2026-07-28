@@ -36,6 +36,20 @@ const GRADIENT_PRESETS = [
  * - Known values (Nam, Nữ, Unisex, MALE, FEMALE...) get explicit colors via SEX_COLOR_MAP
  * - Unknown custom values get a deterministic random gradient from GRADIENT_PRESETS
  */
+/**
+ * Returns a gradient class for the given province/city name.
+ * Uses a deterministic hash to assign consistent colors to each province.
+ */
+export const getGradientByProvince = (province: string): string => {
+  let hash = 0;
+  for (let i = 0; i < province.length; i++) {
+    hash = ((hash << 5) - hash) + province.charCodeAt(i);
+    hash |= 0;
+  }
+  const index = Math.abs(hash) % GRADIENT_PRESETS.length;
+  return GRADIENT_PRESETS[index];
+};
+
 export const getGradientClass = (key: string): string => {
   // Check if there's an explicit color mapping
   const explicit = SEX_COLOR_MAP[key];
