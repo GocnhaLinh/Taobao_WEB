@@ -1,8 +1,12 @@
 import axios from "axios";
 
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
+const rawUrl = import.meta.env.VITE_API_URL || "http://localhost:5000";
+
+// Tự động thêm https:// nếu thiếu protocol
+const API_URL = rawUrl.match(/^https?:\/\//) ? rawUrl : `https://${rawUrl}`;
 
 console.log("VITE_API_URL =", import.meta.env.VITE_API_URL);
+console.log("Resolved API_URL =", API_URL);
 
 export const axiosClient = axios.create({
   baseURL: `${API_URL}/api`,
