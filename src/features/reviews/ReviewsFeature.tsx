@@ -49,6 +49,7 @@ export const ReviewsFeature: React.FC = () => {
           {t('reviewListTitle')}
           <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-indigo-500/10 text-indigo-500 border border-indigo-500/20">
             {t('reviewCount', { count: reviews.length })}
+          </span>
         </h3>
 
         {isLoading ? (
