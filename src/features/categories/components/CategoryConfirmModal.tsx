@@ -32,43 +32,38 @@ export const CategoryConfirmModal: React.FC<CategoryConfirmModalProps> = ({
     switch (type) {
       case 'SOFT_DELETE':
         return {
-          title: t('confirmSoftDeleteTitle') || 'Xác nhận chuyển vào Thùng rác',
-          btnText: t('softDelete') || 'Chuyển vào Thùng rác',
+          title: t('confirmSoftDeleteTitle') || 'Confirm Move to Trash',
+          btnText: t('softDelete') || 'Move to Trash',
           btnClass: 'bg-amber-600 hover:bg-amber-700 text-white border-none',
           boxClass: 'bg-amber-50 dark:bg-amber-950/20 border-amber-200 dark:border-amber-900/40 text-amber-800 dark:text-amber-300',
           icon: <Archive className="h-6 w-6 shrink-0 text-amber-500" />,
-          message: (
+          message: t('confirmSoftDeleteTitle') || `Category "${category.name}" will be moved to Trash.`,
+          messageRaw: (
             <span>
-              Danh mục <strong className="font-bold underline">{category.name}</strong> sẽ được chuyển vào Thùng rác. Bạn có thể khôi phục lại bất kỳ lúc nào trong vòng 30 ngày.
+              {t('trashNotice') || 'Items in Trash are kept for up to 30 days.'}
             </span>
           ),
         };
       case 'RESTORE':
         return {
-          title: t('confirmRestoreTitle') || 'Xác nhận khôi phục danh mục',
-          btnText: t('restore') || 'Khôi Phục',
+          title: t('confirmRestoreTitle') || 'Confirm Category Restoration',
+          btnText: t('restore') || 'Restore',
           btnClass: 'bg-emerald-600 hover:bg-emerald-700 text-white border-none',
           boxClass: 'bg-emerald-50 dark:bg-emerald-950/20 border-emerald-200 dark:border-emerald-900/40 text-emerald-800 dark:text-emerald-300',
           icon: <RotateCcw className="h-6 w-6 shrink-0 text-emerald-500" />,
-          message: (
-            <span>
-              Bạn có chắc chắn muốn khôi phục danh mục <strong className="font-bold underline">{category.name}</strong> trở lại danh sách hoạt động?
-            </span>
-          ),
+          message: t('confirmRestoreTitle') || `Restore category "${category.name}"?`,
+          messageRaw: null,
         };
       case 'HARD_DELETE':
       default:
         return {
-          title: t('confirmHardDeleteTitle') || 'Cảnh báo: Xóa vĩnh viễn danh mục',
-          btnText: t('hardDelete') || 'Xóa Vĩnh Viễn',
+          title: t('confirmHardDeleteTitle') || 'Warning: Permanently Delete Category',
+          btnText: t('hardDelete') || 'Delete Permanently',
           btnClass: 'bg-rose-600 hover:bg-rose-700 text-white border-none',
           boxClass: 'bg-rose-50 dark:bg-rose-950/20 border-rose-200 dark:border-rose-900/40 text-rose-700 dark:text-rose-300',
           icon: <AlertTriangle className="h-6 w-6 shrink-0 text-rose-500 animate-bounce" />,
-          message: (
-            <span>
-              Hành động này sẽ <strong>XÓA VĨNH VIỄN</strong> danh mục <strong className="font-bold underline">{category.name}</strong> khỏi cơ sở dữ liệu và <strong>KHÔNG THỂ KHÔI PHỤC LẠI</strong>. Bạn có chắc chắn?
-            </span>
-          ),
+          message: t('confirmHardDeleteTitle') || `Permanently delete category "${category.name}"?`,
+          messageRaw: null,
         };
     }
   };
@@ -83,7 +78,7 @@ export const CategoryConfirmModal: React.FC<CategoryConfirmModalProps> = ({
       footer={
         <>
           <Button variant="secondary" onClick={onClose}>
-            {t('cancel') || 'Hủy'}
+            {t('cancel') || 'Cancel'}
           </Button>
           <Button
             variant="primary"
@@ -98,7 +93,7 @@ export const CategoryConfirmModal: React.FC<CategoryConfirmModalProps> = ({
     >
       <div className={`flex items-center gap-3 p-4 rounded-2xl border text-xs font-medium ${config.boxClass}`}>
         {config.icon}
-        <p>{config.message}</p>
+        <p>{config.messageRaw || config.message}</p>
       </div>
     </Modal>
   );

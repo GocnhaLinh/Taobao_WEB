@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Edit2, Trash2, RotateCcw, Award } from 'lucide-react';
+import { useTranslation } from '../../../lib/i18n';
 import type { Brand } from '../../../types';
 
 interface BrandRowProps {
@@ -19,13 +20,14 @@ export const BrandRow: React.FC<BrandRowProps> = React.memo(({
   onRestore,
   onHardDelete,
 }) => {
+  const { t } = useTranslation();
   const [imgError, setImgError] = useState(false);
 
   // Calculate remaining days until 30-day auto deletion
   const getRemainingDaysInfo = (deletedAt?: string) => {
     if (!deletedAt) {
       return {
-        text: '⏱️ Tự xóa sau 30 ngày',
+        text: t('autoDeleteDefault'),
         style: 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20 font-medium',
       };
     }
@@ -38,18 +40,18 @@ export const BrandRow: React.FC<BrandRowProps> = React.memo(({
 
     if (remainingDays <= 5) {
       return {
-        text: `⚠️ Sắp xóa (Còn ${remainingDays} ngày)`,
+        text: t('aboutToDelete', { days: remainingDays }),
         style: 'bg-rose-500/15 text-rose-600 dark:text-rose-400 border-rose-500/30 animate-pulse font-bold',
       };
     }
     if (remainingDays <= 15) {
       return {
-        text: `⏱️ Tự xóa sau ${remainingDays} ngày`,
+        text: t('autoDeleteInDays', { days: remainingDays }),
         style: 'bg-amber-500/15 text-amber-600 dark:text-amber-400 border-amber-500/30 font-semibold',
       };
     }
     return {
-      text: `⏱️ Tự xóa sau ${remainingDays} ngày`,
+      text: t('autoDeleteInDays', { days: remainingDays }),
       style: 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20 font-medium',
     };
   };
@@ -82,11 +84,11 @@ export const BrandRow: React.FC<BrandRowProps> = React.memo(({
           <div className="flex items-center gap-2">
             <h4 className="text-slate-900 dark:text-white font-bold text-base truncate">{brand.name}</h4>
             <span className="px-2 py-0.5 rounded-md text-[10px] font-bold bg-indigo-500/15 text-indigo-600 dark:text-indigo-400 border border-indigo-500/30 shrink-0">
-              OFFICIAL
+              {t('official')}
             </span>
           </div>
           <p className="text-xs text-slate-500 dark:text-slate-400 truncate mt-0.5">
-            {brand.description || 'Thương hiệu thời trang cao cấp.'}
+            {brand.description || t('brandDescriptionDefault')}
           </p>
         </div>
       </div>
@@ -107,14 +109,14 @@ export const BrandRow: React.FC<BrandRowProps> = React.memo(({
               <button
                 onClick={() => onEdit?.(brand)}
                 className="p-2 text-slate-600 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-950/40 rounded-xl transition-all cursor-pointer"
-                title="Chỉnh sửa thương hiệu"
+                title={t('edit')}
               >
                 <Edit2 className="h-4 w-4" />
               </button>
               <button
                 onClick={() => onSoftDelete?.(brand)}
                 className="p-2 text-slate-600 dark:text-slate-300 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 rounded-xl transition-all cursor-pointer"
-                title="Chuyển vào thùng rác"
+                title={t('softDelete')}
               >
                 <Trash2 className="h-4 w-4" />
               </button>
@@ -124,14 +126,14 @@ export const BrandRow: React.FC<BrandRowProps> = React.memo(({
               <button
                 onClick={() => onRestore?.(brand)}
                 className="p-2 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-950/40 rounded-xl transition-all cursor-pointer"
-                title="Khôi phục"
+                title={t('restore')}
               >
                 <RotateCcw className="h-4 w-4" />
               </button>
               <button
                 onClick={() => onHardDelete?.(brand)}
                 className="p-2 text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 rounded-xl transition-all cursor-pointer"
-                title="Xóa vĩnh viễn"
+                title={t('hardDelete')}
               >
                 <Trash2 className="h-4 w-4" />
               </button>

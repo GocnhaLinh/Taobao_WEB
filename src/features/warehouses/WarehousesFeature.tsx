@@ -1,6 +1,7 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Plus, Search, ChevronLeft, ChevronRight, Clock, Archive, Layers, Building2, LayoutGrid, List } from 'lucide-react';
+import { useTranslation } from '../../lib/i18n';
 import { useNotification } from '../../lib/notification';
 import { useDebounce } from '../../lib/useDebounce';
 import {
@@ -30,6 +31,7 @@ type ActiveTabType = 'ACTIVE' | 'TRASH';
 type ViewMode = 'row' | 'card';
 
 export const WarehousesFeature: React.FC = () => {
+  const { t } = useTranslation();
   const { showNotification } = useNotification();
   const queryClient = useQueryClient();
 
@@ -99,11 +101,11 @@ export const WarehousesFeature: React.FC = () => {
     mutationFn: createWarehouseApi,
     onSuccess: () => {
       refreshWarehouses();
-      showNotification('Thêm kho hàng mới thành công!', 'success');
+      showNotification(t('warehouseCreated'), 'success');
       setIsFormModalOpen(false);
     },
     onError: (error: any) => {
-      showNotification(error.message || 'Thêm kho hàng thất bại', 'error');
+      showNotification(error.message || 'Failed to create warehouse', 'error');
     },
   });
 
@@ -111,12 +113,12 @@ export const WarehousesFeature: React.FC = () => {
     mutationFn: updateWarehouseApi,
     onSuccess: () => {
       refreshWarehouses();
-      showNotification('Cập nhật kho hàng thành công!', 'success');
+      showNotification(t('warehouseUpdated'), 'success');
       setIsFormModalOpen(false);
       setEditingWarehouse(null);
     },
     onError: (error: any) => {
-      showNotification(error.message || 'Cập nhật kho hàng thất bại', 'error');
+      showNotification(error.message || 'Failed to update warehouse', 'error');
     },
   });
 
@@ -124,11 +126,11 @@ export const WarehousesFeature: React.FC = () => {
     mutationFn: deleteWarehouseApi,
     onSuccess: () => {
       refreshWarehouses();
-      showNotification('Đã chuyển kho hàng vào Thùng rác!', 'info');
+      showNotification(t('warehouseDeleted'), 'info');
       setConfirmModalState((prev) => ({ ...prev, isOpen: false }));
     },
     onError: (error: any) => {
-      showNotification(error.message || 'Chuyển vào thùng rác thất bại', 'error');
+      showNotification(error.message || 'Failed to move to trash', 'error');
     },
   });
 
@@ -136,11 +138,11 @@ export const WarehousesFeature: React.FC = () => {
     mutationFn: restoreWarehouseApi,
     onSuccess: () => {
       refreshWarehouses();
-      showNotification('Khôi phục kho hàng thành công!', 'success');
+      showNotification(t('warehouseRestored'), 'success');
       setConfirmModalState((prev) => ({ ...prev, isOpen: false }));
     },
     onError: (error: any) => {
-      showNotification(error.message || 'Khôi phục kho hàng thất bại', 'error');
+      showNotification(error.message || 'Failed to restore warehouse', 'error');
     },
   });
 
@@ -148,11 +150,11 @@ export const WarehousesFeature: React.FC = () => {
     mutationFn: hardDeleteWarehouseApi,
     onSuccess: () => {
       refreshWarehouses();
-      showNotification('Đã xóa vĩnh viễn kho hàng!', 'success');
+      showNotification(t('warehouseForceDeleted'), 'success');
       setConfirmModalState((prev) => ({ ...prev, isOpen: false }));
     },
     onError: (error: any) => {
-      showNotification(error.message || 'Xóa kho hàng thất bại', 'error');
+      showNotification(error.message || 'Failed to delete warehouse', 'error');
     },
   });
 
@@ -233,16 +235,16 @@ export const WarehousesFeature: React.FC = () => {
         <div>
           <h2 className="text-2xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
             <Building2 className="h-6 w-6 text-indigo-500" />
-            Quản lý Kho Hàng (Warehouses)
+            {t('warehouseManagement')}
           </h2>
           <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
-            Hệ thống tự động phân chia kho xử lý hàng hóa dựa theo vị trí gần nhất của khách hàng.
+            {t('warehouseManagementDesc')}
           </p>
         </div>
         <Button onClick={handleOpenAdd}>
           <Plus className="h-4 w-4 mr-1.5" />
-          <span className="hidden lg:inline">Thêm kho hàng</span>
-          <span className="lg:hidden">Thêm</span>
+          <span className="hidden lg:inline">{t('addWarehouse')}</span>
+          <span className="lg:hidden">{t('addWarehouseShort')}</span>
         </Button>
       </div>
       {/* 
@@ -317,10 +319,10 @@ export const WarehousesFeature: React.FC = () => {
                   ? 'bg-white dark:bg-indigo-600 text-indigo-600 dark:text-white shadow-md'
                   : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
               }`}
-              title="Kho đang sử dụng"
+              title={t('warehouseActiveTab')}
             >
               <Layers className="h-4 w-4" />
-              <span className="hidden lg:inline">Kho sử dụng</span>
+              <span className="hidden lg:inline">{t('warehouseActiveTab')}</span>
               <span className="px-2 py-0.5 rounded-full text-[10px] bg-slate-200 dark:bg-white/20 text-slate-700 dark:text-white font-mono">
                 {activeWarehouses.length}
               </span>
@@ -336,10 +338,10 @@ export const WarehousesFeature: React.FC = () => {
                   ? 'bg-rose-500 text-white shadow-md'
                   : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
               }`}
-              title="Thùng rác lưu trữ"
+              title={t('warehouseTrashTab')}
             >
               <Archive className="h-4 w-4" />
-              <span className="hidden lg:inline">Thùng rác lưu trữ</span>
+              <span className="hidden lg:inline">{t('warehouseTrashTab')}</span>
               {deletedWarehouses.length > 0 && (
                 <span className="px-2 py-0.5 rounded-full text-[10px] bg-white text-rose-600 font-extrabold animate-pulse">
                   {deletedWarehouses.length}
@@ -354,7 +356,7 @@ export const WarehousesFeature: React.FC = () => {
             <div className="relative w-full sm:w-64">
               <Search className="absolute left-3.5 top-3 h-4 w-4 text-slate-400" />
               <Input
-                placeholder="Tìm kiếm kho hàng..."
+                placeholder={t('searchWarehousePlaceholder')}
                 value={searchQuery}
                 onChange={(e) => {
                   setSearchQuery(e.target.value);
@@ -374,10 +376,10 @@ export const WarehousesFeature: React.FC = () => {
                     ? 'bg-white dark:bg-indigo-600 text-indigo-600 dark:text-white shadow-sm'
                     : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
                 }`}
-                title="Hàng ngang"
+                title={t('rowView') || 'Row view'}
               >
                 <List className="h-4 w-4" />
-                <span className="hidden md:inline">Hàng ngang</span>
+                <span className="hidden md:inline">{t('rowView') || 'Row'}</span>
               </button>
               <button
                 type="button"
@@ -387,10 +389,10 @@ export const WarehousesFeature: React.FC = () => {
                     ? 'bg-white dark:bg-indigo-600 text-indigo-600 dark:text-white shadow-sm'
                     : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
                 }`}
-                title="Dạng thẻ (Card)"
+                title={t('cardView') || 'Card view'}
               >
                 <LayoutGrid className="h-4 w-4" />
-                <span className="hidden md:inline">Thẻ</span>
+                <span className="hidden md:inline">{t('cardView') || 'Card'}</span>
               </button>
             </div>
           </div>
@@ -401,7 +403,7 @@ export const WarehousesFeature: React.FC = () => {
           <div className="p-4 bg-amber-500/10 border border-amber-500/20 rounded-2xl flex items-center gap-3 text-xs text-amber-800 dark:text-amber-300 font-medium">
             <Clock className="h-5 w-5 text-amber-500 shrink-0" />
             <span>
-              Các kho hàng trong Thùng rác được giữ tối đa 30 ngày kể từ khi xóa. Bạn có thể khôi phục bất cứ lúc nào hoặc xóa vĩnh viễn.
+              {t('warehouseTrashNotice')}
             </span>
           </div>
         )}
@@ -409,15 +411,15 @@ export const WarehousesFeature: React.FC = () => {
         {/* Warehouses List / Cards Grid */}
         {isLoadingCurrent ? (
           <div className="py-16 text-center text-slate-500 dark:text-slate-400 animate-pulse">
-            Đang tải dữ liệu kho hàng...
+            {t('loadingWarehouses')}
           </div>
         ) : paginatedWarehouses.length === 0 ? (
           <div className="py-16 text-center text-slate-400 text-sm flex flex-col items-center gap-3">
             <Archive className="h-10 w-10 opacity-30" />
             <span>
               {activeTab === 'ACTIVE'
-                ? 'Không tìm thấy kho hàng nào'
-                : 'Thùng rác trống - Chưa có kho hàng nào bị xóa'}
+                ? t('emptyActiveWarehouses')
+                : t('emptyTrashWarehouses')}
             </span>
           </div>
         ) : viewMode === 'card' ? (
@@ -454,7 +456,7 @@ export const WarehousesFeature: React.FC = () => {
         {totalPages > 1 && (
           <div className="pt-4 border-t border-slate-200 dark:border-white/10 flex items-center justify-between">
             <span className="text-xs text-slate-500 dark:text-slate-400">
-              Trang <strong className="text-slate-900 dark:text-white">{currentPage}</strong> / {totalPages}
+              {t('page')} <strong className="text-slate-900 dark:text-white">{currentPage}</strong> / {totalPages}
             </span>
 
             <div className="flex items-center gap-2">
@@ -465,7 +467,7 @@ export const WarehousesFeature: React.FC = () => {
                 disabled={currentPage === 1}
               >
                 <ChevronLeft className="h-4 w-4 mr-1" />
-                Trước
+                {t('prev')}
               </Button>
               <Button
                 variant="secondary"
@@ -473,7 +475,7 @@ export const WarehousesFeature: React.FC = () => {
                 onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
                 disabled={currentPage === totalPages}
               >
-                Sau
+                {t('next')}
                 <ChevronRight className="h-4 w-4 ml-1" />
               </Button>
             </div>

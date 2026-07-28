@@ -27,10 +27,10 @@ export const RevenueChartCard: React.FC = () => {
         <div>
           <h3 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
             <TrendingUp className="h-5 w-5 text-indigo-500" />
-            Biểu đồ Thống kê Doanh thu & Tăng trưởng
+            Revenue & Growth Chart
           </h3>
           <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-            Theo dõi chi tiết xu hướng doanh thu (Triệu VNĐ) và sản lượng đơn hàng theo từng tháng năm nay.
+            Detailed revenue trends (Million VND) and order volume by month this year.
           </p>
         </div>
         <div className="flex gap-1.5 p-1 bg-slate-100 dark:bg-white/5 rounded-xl border border-slate-200 dark:border-white/10">
@@ -43,7 +43,7 @@ export const RevenueChartCard: React.FC = () => {
                 : 'text-slate-600 dark:text-slate-400 hover:text-slate-900'
             }`}
           >
-            Doanh thu (Triệu ₫)
+            Revenue (Million ₫)
           </button>
           <button
             type="button"
@@ -54,7 +54,7 @@ export const RevenueChartCard: React.FC = () => {
                 : 'text-slate-600 dark:text-slate-400 hover:text-slate-900'
             }`}
           >
-            Đơn hàng (Đơn)
+            Orders (Units)
           </button>
         </div>
       </div>

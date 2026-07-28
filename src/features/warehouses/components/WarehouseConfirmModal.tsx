@@ -1,5 +1,6 @@
 import React from 'react';
 import type { Warehouse } from '../../../types';
+import { useTranslation } from '../../../lib/i18n';
 import { Modal } from '../../../components/ui/Modal';
 import { Button } from '../../../components/ui/Button';
 import { AlertTriangle, RotateCcw, Trash2 } from 'lucide-react';
@@ -23,53 +24,48 @@ export const WarehouseConfirmModal: React.FC<WarehouseConfirmModalProps> = ({
   type,
   isLoading = false,
 }) => {
+  const { t } = useTranslation();
   if (!warehouse) return null;
 
   const getContent = () => {
     switch (type) {
       case 'SOFT_DELETE':
         return {
-          title: 'Xác nhận chuyển vào Thùng rác',
+          title: t('warehouseConfirmSoftDeleteTitle'),
           icon: <Trash2 className="h-6 w-6 text-amber-500" />,
           bgColor: 'bg-amber-500/10 border-amber-500/20',
           message: (
             <span>
-              Bạn có chắc chắn muốn chuyển kho hàng{' '}
-              <strong className="text-slate-900 dark:text-white font-bold">"{warehouse.name}" ({warehouse.code})</strong> vào Thùng rác?
-              Kho hàng sẽ được lưu giữ tối đa 30 ngày trước khi tự động xóa.
+              {t('warehouseConfirmSoftDeleteDesc', { name: warehouse.name, code: warehouse.code })}
             </span>
           ),
-          confirmButtonText: 'Chuyển vào Thùng rác',
+          confirmButtonText: t('warehouseConfirmSoftDeleteBtn'),
           confirmVariant: 'danger' as const,
         };
       case 'RESTORE':
         return {
-          title: 'Xác nhận khôi phục kho hàng',
+          title: t('warehouseConfirmRestoreTitle'),
           icon: <RotateCcw className="h-6 w-6 text-emerald-500" />,
           bgColor: 'bg-emerald-500/10 border-emerald-500/20',
           message: (
             <span>
-              Bạn muốn khôi phục kho hàng{' '}
-              <strong className="text-slate-900 dark:text-white font-bold">"{warehouse.name}" ({warehouse.code})</strong> quay trở lại danh
-              sách hoạt động chính?
+              {t('warehouseConfirmRestoreDesc', { name: warehouse.name, code: warehouse.code })}
             </span>
           ),
-          confirmButtonText: 'Khôi phục ngay',
+          confirmButtonText: t('warehouseConfirmRestoreBtn'),
           confirmVariant: 'primary' as const,
         };
       case 'HARD_DELETE':
         return {
-          title: 'Cảnh báo: Xóa vĩnh viễn kho hàng',
+          title: t('warehouseConfirmHardDeleteTitle'),
           icon: <AlertTriangle className="h-6 w-6 text-rose-500" />,
           bgColor: 'bg-rose-500/10 border-rose-500/20',
           message: (
             <span>
-              Hành động này sẽ xóa kho hàng{' '}
-              <strong className="text-slate-900 dark:text-white font-bold">"{warehouse.name}" ({warehouse.code})</strong> vĩnh viễn khỏi hệ
-              thống và không thể hoàn tác.
+              {t('warehouseConfirmHardDeleteDesc', { name: warehouse.name, code: warehouse.code })}
             </span>
           ),
-          confirmButtonText: 'Xóa vĩnh viễn',
+          confirmButtonText: t('warehouseConfirmHardDeleteBtn'),
           confirmVariant: 'danger' as const,
         };
     }
@@ -85,7 +81,7 @@ export const WarehouseConfirmModal: React.FC<WarehouseConfirmModalProps> = ({
       footer={
         <>
           <Button variant="secondary" onClick={onClose}>
-            Hủy
+            {t('cancel')}
           </Button>
           <Button variant={confirmVariant} onClick={onConfirm} isLoading={isLoading}>
             {confirmButtonText}

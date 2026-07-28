@@ -56,7 +56,7 @@ export const TopBuyersLeaderboard: React.FC = () => {
       <div className="flex items-center justify-between">
         <h3 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
           <Award className="h-5 w-5 text-indigo-500" />
-          BXH Người mua nhiều nhất (VIP)
+          Top Buyers (VIP)
         </h3>
         <Badge variant="info">TOP BUYERS</Badge>
       </div>
@@ -107,7 +107,7 @@ export const TopBuyersLeaderboard: React.FC = () => {
                   {buyer.totalSpent.toLocaleString()} ₫
                 </span>
                 <span className="text-[10px] text-indigo-500 font-semibold block">
-                  {buyer.ordersCount} đơn hàng thành công
+                  {buyer.ordersCount} successful orders
                 </span>
               </div>
             </div>

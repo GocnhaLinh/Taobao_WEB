@@ -12,7 +12,7 @@ type TranslationKey = keyof typeof en;
 interface LanguageContextType {
   language: Language;
   setLanguage: (lang: Language) => void;
-  t: (key: TranslationKey) => string;
+  t: (key: TranslationKey, params?: Record<string, string | number>) => string;
 }
 
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
@@ -29,8 +29,14 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   }, []);
 
   const t = useCallback(
-    (key: TranslationKey) => {
-      return translations[language][key] || translations['en'][key] || key;
+    (key: TranslationKey, params?: Record<string, string | number>) => {
+      let value = translations[language][key] || translations['en'][key] || key;
+      if (params) {
+        Object.entries(params).forEach(([k, v]) => {
+          value = value.replace(`{${k}}`, String(v));
+        });
+      }
+      return value;
     },
     [language]
   );

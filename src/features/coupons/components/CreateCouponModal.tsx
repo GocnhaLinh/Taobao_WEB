@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTranslation } from '../../../lib/i18n';
 import { Modal } from '../../../components/ui/Modal';
 import { Button } from '../../../components/ui/Button';
 import { Input } from '../../../components/ui/Input';
@@ -17,6 +18,7 @@ export const CreateCouponModal: React.FC<CreateCouponModalProps> = ({
   onClose,
   onCreate,
 }) => {
+  const { t } = useTranslation();
   const [code, setCode] = useState('');
   const [type, setType] = useState('FIXED');
   const [value, setValue] = useState('');
@@ -59,16 +61,16 @@ export const CreateCouponModal: React.FC<CreateCouponModalProps> = ({
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title="Tạo Mã Giảm Giá Mới">
+    <Modal isOpen={isOpen} onClose={onClose} title={t('createCoupon')}>
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="flex items-center gap-3 p-3 bg-indigo-500/10 border border-indigo-500/20 rounded-xl text-indigo-600 dark:text-indigo-400 text-xs font-medium">
           <Ticket className="h-5 w-5 shrink-0 text-indigo-500" />
-          Mã giảm giá tạo mới sẽ được lưu trực tiếp vào CSDL và áp dụng lập tức.
+          {t('couponNoteCreate')}
         </div>
 
         <Input
-          label="Mã Voucher (Code) *"
-          placeholder="VD: TAOBAO2026, FREESHIP50..."
+          label={t('couponCode')}
+          placeholder={t('couponCodePlaceholder')}
           value={code}
           onChange={(e) => setCode(e.target.value)}
           required
@@ -77,18 +79,18 @@ export const CreateCouponModal: React.FC<CreateCouponModalProps> = ({
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
             <CustomSelect
-              label="Loại Voucher *"
+              label={t('couponType')}
               value={type}
               onChange={setType}
               options={[
-                { value: 'FIXED', label: 'Giảm số tiền cố định (₫)' },
-                { value: 'PERCENT', label: 'Giảm theo phần trăm (%)' },
+                { value: 'FIXED', label: t('fixedType') },
+                { value: 'PERCENT', label: t('percentType') },
               ]}
             />
           </div>
 
           <Input
-            label={type === 'FIXED' ? 'Số tiền giảm (VNĐ) *' : 'Tỷ lệ giảm (%) *'}
+            label={type === 'FIXED' ? t('discountAmount') : t('discountPercent')}
             type="number"
             placeholder={type === 'FIXED' ? '50000' : '15'}
             value={value}
@@ -99,7 +101,7 @@ export const CreateCouponModal: React.FC<CreateCouponModalProps> = ({
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <Input
-            label="Giá trị đơn tối thiểu (VNĐ) *"
+            label={t('minOrderValue')}
             type="number"
             placeholder="500000"
             value={minOrder}
@@ -110,12 +112,12 @@ export const CreateCouponModal: React.FC<CreateCouponModalProps> = ({
           {/* BUG CP3 FIX: Thêm field chọn Status khi tạo mới */}
           <div>
             <CustomSelect
-              label="Trạng thái ban đầu"
+              label={t('initialStatus')}
               value={status}
               onChange={(v) => setStatus(v as 'ACTIVE' | 'DISABLED')}
               options={[
-                { value: 'ACTIVE', label: '✅ Hoạt động ngay (ACTIVE)' },
-                { value: 'DISABLED', label: '⏸ Tạm tắt (DISABLED)' },
+                { value: 'ACTIVE', label: t('activeNowLabel') },
+                { value: 'DISABLED', label: t('disabledNowLabel') },
               ]}
             />
           </div>
@@ -125,9 +127,9 @@ export const CreateCouponModal: React.FC<CreateCouponModalProps> = ({
           {/* maxDiscount: luôn hiển thị, disabled khi type=FIXED */}
           <div>
             <Input
-              label="Giảm tối đa (VNĐ)"
+              label={t('maxDiscountLabel')}
               type="number"
-              placeholder={type === 'FIXED' ? 'Không áp dụng cho FIXED' : 'VD: 200000'}
+              placeholder={type === 'FIXED' ? t('notApplicableFixed') : 'VD: 200000'}
               value={maxDiscount}
               onChange={(e) => setMaxDiscount(e.target.value)}
               disabled={type === 'FIXED'}
@@ -135,13 +137,13 @@ export const CreateCouponModal: React.FC<CreateCouponModalProps> = ({
             />
             {type === 'FIXED' && (
               <p className="text-[11px] text-slate-400 mt-1">
-                Chỉ áp dụng cho voucher giảm theo %.
+                {t('percentOnly')}
               </p>
             )}
           </div>
 
           <Input
-            label="Ngày hết hạn"
+            label={t('expiryDate')}
             type="date"
             value={expiryDate}
             onChange={(e) => setExpiryDate(e.target.value)}
@@ -150,11 +152,11 @@ export const CreateCouponModal: React.FC<CreateCouponModalProps> = ({
 
         <div className="flex items-center justify-end gap-3 pt-4 border-t border-slate-200 dark:border-white/10">
           <Button variant="ghost" type="button" onClick={onClose}>
-            Hủy
+            {t('cancel')}
           </Button>
           <Button variant="primary" type="submit" className="gap-2">
             <Plus className="h-4 w-4" />
-            Tạo Mã Voucher
+            {t('createVoucher')}
           </Button>
         </div>
       </form>

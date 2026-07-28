@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { useTranslation } from '../../../lib/i18n';
 import { Modal } from '../../../components/ui/Modal';
 import { Input } from '../../../components/ui/Input';
 import { Button } from '../../../components/ui/Button';
@@ -42,6 +43,7 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({
   categories,
   brands,
 }) => {
+  const { t } = useTranslation();
   const { showNotification } = useNotification();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -128,7 +130,7 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({
           const updated = [...images, res.url];
           setImages(updated);
           if (!thumbnail) setThumbnail(res.url);
-          showNotification('Tải ảnh sản phẩm lên thành công!', 'success');
+          showNotification(t('productAddedSuccess') || 'Image uploaded successfully!', 'success');
         }
       } else {
         const resList = await uploadMultipleImagesApi(filesArray);
@@ -137,11 +139,11 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({
           const updated = [...images, ...newUrls];
           setImages(updated);
           if (!thumbnail && newUrls[0]) setThumbnail(newUrls[0]);
-          showNotification(`Đã tải lên thành công ${newUrls.length} ảnh sản phẩm!`, 'success');
+          showNotification(`${newUrls.length} product images uploaded!`, 'success');
         }
       }
     } catch (err: any) {
-      showNotification(err.message || 'Lỗi tải ảnh sản phẩm lên', 'error');
+      showNotification(err.message || 'Image upload failed', 'error');
     } finally {
       setIsUploading(false);
       if (fileInputRef.current) {
@@ -161,13 +163,13 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({
     if (urlToRemove.includes('cloudinary.com') || urlToRemove.includes('res.cloudinary.com')) {
       try {
         await deleteImageApi(urlToRemove);
-        showNotification('Đã xóa ảnh thành công!', 'success');
+        showNotification(t('productAddedFailed') || 'Image removed!', 'success');
       } catch (err) {
-        console.warn('Xóa ảnh thất bại:', err);
-        showNotification('Đã gỡ ảnh khỏi danh sách!', 'info');
+        console.warn('Image deletion failed:', err);
+        showNotification('Image removed from list!', 'info');
       }
     } else {
-      showNotification('Đã xóa ảnh thành công!', 'success');
+      showNotification('Image deleted successfully!', 'success');
     }
   };
 
@@ -224,7 +226,7 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({
   }));
 
   const brandOptions = [
-    { value: '', label: '-- Không chọn --' },
+    { value: '', label: t('noBrand') },
     ...brands.map((b) => ({
       value: b.id,
       label: b.name,
@@ -235,12 +237,12 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      title={editingProduct ? 'Chỉnh sửa Sản phẩm' : 'Thêm Sản phẩm mới'}
+      title={editingProduct ? (t('editProduct') || 'Edit Product') : (t('addProduct') || 'Add Product')}
       maxWidth="5xl"
       footer={
         <div className="flex items-center justify-end gap-3">
           <Button type="button" variant="secondary" onClick={onClose} disabled={isLoading || isUploading}>
-            Hủy
+            {t('cancel')}
           </Button>
           <Button
             type="submit"
@@ -250,23 +252,23 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({
             className="flex items-center gap-1.5"
           >
             <CheckCircle2 className="h-4 w-4" />
-            {editingProduct ? 'Lưu thay đổi' : 'Thêm sản phẩm'}
+            {editingProduct ? t('saveChanges') : t('addProduct')}
           </Button>
         </div>
       }
     >
       <form onSubmit={handleSubmit} className="space-y-4">
         <Input
-          label="Tên Sản Phẩm *"
+          label={t('productName')}
           value={productName}
           onChange={(e) => setProductName(e.target.value)}
-          placeholder="Ví dụ: Áo khoác da Nam Taobao cao cấp"
+          placeholder={t('productNamePlaceholder')}
           required
         />
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <CustomSelect
-            label="Danh mục *"
+            label={t('category')}
             value={categoryId}
             onChange={(newCatId) => {
               setCategoryId(newCatId);
@@ -276,22 +278,22 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({
               }
             }}
             options={categoryOptions}
-            placeholder="-- Chọn danh mục --"
+            placeholder={t('selectTargetPlaceholder') || '-- Select category --'}
           />
 
           <CustomSelect
-            label="Thương hiệu"
+            label={t('brand')}
             value={brandId}
             onChange={(newBrandId) => setBrandId(newBrandId)}
             options={brandOptions}
-            placeholder="-- Không chọn --"
+            placeholder={t('noBrand')}
           />
         </div>
 
         {/* Multi-Image Upload Section */}
         <div>
           <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
-            Hình ảnh sản phẩm (Tải lên 1 hoặc nhiều ảnh)
+            {t('productImages')}
           </label>
 
           <input
@@ -314,12 +316,12 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({
                 className="shrink-0 text-xs"
               >
                 {!isUploading && <Upload className="h-4 w-4 mr-1.5 text-indigo-500" />}
-                {isUploading ? 'Đang tải ảnh...' : 'Tải nhiều ảnh từ máy'}
+                {isUploading ? t('uploading') : t('uploadImages')}
               </Button>
 
               <div className="flex-1 min-w-0">
                 <Input
-                  placeholder="Hoặc dán URL ảnh (https://...)"
+                  placeholder={t('orPasteImageUrl')}
                   value={thumbnail}
                   onChange={(e) => {
                     setThumbnail(e.target.value);
@@ -350,7 +352,7 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({
 
                       {isMain && (
                         <span className="absolute top-1 left-1 bg-indigo-600 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-md flex items-center gap-1 shadow">
-                          <CheckCircle2 className="h-2.5 w-2.5" /> Chính
+                          <CheckCircle2 className="h-2.5 w-2.5" /> {t('mainImage')}
                         </span>
                       )}
 
@@ -361,7 +363,7 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({
                           handleRemoveImage(imgUrl);
                         }}
                         className="absolute top-1 right-1 p-1 bg-rose-600/90 text-white rounded-lg opacity-0 group-hover:opacity-100 hover:bg-rose-600 shadow transition-all"
-                        title="Xóa ảnh"
+                        title={t('deleteImage')}
                       >
                         <Trash2 className="h-3 w-3" />
                       </button>
@@ -375,14 +377,14 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({
 
         <div>
           <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
-            Mô tả sản phẩm
+            {t('productDescription')}
           </label>
           <textarea
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             rows={3}
             className="w-full px-4 py-2.5 text-sm font-medium bg-slate-100 dark:bg-slate-800/80 dark:hover:bg-slate-800 border border-slate-300 dark:border-white/10 rounded-2xl text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all placeholder:text-slate-400 dark:placeholder:text-slate-500"
-            placeholder="Mô tả chi tiết sản phẩm..."
+            placeholder={t('descriptionPlaceholder')}
           />
         </div>
 
@@ -392,30 +394,30 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({
             <div className="flex items-center justify-between">
               <h4 className="text-xs font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-400 flex items-center gap-1.5">
                 <Calculator className="h-4 w-4" />
-                Biến thể ban đầu & Công cụ tính Lợi Nhuận
+                {t('initialVariant')}
               </h4>
               <Sparkles className="h-4 w-4 text-amber-500 animate-pulse" />
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
               <Input
-                label="Giá bán thị trường (VNĐ) *"
+                label={t('sellingPriceVND')}
                 type="number"
                 value={variantPrice}
                 onChange={(e) => setVariantPrice(e.target.value)}
-                placeholder="Ví dụ: 250000"
+                placeholder="E.g. 250000"
                 required
               />
               <Input
-                label="Giá gốc NDT (¥ Trung)"
+                label={t('originCostCNY')}
                 type="number"
                 step="0.01"
                 value={variantOriginalPriceCNY}
                 onChange={(e) => setVariantOriginalPriceCNY(e.target.value)}
-                placeholder="Ví dụ: 45 (Tệ)"
+                placeholder="E.g. 45 (CNY)"
               />
               <Input
-                label="Tỷ giá NDT ➔ VNĐ"
+                label={t('exchangeRateLabel')}
                 type="number"
                 value={variantExchangeRate}
                 onChange={(e) => setVariantExchangeRate(e.target.value)}
@@ -423,27 +425,27 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({
                 disabled
               />
               <Input
-                label="Cân nặng (kg)"
+                label={t('weightKg')}
                 type="number"
                 step="0.01"
                 value={variantWeight}
                 onChange={(e) => setVariantWeight(e.target.value)}
-                placeholder="Ví dụ: 0.5 (kg)"
+                placeholder="E.g. 0.5 (kg)"
               />
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
               <Input
-                label="Phí Vận chuyển TQ ➔ VN"
+                label={t('shippingCnFee')}
                 type="number"
                 value={variantShippingFeePerKg}
                 onChange={(e) => setVariantShippingFeePerKg(e.target.value)}
-                placeholder="Ví dụ: 28000"
+                placeholder="E.g. 28000"
                 disabled
               />
               <div className="relative">
                 <Input
-                  label="Mã SKU (Tự động tạo)"
+                  label={t('skuCode')}
                   value={variantSku}
                   onChange={(e) => setVariantSku(e.target.value)}
                   placeholder="SKU-GIAY-123456"
@@ -458,42 +460,42 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({
                       setVariantSku(generateAutoSku(cat?.name));
                     }}
                     className="absolute right-2 top-7 p-1.5 rounded-lg text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 dark:hover:bg-white/10 transition-colors cursor-pointer"
-                    title="Tạo lại mã SKU mới"
+                    title={t('regenerateSku')}
                   >
                     <RefreshCw className="h-4 w-4" />
                   </button>
                 )}
               </div>
               <Input
-                label="Size / Kích thước"
+                label={t('sizeLabel')}
                 value={variantSize}
                 onChange={(e) => setVariantSize(e.target.value)}
-                placeholder="Ví dụ: S, M, XL..."
+                placeholder="S, M, L, XL..."
               />
               <Input
-                label="Màu sắc"
+                label={t('colorLabel')}
                 value={variantColor}
                 onChange={(e) => setVariantColor(e.target.value)}
-                placeholder="Ví dụ: Đen, Trắng..."
+                placeholder="Black, White, Red..."
               />
             </div>
 
             {cny > 0 && (
               <div className="p-3.5 bg-white dark:bg-slate-900/80 rounded-xl border border-indigo-500/20 grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
                 <div>
-                  <span className="text-slate-500 block text-[11px]">Phí Vận chuyển TQ➔VN:</span>
+                  <span className="text-slate-500 block text-[11px]">{t('shippingFeeCalc')}</span>
                   <strong className="text-slate-900 dark:text-white font-bold text-xs">
                     {shipVND.toLocaleString()} đ ({kg}kg)
                   </strong>
                 </div>
                 <div>
-                  <span className="text-slate-500 block text-[11px]">Giá gốc về kho VN:</span>
+                  <span className="text-slate-500 block text-[11px]">{t('totalLandingCost')}</span>
                   <strong className="text-indigo-600 dark:text-indigo-400 font-bold text-xs">
                     {totalCostVND.toLocaleString()} đ
                   </strong>
                 </div>
                 <div>
-                  <span className="text-slate-500 block text-[11px]">Lợi nhuận ước tính:</span>
+                  <span className="text-slate-500 block text-[11px]">{t('estimatedProfit')}</span>
                   <strong className={`font-bold text-xs ${profitVND >= 0 ? 'text-emerald-500' : 'text-rose-500'}`}>
                     {profitVND >= 0 ? '+' : ''}{profitVND.toLocaleString()} đ
                   </strong>
@@ -509,7 +511,7 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({
                     }
                   >
                     <TrendingUp className="h-3 w-3 mr-1" />
-                    Tỷ suất: {profitMargin}%
+                    {t('profitRate', { margin: profitMargin })}
                   </Badge>
                 </div>
               </div>

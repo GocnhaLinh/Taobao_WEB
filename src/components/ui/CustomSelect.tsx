@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { ChevronDown, Check, Trash2, Edit2 } from 'lucide-react';
+import { useTranslation } from '../../lib/i18n';
 
 export interface SelectOption {
   value: string;
@@ -25,11 +26,12 @@ export const CustomSelect: React.FC<CustomSelectProps> = ({
   value,
   onChange,
   options,
-  placeholder = 'Chọn...',
+  placeholder = 'Select...',
   className = '',
   size = 'md',
   disabled = false,
 }) => {
+  const { t } = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
   const selectRef = useRef<HTMLDivElement>(null);
 
@@ -117,7 +119,7 @@ export const CustomSelect: React.FC<CustomSelectProps> = ({
                           setIsOpen(false);
                           opt.onEdit?.();
                         }}
-                        title="Sửa nhãn này"
+                        title={t('edit') || 'Edit label'}
                         className="opacity-0 group-hover:opacity-100 p-1 text-slate-400 hover:text-indigo-500 hover:bg-indigo-100 dark:hover:bg-indigo-950/60 rounded-md transition-opacity cursor-pointer z-10"
                       >
                         <Edit2 className="h-3.5 w-3.5" />
@@ -133,7 +135,7 @@ export const CustomSelect: React.FC<CustomSelectProps> = ({
                           setIsOpen(false);
                           opt.onDelete?.();
                         }}
-                        title="Xóa nhãn này"
+                        title={t('delete') || 'Delete label'}
                         className="opacity-0 group-hover:opacity-100 p-1 text-slate-400 hover:text-red-500 hover:bg-red-100 dark:hover:bg-red-950/60 rounded-md transition-opacity cursor-pointer z-10"
                       >
                         <Trash2 className="h-3.5 w-3.5" />

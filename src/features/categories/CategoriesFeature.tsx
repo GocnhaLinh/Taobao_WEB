@@ -124,7 +124,7 @@ export const CategoriesFeature: React.FC = () => {
     mutationFn: createCategoryApi,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["categories"] });
-      showNotification("Thêm danh mục mới thành công!", "success");
+      showNotification(t('categoryCreated'), "success");
       setIsFormModalOpen(false);
     },
     onError: (error: any) => {
@@ -132,7 +132,7 @@ export const CategoriesFeature: React.FC = () => {
         error.response?.data?.error ||
         error.response?.data?.message ||
         error.message ||
-        "Thêm danh mục thất bại";
+        "Failed to add category";
       showNotification(errText, "error");
     },
   });
@@ -141,7 +141,7 @@ export const CategoriesFeature: React.FC = () => {
     mutationFn: updateCategoryApi,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["categories"] });
-      showNotification("Cập nhật danh mục thành công!", "success");
+      showNotification(t('categoryUpdated'), "success");
       setIsFormModalOpen(false);
       setEditingCategory(null);
     },
@@ -150,7 +150,7 @@ export const CategoriesFeature: React.FC = () => {
         error.response?.data?.error ||
         error.response?.data?.message ||
         error.message ||
-        "Cập nhật danh mục thất bại";
+        "Failed to update category";
       showNotification(errText, "error");
     },
   });
@@ -159,7 +159,7 @@ export const CategoriesFeature: React.FC = () => {
     mutationFn: deleteCategoryApi,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["categories"] });
-      showNotification("Đã chuyển danh mục vào Thùng rác!", "success");
+      showNotification(t('categoryDeleted'), "success");
       closeConfirmModal();
     },
     onError: (error: any) => {
@@ -167,7 +167,7 @@ export const CategoriesFeature: React.FC = () => {
         error.response?.data?.error ||
         error.response?.data?.message ||
         error.message ||
-        "Xóa danh mục thất bại";
+        "Failed to delete category";
       showNotification(errText, "error");
     },
   });
@@ -176,7 +176,7 @@ export const CategoriesFeature: React.FC = () => {
     mutationFn: restoreCategoryApi,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["categories"] });
-      showNotification("Đã khôi phục danh mục thành công!", "success");
+      showNotification(t('categoryRestored'), "success");
       closeConfirmModal();
     },
     onError: (error: any) => {
@@ -184,7 +184,7 @@ export const CategoriesFeature: React.FC = () => {
         error.response?.data?.error ||
         error.response?.data?.message ||
         error.message ||
-        "Khôi phục danh mục thất bại";
+        "Failed to restore category";
       showNotification(errText, "error");
     },
   });
@@ -193,7 +193,7 @@ export const CategoriesFeature: React.FC = () => {
     mutationFn: hardDeleteCategoryApi,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["categories"] });
-      showNotification("Đã xóa vĩnh viễn danh mục!", "success");
+      showNotification(t('categoryForceDeleted'), "success");
       closeConfirmModal();
     },
     onError: (error: any) => {
@@ -201,7 +201,7 @@ export const CategoriesFeature: React.FC = () => {
         error.response?.data?.error ||
         error.response?.data?.message ||
         error.message ||
-        "Xóa vĩnh viễn thất bại";
+        "Failed to permanently delete category";
       showNotification(errText, "error");
     },
   });
@@ -447,7 +447,7 @@ export const CategoriesFeature: React.FC = () => {
         {totalPages > 1 && (
           <div className="pt-4 border-t border-slate-200 dark:border-white/10 flex items-center justify-between">
             <span className="text-xs text-slate-500 dark:text-slate-400">
-              Trang{" "}
+              {t('page')}{" "}
               <strong className="text-slate-900 dark:text-white">
                 {currentPage}
               </strong>{" "}
@@ -462,7 +462,7 @@ export const CategoriesFeature: React.FC = () => {
                 disabled={currentPage === 1}
               >
                 <ChevronLeft className="h-4 w-4 mr-1" />
-                Trước
+                {t('prev')}
               </Button>
               <Button
                 variant="secondary"
@@ -472,7 +472,7 @@ export const CategoriesFeature: React.FC = () => {
                 }
                 disabled={currentPage === totalPages}
               >
-                Sau
+                {t('next')}
                 <ChevronRight className="h-4 w-4 ml-1" />
               </Button>
             </div>

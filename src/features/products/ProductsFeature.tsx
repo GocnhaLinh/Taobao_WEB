@@ -1,6 +1,7 @@
 import React, { useState, useMemo, useCallback } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Package, Plus, Search, RefreshCw, Clock, Archive } from "lucide-react";
+import { useTranslation } from "../../lib/i18n";
 import { Button } from "../../components/ui/Button";
 import { Input } from "../../components/ui/Input";
 import { useNotification } from "../../lib/notification";
@@ -32,6 +33,7 @@ import { fetchBrands } from "../../services/brandService";
 import type { Product, ProductVariant } from "../../types";
 
 export const ProductsFeature: React.FC = () => {
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
   const { showNotification } = useNotification();
   const { confirm, ConfirmDialog } = useConfirm();
@@ -88,11 +90,11 @@ export const ProductsFeature: React.FC = () => {
     mutationFn: createProductApi,
     onSuccess: () => {
       refreshAll();
-      showNotification("Đã thêm sản phẩm thành công!", "success");
+      showNotification(t('productAddedSuccess'), "success");
       setIsProductModalOpen(false);
     },
     onError: (err: any) => {
-      showNotification(err.message || "Lỗi thêm sản phẩm", "error");
+      showNotification(err.message || t('productAddedFailed'), "error");
     },
   });
 
@@ -100,11 +102,11 @@ export const ProductsFeature: React.FC = () => {
     mutationFn: updateProductApi,
     onSuccess: () => {
       refreshAll();
-      showNotification("Đã cập nhật sản phẩm!", "success");
+      showNotification(t('productUpdatedSuccess'), "success");
       setIsProductModalOpen(false);
     },
     onError: (err: any) => {
-      showNotification(err.message || "Lỗi cập nhật sản phẩm", "error");
+      showNotification(err.message || t('productUpdatedFailed'), "error");
     },
   });
 
@@ -112,10 +114,10 @@ export const ProductsFeature: React.FC = () => {
     mutationFn: (id: string) => deleteProductApi(id, true),
     onSuccess: () => {
       refreshAll();
-      showNotification("Đã chuyển sản phẩm vào thùng rác!", "success");
+      showNotification(t('productDeleted'), "success");
     },
     onError: (err: any) => {
-      showNotification(err.message || "Lỗi xóa sản phẩm", "error");
+      showNotification(err.message || "Error deleting product", "error");
     },
   });
 
@@ -124,14 +126,11 @@ export const ProductsFeature: React.FC = () => {
     mutationFn: createVariantApi,
     onSuccess: () => {
       refreshAll();
-      showNotification(
-        "Đã thêm biến thể & tính lợi nhuận thành công!",
-        "success",
-      );
+      showNotification(t('variantAdded'), "success");
       setIsVariantModalOpen(false);
     },
     onError: (err: any) => {
-      showNotification(err.message || "Lỗi thêm biến thể", "error");
+      showNotification(err.message || "Error adding variant", "error");
     },
   });
 
@@ -139,11 +138,11 @@ export const ProductsFeature: React.FC = () => {
     mutationFn: updateVariantApi,
     onSuccess: () => {
       refreshAll();
-      showNotification("Đã cập nhật biến thể & lợi nhuận!", "success");
+      showNotification(t('variantUpdated'), "success");
       setIsVariantModalOpen(false);
     },
     onError: (err: any) => {
-      showNotification(err.message || "Lỗi cập nhật biến thể", "error");
+      showNotification(err.message || "Error updating variant", "error");
     },
   });
 
@@ -151,10 +150,10 @@ export const ProductsFeature: React.FC = () => {
     mutationFn: deleteVariantApi,
     onSuccess: () => {
       refreshAll();
-      showNotification("Đã xóa biến thể!", "success");
+      showNotification(t('variantDeleted'), "success");
     },
     onError: (err: any) => {
-      showNotification(err.message || "Lỗi xóa biến thể", "error");
+      showNotification(err.message || "Error deleting variant", "error");
     },
   });
 
@@ -162,10 +161,10 @@ export const ProductsFeature: React.FC = () => {
     mutationFn: (id: string) => updateProductApi({ id, status: "ACTIVE" }),
     onSuccess: () => {
       refreshAll();
-      showNotification("Đã khôi phục sản phẩm thành công!", "success");
+      showNotification(t('productRestored'), "success");
     },
     onError: (err: any) => {
-      showNotification(err.message || "Lỗi khôi phục sản phẩm", "error");
+      showNotification(err.message || "Error restoring product", "error");
     },
   });
 
@@ -173,10 +172,10 @@ export const ProductsFeature: React.FC = () => {
     mutationFn: (id: string) => deleteProductApi(id, false),
     onSuccess: () => {
       refreshAll();
-      showNotification("Đã xóa vĩnh viễn sản phẩm khỏi hệ thống!", "success");
+      showNotification(t('productForceDeleted'), "success");
     },
     onError: (err: any) => {
-      showNotification(err.message || "Lỗi xóa vĩnh viễn sản phẩm", "error");
+      showNotification(err.message || "Error permanently deleting product", "error");
     },
   });
 
@@ -222,9 +221,9 @@ export const ProductsFeature: React.FC = () => {
 
   const handleDeleteProduct = useCallback(async (p: Product) => {
     const isConfirmed = await confirm({
-      title: "Xác Nhận Xóa Sản Phẩm",
-      description: `Bạn có chắc chắn muốn chuyển sản phẩm "${p.productName}" vào Thùng rác không?`,
-      confirmText: "Chuyển vào Thùng rác",
+      title: t('confirmDeleteProductTitle'),
+      description: t('confirmDeleteProductDesc', { name: p.productName }),
+      confirmText: t('confirmDeleteProductBtn'),
       variant: "warning",
     });
     if (isConfirmed) deleteProductMutation.mutate(p.id);
@@ -232,9 +231,9 @@ export const ProductsFeature: React.FC = () => {
 
   const handleRestoreProduct = useCallback(async (p: Product) => {
     const isConfirmed = await confirm({
-      title: "Xác Nhận Khôi Phục Sản Phẩm",
-      description: `Bạn có chắc chắn muốn khôi phục sản phẩm "${p.productName}" từ Thùng rác về danh sách hoạt động không?`,
-      confirmText: "Khôi phục ngay",
+      title: t('confirmRestoreProductTitle'),
+      description: t('confirmRestoreProductDesc', { name: p.productName }),
+      confirmText: t('confirmRestoreProductBtn'),
       variant: "info",
     });
     if (isConfirmed) restoreProductMutation.mutate(p.id);
@@ -242,9 +241,9 @@ export const ProductsFeature: React.FC = () => {
 
   const handleForceDeleteProduct = useCallback(async (p: Product) => {
     const isConfirmed = await confirm({
-      title: "Xác Nhận Xóa Vĩnh Viễn",
-      description: `Bạn có chắc muốn XÓA VĨNH VIỀN sản phẩm "${p.productName}" không? Dữ liệu sẽ mất hoàn toàn và không thể hoàn tác!`,
-      confirmText: "Xóa Vĩnh Viễn",
+      title: t('confirmForceDeleteProductTitle'),
+      description: t('confirmForceDeleteProductDesc', { name: p.productName }),
+      confirmText: t('confirmForceDeleteProductBtn'),
       variant: "danger",
     });
     if (isConfirmed) forceDeleteProductMutation.mutate(p.id);
@@ -252,9 +251,9 @@ export const ProductsFeature: React.FC = () => {
 
   const handleDeleteVariant = useCallback(async (v: ProductVariant) => {
     const isConfirmed = await confirm({
-      title: "Xác Nhận Xóa Biến Thể",
-      description: `Bạn có chắc chắn muốn xóa biến thể mẫu mã SKU "${v.sku}" khỏi sản phẩm không?`,
-      confirmText: "Xóa Biến Thể",
+      title: t('confirmDeleteVariantTitle'),
+      description: t('confirmDeleteVariantDesc', { sku: v.sku }),
+      confirmText: t('confirmDeleteVariantBtn'),
       variant: "danger",
     });
     if (isConfirmed) deleteVariantMutation.mutate(v.id);
@@ -295,16 +294,15 @@ export const ProductsFeature: React.FC = () => {
         <div>
           <h2 className="text-2xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
             <Package className="h-6 w-6 text-indigo-500" />
-            Quản lý Sản Phẩm & Lợi Nhuận
+            {t('productProfitManagement')}
           </h2>
           <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
-            Tính toán tự động giá vốn nhập Tệ (¥), tỷ giá NDT, phí ship kho và
-            lợi nhuận bán ra thị trường Việt.
+            {t('productProfitDesc')}
           </p>
         </div>
         <Button onClick={handleOpenAddProduct}>
           <Plus className="h-4 w-4 mr-1.5" />
-          Thêm sản phẩm
+          {t('addProduct')}
         </Button>
       </div>
 
@@ -322,7 +320,7 @@ export const ProductsFeature: React.FC = () => {
               }`}
             >
               <Package className="h-4 w-4 shrink-0" />
-              Sản phẩm ({activeProducts.length})
+              {t('productActiveTab')} ({activeProducts.length})
             </button>
             <button
               onClick={() => setActiveTab("DELETED")}
@@ -333,7 +331,7 @@ export const ProductsFeature: React.FC = () => {
               }`}
             >
               <Archive className="h-4 w-4 shrink-0" />
-              Thùng rác ({deletedProducts.length})
+              {t('productDeletedTab')} ({deletedProducts.length})
             </button>
           </div>
 
@@ -341,7 +339,7 @@ export const ProductsFeature: React.FC = () => {
             <div className="relative w-full sm:w-72">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
               <Input
-                placeholder="Tìm tên, SKU, danh mục..."
+                placeholder={t('searchProductPlaceholder')}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="pl-9 text-xs"
@@ -358,8 +356,7 @@ export const ProductsFeature: React.FC = () => {
           <div className="p-4 bg-amber-500/10 border border-amber-500/20 rounded-2xl flex items-center gap-3 text-xs text-amber-800 dark:text-amber-300 font-medium">
             <Clock className="h-5 w-5 text-amber-500 shrink-0" />
             <span>
-              Các sản phẩm trong Thùng rác được giữ tối đa 30 ngày kể từ khi
-              xóa. Bạn có thể khôi phục bất cứ lúc nào hoặc xóa vĩnh viễn.
+            {t('productTrashNotice')}
             </span>
           </div>
         )}
@@ -367,12 +364,12 @@ export const ProductsFeature: React.FC = () => {
         {/* Product Cards List */}
         {isLoadingCurrent ? (
           <div className="py-12 text-center text-slate-500 animate-pulse">
-            Đang tải sản phẩm...
+            {t('loadingProducts')}
           </div>
         ) : filteredProducts.length === 0 ? (
           <div className="py-12 text-center text-slate-400 space-y-2">
             <Package className="h-10 w-10 mx-auto text-slate-300 dark:text-slate-600" />
-            <p className="text-sm font-semibold">Chưa tìm thấy sản phẩm nào.</p>
+            <p className="text-sm font-semibold">{t('noProductsFound')}</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 gap-4">

@@ -48,12 +48,12 @@ export const OverviewFeature: React.FC = () => {
             {t('overviewDashboard')}
           </h2>
           <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
-            Tổng quan tình hình kinh doanh, tỷ giá NDT, biểu đồ doanh thu và bảng xếp hạng hệ thống.
+            {t('overviewDesc')}
           </p>
         </div>
         <div className="flex items-center gap-2">
           <Badge variant="info" className="px-3 py-1.5 text-xs font-semibold">
-            Tỷ giá active: 1 ¥ = {currentRate.toLocaleString()} đ
+            {t('activeRate', { rate: currentRate.toLocaleString() })}
           </Badge>
         </div>
       </div>

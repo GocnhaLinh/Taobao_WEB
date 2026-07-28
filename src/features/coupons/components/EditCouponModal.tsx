@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from '../../../lib/i18n';
 import { Modal } from '../../../components/ui/Modal';
 import { Button } from '../../../components/ui/Button';
 import { Input } from '../../../components/ui/Input';
@@ -19,6 +20,7 @@ export const EditCouponModal: React.FC<EditCouponModalProps> = ({
   onClose,
   onUpdate,
 }) => {
+  const { t } = useTranslation();
   const [code, setCode] = useState('');
   const [type, setType] = useState('FIXED');
   const [value, setValue] = useState('');
@@ -67,16 +69,16 @@ export const EditCouponModal: React.FC<EditCouponModalProps> = ({
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title={`Chỉnh Sửa Mã Giảm Giá #${coupon.code}`}>
+    <Modal isOpen={isOpen} onClose={onClose} title={`${t('editCoupon')} #${coupon.code}`}>
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="flex items-center gap-3 p-3 bg-indigo-500/10 border border-indigo-500/20 rounded-xl text-indigo-600 dark:text-indigo-400 text-xs font-medium">
           <Edit3 className="h-5 w-5 shrink-0 text-indigo-500" />
-          Thay đổi các thông số của mã voucher trực tiếp trên hệ thống.
+          {t('couponNoteEdit')}
         </div>
 
         <Input
-          label="Mã Voucher (Code) *"
-          placeholder="VD: TAOBAO2026"
+          label={t('couponCode')}
+          placeholder={t('couponCodePlaceholder')}
           value={code}
           onChange={(e) => setCode(e.target.value)}
           required
@@ -85,18 +87,18 @@ export const EditCouponModal: React.FC<EditCouponModalProps> = ({
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
             <CustomSelect
-              label="Loại Voucher *"
+              label={t('couponType')}
               value={type}
               onChange={setType}
               options={[
-                { value: 'FIXED', label: 'Giảm số tiền cố định (₫)' },
-                { value: 'PERCENT', label: 'Giảm theo phần trăm (%)' },
+                { value: 'FIXED', label: t('fixedType') },
+                { value: 'PERCENT', label: t('percentType') },
               ]}
             />
           </div>
 
           <Input
-            label={type === 'FIXED' ? 'Số tiền giảm (VNĐ) *' : 'Tỷ lệ giảm (%) *'}
+            label={type === 'FIXED' ? t('discountAmount') : t('discountPercent')}
             type="number"
             value={value}
             onChange={(e) => setValue(e.target.value)}
@@ -106,7 +108,7 @@ export const EditCouponModal: React.FC<EditCouponModalProps> = ({
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <Input
-            label="Giá trị đơn tối thiểu (VNĐ) *"
+            label={t('minOrderValue')}
             type="number"
             value={minOrder}
             onChange={(e) => setMinOrder(e.target.value)}
@@ -115,13 +117,13 @@ export const EditCouponModal: React.FC<EditCouponModalProps> = ({
 
           <div>
             <CustomSelect
-              label="Trạng thái *"
+              label={t('initialStatus')}
               value={status}
               onChange={setStatus}
               options={[
-                { value: 'ACTIVE', label: 'Hoạt động (ACTIVE)' },
-                { value: 'DISABLED', label: 'Không hoạt động (DISABLED)' },
-                { value: 'EXPIRED', label: 'Hết hạn (EXPIRED)' },
+                { value: 'ACTIVE', label: t('activeStatus') },
+                { value: 'DISABLED', label: t('disabledStatus') },
+                { value: 'EXPIRED', label: t('expiredStatus') },
               ]}
             />
           </div>
@@ -132,9 +134,9 @@ export const EditCouponModal: React.FC<EditCouponModalProps> = ({
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
             <Input
-              label="Giảm tối đa (VNĐ)"
+              label={t('maxDiscountLabel')}
               type="number"
-              placeholder={type === 'FIXED' ? 'Không áp dụng cho FIXED' : 'VD: 200000'}
+              placeholder={type === 'FIXED' ? t('notApplicableFixed') : 'VD: 200000'}
               value={maxDiscount}
               onChange={(e) => setMaxDiscount(e.target.value)}
               disabled={type === 'FIXED'}
@@ -142,14 +144,14 @@ export const EditCouponModal: React.FC<EditCouponModalProps> = ({
             />
             {type === 'FIXED' && (
               <p className="text-[11px] text-slate-400 mt-1">
-                Chỉ áp dụng cho voucher giảm theo %.
+                {t('percentOnly')}
               </p>
             )}
           </div>
 
           {/* BUG CP1 FIX: Thêm input expiryDate vào form — trước đây có state nhưng không có field */}
           <Input
-            label="Ngày hết hạn *"
+            label={t('expiryDate')}
             type="date"
             value={expiryDate}
             onChange={(e) => setExpiryDate(e.target.value)}
@@ -159,11 +161,11 @@ export const EditCouponModal: React.FC<EditCouponModalProps> = ({
 
         <div className="flex items-center justify-end gap-3 pt-4 border-t border-slate-200 dark:border-white/10">
           <Button variant="ghost" type="button" onClick={onClose}>
-            Hủy
+            {t('cancel')}
           </Button>
           <Button variant="primary" type="submit" className="gap-2">
             <Save className="h-4 w-4" />
-            Cập Nhật Voucher
+            {t('editVoucher')}
           </Button>
         </div>
       </form>

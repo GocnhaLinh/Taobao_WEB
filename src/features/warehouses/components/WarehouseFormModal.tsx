@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import type { Warehouse } from '../../../types';
+import { useTranslation } from '../../../lib/i18n';
 import { Modal } from '../../../components/ui/Modal';
 import { Input } from '../../../components/ui/Input';
 import { Button } from '../../../components/ui/Button';
@@ -28,6 +29,7 @@ export const WarehouseFormModal: React.FC<WarehouseFormModalProps> = ({
   initialData,
   isLoading = false,
 }) => {
+  const { t } = useTranslation();
   const [code, setCode] = useState('');
   const [name, setName] = useState('');
   const [province, setProvince] = useState('');
@@ -89,7 +91,7 @@ export const WarehouseFormModal: React.FC<WarehouseFormModalProps> = ({
     });
   };
 
-  const modalTitle = initialData ? 'Chỉnh sửa Kho Hàng' : 'Thêm Kho Hàng Mới';
+  const modalTitle = initialData ? t('editWarehouseTitle') : t('addWarehouseTitle');
 
   return (
     <Modal
@@ -99,10 +101,10 @@ export const WarehouseFormModal: React.FC<WarehouseFormModalProps> = ({
       footer={
         <>
           <Button variant="secondary" onClick={onClose}>
-            Hủy
+            {t('cancel')}
           </Button>
           <Button variant="primary" onClick={handleSubmit} isLoading={isLoading}>
-            {initialData ? 'Cập nhật' : 'Lưu kho hàng'}
+            {initialData ? t('updateWarehouse') : t('saveWarehouse')}
           </Button>
         </>
       }
@@ -111,15 +113,15 @@ export const WarehouseFormModal: React.FC<WarehouseFormModalProps> = ({
         {/* Code & Name Row */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <Input
-            label="Mã kho hàng *"
-            placeholder="Ví dụ: HCM-MAIN, HN-KHO-01"
+            label={t('warehouseCode')}
+            placeholder={t('warehouseCodePlaceholder')}
             value={code}
             onChange={(e) => setCode(e.target.value.toUpperCase())}
             required
           />
           <Input
-            label="Tên kho hàng *"
-            placeholder="Ví dụ: Kho Tổng TP. Hồ Chí Minh"
+            label={t('warehouseName')}
+            placeholder={t('warehouseNamePlaceholder')}
             value={name}
             onChange={(e) => setName(e.target.value)}
             required
@@ -129,15 +131,15 @@ export const WarehouseFormModal: React.FC<WarehouseFormModalProps> = ({
         {/* Province & District Row */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <Input
-            label="Tỉnh / Thành phố *"
-            placeholder="Ví dụ: Hồ Chí Minh, Hà Nội"
+            label={t('warehouseProvince')}
+            placeholder={t('warehouseProvincePlaceholder')}
             value={province}
             onChange={(e) => setProvince(e.target.value)}
             required
           />
           <Input
-            label="Quận / Huyện"
-            placeholder="Ví dụ: Quận 1, Cầu Giấy"
+            label={t('warehouseDistrict')}
+            placeholder={t('warehouseDistrictPlaceholder')}
             value={district}
             onChange={(e) => setDistrict(e.target.value)}
           />
@@ -145,8 +147,8 @@ export const WarehouseFormModal: React.FC<WarehouseFormModalProps> = ({
 
         {/* Detailed Address */}
         <Input
-          label="Địa chỉ chi tiết kho"
-          placeholder="Số 123 Đường Nguyễn Huệ, Phường Bến Nghé..."
+          label={t('warehouseAddress')}
+          placeholder={t('warehouseAddressPlaceholder')}
           value={address}
           onChange={(e) => setAddress(e.target.value)}
         />
@@ -154,30 +156,30 @@ export const WarehouseFormModal: React.FC<WarehouseFormModalProps> = ({
         {/* Supported Provinces Input */}
         <div>
           <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
-            Các Tỉnh / Thành phố hỗ trợ vận chuyển
+            {t('warehouseSupportedProvinces')}
           </label>
           <Input
-            placeholder="Ví dụ: Hồ Chí Minh, Bình Dương, Đồng Nai, Long An..."
+            placeholder={t('warehouseSupportedProvincesPlaceholder')}
             value={supportedProvincesText}
             onChange={(e) => setSupportedProvincesText(e.target.value)}
           />
           <p className="text-[11px] text-slate-400 mt-1">
-            Nhập danh sách tên các Tỉnh/Thành cách nhau bởi dấu phẩy để hệ thống tự gán kho khi đơn hàng được đặt.
+            {t('warehouseSupportedProvincesHint')}
           </p>
         </div>
 
         {/* Supported Districts Input */}
         <div>
           <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
-            Các Quận / Huyện hỗ trợ vận chuyển
+            {t('warehouseSupportedDistricts')}
           </label>
           <Input
-            placeholder="Ví dụ: Quận 1, Quận 3, Bình Thạnh, Thủ Đức..."
+            placeholder={t('warehouseSupportedDistrictsPlaceholder')}
             value={supportedDistrictsText}
             onChange={(e) => setSupportedDistrictsText(e.target.value)}
           />
           <p className="text-[11px] text-slate-400 mt-1">
-            Nhập danh sách Quận/Huyện cách nhau bởi dấu phẩy (để trống nếu kho hỗ trợ toàn tỉnh).
+            {t('warehouseSupportedDistrictsHint')}
           </p>
         </div>
 
@@ -191,7 +193,7 @@ export const WarehouseFormModal: React.FC<WarehouseFormModalProps> = ({
             className="h-4 w-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 cursor-pointer"
           />
           <label htmlFor="isDefault" className="text-xs font-bold text-slate-800 dark:text-slate-200 cursor-pointer">
-            Đặt làm Tổng Kho Mặc Định của hệ thống
+            {t('warehouseSetDefault')}
           </label>
         </div>
       </form>

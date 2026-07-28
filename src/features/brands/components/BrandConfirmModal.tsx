@@ -1,5 +1,6 @@
 import React from 'react';
 import type { Brand } from '../../../types';
+import { useTranslation } from '../../../lib/i18n';
 import { Modal } from '../../../components/ui/Modal';
 import { Button } from '../../../components/ui/Button';
 import { AlertTriangle, RotateCcw, Trash2 } from 'lucide-react';
@@ -23,53 +24,48 @@ export const BrandConfirmModal: React.FC<BrandConfirmModalProps> = ({
   type,
   isLoading = false,
 }) => {
+  const { t } = useTranslation();
   if (!brand) return null;
 
   const getContent = () => {
     switch (type) {
       case 'SOFT_DELETE':
         return {
-          title: 'Xác nhận chuyển vào Thùng rác',
+          title: t('brandConfirmSoftDeleteTitle'),
           icon: <Trash2 className="h-6 w-6 text-amber-500" />,
           bgColor: 'bg-amber-500/10 border-amber-500/20',
           message: (
             <span>
-              Bạn có chắc chắn muốn chuyển thương hiệu{' '}
-              <strong className="text-slate-900 dark:text-white font-bold">"{brand.name}"</strong> vào Thùng rác?
-              Thương hiệu sẽ được lưu giữ tối đa 30 ngày trước khi tự động xóa.
+              {t('brandConfirmSoftDeleteDesc', { name: brand.name }) || `Move "${brand.name}" to Trash?`}
             </span>
           ),
-          confirmButtonText: 'Chuyển vào Thùng rác',
+          confirmButtonText: t('confirmDeleteProductBtn'),
           confirmVariant: 'danger' as const,
         };
       case 'RESTORE':
         return {
-          title: 'Xác nhận khôi phục thương hiệu',
+          title: t('brandConfirmRestoreTitle'),
           icon: <RotateCcw className="h-6 w-6 text-emerald-500" />,
           bgColor: 'bg-emerald-500/10 border-emerald-500/20',
           message: (
             <span>
-              Bạn muốn khôi phục thương hiệu{' '}
-              <strong className="text-slate-900 dark:text-white font-bold">"{brand.name}"</strong> quay trở lại danh
-              sách hoạt động chính?
+              {t('brandConfirmRestoreDesc', { name: brand.name }) || `Restore "${brand.name}"?`}
             </span>
           ),
-          confirmButtonText: 'Khôi phục ngay',
+          confirmButtonText: t('warehouseConfirmRestoreBtn'),
           confirmVariant: 'primary' as const,
         };
       case 'HARD_DELETE':
         return {
-          title: 'Cảnh báo: Xóa vĩnh viễn thương hiệu',
+          title: t('brandConfirmHardDeleteTitle'),
           icon: <AlertTriangle className="h-6 w-6 text-rose-500" />,
           bgColor: 'bg-rose-500/10 border-rose-500/20',
           message: (
             <span>
-              Hành động này sẽ xóa thương hiệu{' '}
-              <strong className="text-slate-900 dark:text-white font-bold">"{brand.name}"</strong> vĩnh viễn khỏi hệ
-              thống và không thể hoàn tác.
+              {t('brandConfirmHardDeleteDesc', { name: brand.name }) || `Permanently delete "${brand.name}"?`}
             </span>
           ),
-          confirmButtonText: 'Xóa vĩnh viễn',
+          confirmButtonText: t('confirmForceDeleteProductBtn'),
           confirmVariant: 'danger' as const,
         };
     }
@@ -85,7 +81,7 @@ export const BrandConfirmModal: React.FC<BrandConfirmModalProps> = ({
       footer={
         <>
           <Button variant="secondary" onClick={onClose}>
-            Hủy
+            {t('cancel')}
           </Button>
           <Button variant={confirmVariant} onClick={onConfirm} isLoading={isLoading}>
             {confirmButtonText}

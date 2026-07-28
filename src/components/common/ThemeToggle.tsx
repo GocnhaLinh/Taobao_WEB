@@ -9,7 +9,7 @@ export const ThemeToggle: React.FC = () => {
     <button
       onClick={toggleTheme}
       className="p-2.5 rounded-xl bg-pink-50 dark:bg-white/10 hover:bg-pink-100 dark:hover:bg-white/20 transition-all cursor-pointer border border-pink-200 dark:border-white/10 flex items-center justify-center"
-      title={theme === 'dark' ? 'Chuyển sang Giao diện Hồng 🌸' : 'Chuyển sang Giao diện Tối 🌙'}
+      title={theme === 'dark' ? 'Switch to Pink Theme 🌸' : 'Switch to Dark Theme 🌙'}
       aria-label="Toggle Theme"
     >
       {theme === 'dark' ? (

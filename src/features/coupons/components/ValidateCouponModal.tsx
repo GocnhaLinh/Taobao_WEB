@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTranslation } from '../../../lib/i18n';
 import { Modal } from '../../../components/ui/Modal';
 import { Button } from '../../../components/ui/Button';
 import { Input } from '../../../components/ui/Input';
@@ -14,6 +15,7 @@ export const ValidateCouponModal: React.FC<ValidateCouponModalProps> = ({
   isOpen,
   onClose,
 }) => {
+  const { t } = useTranslation();
   const [code, setCode] = useState('');
   const [orderValue, setOrderValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -35,7 +37,7 @@ export const ValidateCouponModal: React.FC<ValidateCouponModalProps> = ({
     } catch (err: any) {
       setResult({
         valid: false,
-        message: err.response?.data?.error || err.message || 'Mã không hợp lệ hoặc lỗi kiểm tra.',
+        message: err.response?.data?.error || err.message || 'Invalid coupon code or verification error.',
       });
     } finally {
       setIsLoading(false);
@@ -43,26 +45,26 @@ export const ValidateCouponModal: React.FC<ValidateCouponModalProps> = ({
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title="Kiểm Tra & Thử Nghiệm Mã Giảm Giá">
+    <Modal isOpen={isOpen} onClose={onClose} title={t('validateCouponTitle')}>
       <form onSubmit={handleValidate} className="space-y-4">
         <div className="flex items-center gap-3 p-3 bg-indigo-500/10 border border-indigo-500/20 rounded-xl text-indigo-600 dark:text-indigo-400 text-xs font-medium">
           <Calculator className="h-5 w-5 shrink-0 text-indigo-500" />
-          Nhập mã voucher và giá trị đơn hàng để giả lập kiểm tra tính hợp lệ từ backend.
+          {t('validateCouponDesc')}
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <Input
-            label="Mã Voucher (Code) *"
-            placeholder="VD: TAOBAO50K"
+            label={t('validateCouponCode')}
+            placeholder={t('validateCouponCodePlaceholder')}
             value={code}
             onChange={(e) => setCode(e.target.value)}
             required
           />
 
           <Input
-            label="Giá trị đơn hàng (VNĐ) *"
+            label={t('validateOrderValue')}
             type="number"
-            placeholder="500000"
+            placeholder={t('validateOrderValuePlaceholder')}
             value={orderValue}
             onChange={(e) => setOrderValue(e.target.value)}
             required
@@ -76,7 +78,7 @@ export const ValidateCouponModal: React.FC<ValidateCouponModalProps> = ({
           className="w-full gap-2 justify-center"
         >
           <Search className="h-4 w-4" />
-          {isLoading ? 'Đang kiểm tra backend...' : 'Kiểm tra Mã Giảm Giá'}
+          {isLoading ? t('checkingCoupon') : t('checkCoupon')}
         </Button>
 
         {/* Result Area */}
@@ -96,10 +98,10 @@ export const ValidateCouponModal: React.FC<ValidateCouponModalProps> = ({
               )}
               <div>
                 <h4 className="font-bold text-sm">
-                  {result.valid ? 'MÃ HỢP LỆ VÀ SẴN SÀNG ÁP DỤNG!' : 'MÃ KHÔNG HỢP LỆ'}
+                  {result.valid ? t('validCoupon') : t('invalidCoupon')}
                 </h4>
                 <p className="text-xs font-medium mt-0.5 opacity-90">
-                  {result.valid ? 'Tất cả điều kiện hạn mức đơn hàng đều thỏa mãn.' : result.message}
+                  {result.valid ? t('validCouponDesc') : result.message}
                 </p>
               </div>
             </div>
@@ -107,11 +109,11 @@ export const ValidateCouponModal: React.FC<ValidateCouponModalProps> = ({
             {result.valid && result.coupon && (
               <div className="pt-3 border-t border-emerald-500/20 text-xs grid grid-cols-2 gap-2 text-slate-800 dark:text-slate-200 font-medium">
                 <div>
-                  <span className="text-slate-400 block text-[11px]">Loại giảm giá:</span>
+                  <span className="text-slate-400 block text-[11px]">{t('discountType')}</span>
                   <span className="font-bold uppercase">{result.coupon.discountType}</span>
                 </div>
                 <div>
-                  <span className="text-slate-400 block text-[11px]">Mức giảm:</span>
+                  <span className="text-slate-400 block text-[11px]">{t('discountLevel')}</span>
                   <span className="font-bold text-emerald-500">
                     {result.coupon.discountType === 'percent' || result.coupon.discountType === 'PERCENT'
                       ? `${result.coupon.discountValue}%`
@@ -119,12 +121,12 @@ export const ValidateCouponModal: React.FC<ValidateCouponModalProps> = ({
                   </span>
                 </div>
                 <div>
-                  <span className="text-slate-400 block text-[11px]">Đơn tối thiểu:</span>
+                  <span className="text-slate-400 block text-[11px]">{t('minOrderLabel')}</span>
                   <span>{result.coupon.minOrderValue.toLocaleString()} ₫</span>
                 </div>
                 {result.coupon.maxDiscount && (
                   <div>
-                    <span className="text-slate-400 block text-[11px]">Giảm tối đa:</span>
+                    <span className="text-slate-400 block text-[11px]">{t('maxDiscountDetail')}</span>
                     <span>{result.coupon.maxDiscount.toLocaleString()} ₫</span>
                   </div>
                 )}

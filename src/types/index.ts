@@ -1,8 +1,18 @@
+export const Sex = {
+  MALE: 'MALE',
+  FEMALE: 'FEMALE',
+  KID: 'KID',
+  OTHER: 'OTHER',
+  UNISEX: 'UNISEX',
+} as const;
+
+export type SexType = (typeof Sex)[keyof typeof Sex];
+
 export interface Category {
   id: string;
   name: string;
   slug: string;
-  sex?: 'MALE' | 'FEMALE' | 'KID' | 'UNISEX' | 'OTHER' | string;
+  sex?: SexType | string;
   status: string;
   deletedAt?: string;
 }

@@ -2,6 +2,7 @@ import React from 'react';
 import { Modal } from './Modal';
 import { Button } from './Button';
 import { AlertTriangle, Trash2 } from 'lucide-react';
+import { useTranslation } from '../../lib/i18n';
 
 interface ConfirmModalProps {
   isOpen: boolean;
@@ -19,13 +20,14 @@ export const ConfirmModal: React.FC<ConfirmModalProps> = ({
   isOpen,
   onClose,
   onConfirm,
-  title = 'Xác nhận xóa',
-  description = 'Bạn có chắc chắn muốn thực hiện hành động này? Dữ liệu có thể không khôi phục được.',
-  confirmText = 'Đồng ý xóa',
-  cancelText = 'Hủy bỏ',
+  title = 'Delete Confirmation',
+  description = 'Are you sure you want to perform this action? This data cannot be recovered.',
+  confirmText = 'Confirm',
+  cancelText = 'Cancel',
   variant = 'danger',
   isLoading = false,
 }) => {
+  const { t } = useTranslation();
   return (
     <Modal isOpen={isOpen} onClose={onClose} title={title}>
       <div className="space-y-5">
@@ -34,7 +36,7 @@ export const ConfirmModal: React.FC<ConfirmModalProps> = ({
             <AlertTriangle className="h-6 w-6" />
           </div>
           <div>
-            <h4 className="font-bold text-slate-900 dark:text-white text-sm">Hành động này cần xác nhận</h4>
+            <h4 className="font-bold text-slate-900 dark:text-white text-sm">{t('confirm') || 'Confirmation Required'}</h4>
             <p className="text-xs text-slate-600 dark:text-slate-300 mt-1 leading-relaxed">{description}</p>
           </div>
         </div>

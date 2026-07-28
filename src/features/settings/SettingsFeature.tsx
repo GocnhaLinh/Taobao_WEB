@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Sliders, Save, RefreshCw } from 'lucide-react';
+import { useTranslation } from '../../lib/i18n';
 import { useNotification } from '../../lib/notification';
 import { Button } from '../../components/ui/Button';
 import { ThemeSettingCard } from './components/ThemeSettingCard';
@@ -10,6 +11,7 @@ import { ServiceWarehouseFeeCard } from './components/ServiceWarehouseFeeCard';
 import { getFeeConfigApi, saveFeeConfigApi } from '../../services/settingsService';
 
 export const SettingsFeature: React.FC = () => {
+  const { t } = useTranslation();
   const { showNotification } = useNotification();
   const queryClient = useQueryClient();
 
@@ -49,10 +51,10 @@ export const SettingsFeature: React.FC = () => {
       // vì invalidate sẽ refetch đè lên data vừa set (request dư thừa)
       queryClient.invalidateQueries({ queryKey: ['feeConfig'] });
       queryClient.invalidateQueries({ queryKey: ['products'] });
-      showNotification('Cập nhật cấu hình phí & tỷ giá thành công!', 'success');
+      showNotification(t('configSaved'), 'success');
     },
     onError: (err: any) => {
-      showNotification(err.message || 'Lỗi khi lưu cấu hình phí', 'error');
+      showNotification(err.message || t('configSaveError'), 'error');
     },
   });
 
@@ -60,7 +62,7 @@ export const SettingsFeature: React.FC = () => {
 
     const exRate = parseFloat(exchangeRate);
     if (isNaN(exRate) || exRate <= 0) {
-      showNotification('Tỷ giá NDT phải là số và lớn hơn 0', 'warning');
+      showNotification(t('exchangeRateError'), 'warning');
       return;
     }
 
@@ -82,7 +84,7 @@ export const SettingsFeature: React.FC = () => {
       isNaN(svcFee) || svcFee < 0 ||
       isNaN(depFee) || depFee < 0
     ) {
-      showNotification('Vui lòng nhập đầy đủ và hợp lệ các thông số phí', 'warning');
+      showNotification(t('configValidationError'), 'warning');
       return;
     }
 
@@ -104,10 +106,10 @@ export const SettingsFeature: React.FC = () => {
         <div>
           <h2 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
             <Sliders className="h-5 w-5 sm:h-6 sm:w-6 text-indigo-500 shrink-0" />
-            Cấu hình Phí & Tỷ giá Hệ thống
+            {t('settingsConfigTitle')}
           </h2>
           <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">
-            Quản lý tỷ giá quy đổi NDT ➔ VNĐ, phí vận chuyển và các tỷ lệ phí dịch vụ nhập hàng.
+            {t('settingsConfigDesc')}
           </p>
         </div>
         <div className="flex items-center gap-2 w-full sm:w-auto">
@@ -119,7 +121,7 @@ export const SettingsFeature: React.FC = () => {
             className="flex-1 sm:flex-initial items-center justify-center gap-1.5"
           >
             <RefreshCw className={`h-4 w-4 shrink-0 ${isLoading ? 'animate-spin' : ''}`} />
-            Làm mới
+            {t('refresh')}
           </Button>
           <Button
             variant="primary"
@@ -129,7 +131,7 @@ export const SettingsFeature: React.FC = () => {
             className="flex-1 sm:flex-initial items-center justify-center gap-1.5 shadow-md shadow-indigo-500/20"
           >
             <Save className="h-4 w-4 shrink-0" />
-            Lưu thay đổi
+            {t('saveChanges')}
           </Button>
         </div>
       </div>
@@ -162,7 +164,7 @@ export const SettingsFeature: React.FC = () => {
             disabled={isLoading || saveMutation.isPending}
             className="w-full sm:w-auto"
           >
-            Hủy thay đổi
+            {t('settingsCancelChanges')}
           </Button>
           <Button
             type="button"
@@ -172,7 +174,7 @@ export const SettingsFeature: React.FC = () => {
             className="w-full sm:w-auto shadow-lg shadow-indigo-500/25 px-6"
           >
             <Save className="h-4 w-4 mr-2 shrink-0" />
-            Lưu cấu hình Phí & Tỷ giá
+            {t('settingsSaveConfig')}
           </Button>
         </div>
       </div>

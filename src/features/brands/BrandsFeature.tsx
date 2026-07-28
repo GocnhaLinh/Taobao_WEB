@@ -112,11 +112,11 @@ export const BrandsFeature: React.FC = () => {
     mutationFn: createBrandApi,
     onSuccess: () => {
       refreshBrands();
-      showNotification("Thêm thương hiệu mới thành công!", "success");
+      showNotification(t('brandCreated'), "success");
       setIsFormModalOpen(false);
     },
     onError: (error: any) => {
-      showNotification(error.message || "Thêm thương hiệu thất bại", "error");
+      showNotification(error.message || "Failed to add brand", "error");
     },
   });
 
@@ -124,13 +124,13 @@ export const BrandsFeature: React.FC = () => {
     mutationFn: updateBrandApi,
     onSuccess: () => {
       refreshBrands();
-      showNotification("Cập nhật thương hiệu thành công!", "success");
+      showNotification(t('brandUpdated'), "success");
       setIsFormModalOpen(false);
       setEditingBrand(null);
     },
     onError: (error: any) => {
       showNotification(
-        error.message || "Cập nhật thương hiệu thất bại",
+        error.message || "Failed to update brand",
         "error",
       );
     },
@@ -140,12 +140,12 @@ export const BrandsFeature: React.FC = () => {
     mutationFn: deleteBrandApi,
     onSuccess: () => {
       refreshBrands();
-      showNotification("Đã chuyển thương hiệu vào Thùng rác!", "info");
+      showNotification(t('brandDeleted'), "info");
       setConfirmModalState((prev) => ({ ...prev, isOpen: false }));
     },
     onError: (error: any) => {
       showNotification(
-        error.message || "Chuyển vào thùng rác thất bại",
+        error.message || "Failed to delete brand",
         "error",
       );
     },
@@ -155,12 +155,12 @@ export const BrandsFeature: React.FC = () => {
     mutationFn: restoreBrandApi,
     onSuccess: () => {
       refreshBrands();
-      showNotification("Khôi phục thương hiệu thành công!", "success");
+      showNotification(t('brandRestored'), "success");
       setConfirmModalState((prev) => ({ ...prev, isOpen: false }));
     },
     onError: (error: any) => {
       showNotification(
-        error.message || "Khôi phục thương hiệu thất bại",
+        error.message || "Failed to restore brand",
         "error",
       );
     },
@@ -170,11 +170,11 @@ export const BrandsFeature: React.FC = () => {
     mutationFn: hardDeleteBrandApi,
     onSuccess: () => {
       refreshBrands();
-      showNotification("Đã xóa vĩnh viễn thương hiệu!", "success");
+      showNotification(t('brandForceDeleted'), "success");
       setConfirmModalState((prev) => ({ ...prev, isOpen: false }));
     },
     onError: (error: any) => {
-      showNotification(error.message || "Xóa thương hiệu thất bại", "error");
+      showNotification(error.message || "Failed to permanently delete brand", "error");
     },
   });
 
@@ -251,17 +251,16 @@ export const BrandsFeature: React.FC = () => {
         <div>
           <h2 className="text-2xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
             <Award className="h-6 w-6 text-indigo-500" />
-            {t("brandManagement") || "Quản lý Thương hiệu"}
+            {t("brandManagement")}
           </h2>
           <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
-            {t("brandDesc") ||
-              "Quản lý thương hiệu sản phẩm thời trang cao cấp."}
+            {t("brandDesc")}
           </p>
         </div>
         <Button onClick={handleOpenAdd}>
           <Plus className="h-4 w-4 mr-1.5" />
-          <span className="hidden lg:inline">Thêm thương hiệu</span>
-          <span className="lg:hidden">Thêm</span>
+          <span className="hidden lg:inline">{t('addBrand')}</span>
+          <span className="lg:hidden">{t('addBrandShort')}</span>
         </Button>
       </div>
 
@@ -281,10 +280,10 @@ export const BrandsFeature: React.FC = () => {
                   ? "bg-white dark:bg-indigo-600 text-indigo-600 dark:text-white shadow-md"
                   : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
               }`}
-              title="Thương hiệu đang sử dụng"
+              title={t('brandActiveTab')}
             >
               <Layers className="h-4 w-4" />
-              <span className="hidden lg:inline">Thương hiệu sử dụng</span>
+              <span className="hidden lg:inline">{t('brandActiveTab')}</span>
               <span className="px-2 py-0.5 rounded-full text-[10px] bg-slate-200 dark:bg-white/20 text-slate-700 dark:text-white font-mono">
                 {activeBrands.length}
               </span>
@@ -300,10 +299,10 @@ export const BrandsFeature: React.FC = () => {
                   ? "bg-rose-500 text-white shadow-md"
                   : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
               }`}
-              title="Thùng rác lưu trữ"
+              title={t('brandTrashTab')}
             >
               <Archive className="h-4 w-4" />
-              <span className="hidden lg:inline">Thùng rác lưu trữ</span>
+              <span className="hidden lg:inline">{t('brandTrashTab')}</span>
               {deletedBrands.length > 0 && (
                 <span className="px-2 py-0.5 rounded-full text-[10px] bg-white text-rose-600 font-extrabold animate-pulse">
                   {deletedBrands.length}
@@ -318,7 +317,7 @@ export const BrandsFeature: React.FC = () => {
             <div className="relative w-full sm:w-64">
               <Search className="absolute left-3.5 top-3 h-4 w-4 text-slate-400" />
               <Input
-                placeholder="Tìm kiếm thương hiệu..."
+                placeholder={t('searchBrandPlaceholder')}
                 value={searchQuery}
                 onChange={(e) => {
                   setSearchQuery(e.target.value);
@@ -365,8 +364,7 @@ export const BrandsFeature: React.FC = () => {
           <div className="p-4 bg-amber-500/10 border border-amber-500/20 rounded-2xl flex items-center gap-3 text-xs text-amber-800 dark:text-amber-300 font-medium">
             <Clock className="h-5 w-5 text-amber-500 shrink-0" />
             <span>
-              Các thương hiệu trong Thùng rác được giữ tối đa 30 ngày kể từ khi
-              xóa. Bạn có thể khôi phục bất cứ lúc nào hoặc xóa vĩnh viễn.
+            {t('brandTrashNotice')}
             </span>
           </div>
         )}
@@ -374,15 +372,15 @@ export const BrandsFeature: React.FC = () => {
         {/* Brands List / Cards Grid */}
         {isLoadingCurrent ? (
           <div className="py-16 text-center text-slate-500 dark:text-slate-400 animate-pulse">
-            Đang tải dữ liệu thương hiệu...
+            {t('loadingBrands')}
           </div>
         ) : paginatedBrands.length === 0 ? (
           <div className="py-16 text-center text-slate-400 text-sm flex flex-col items-center gap-3">
             <Archive className="h-10 w-10 opacity-30" />
             <span>
               {activeTab === "ACTIVE"
-                ? "Không tìm thấy thương hiệu nào"
-                : "Thùng rác trống - Chưa có thương hiệu nào bị xóa"}
+                ? t('emptyActiveBrands')
+                : t('emptyTrashBrands')}
             </span>
           </div>
         ) : viewMode === "card" ? (
@@ -419,7 +417,7 @@ export const BrandsFeature: React.FC = () => {
         {totalPages > 1 && (
           <div className="pt-4 border-t border-slate-200 dark:border-white/10 flex items-center justify-between">
             <span className="text-xs text-slate-500 dark:text-slate-400">
-              Trang{" "}
+              {t('page')}{" "}
               <strong className="text-slate-900 dark:text-white">
                 {currentPage}
               </strong>{" "}
@@ -434,7 +432,7 @@ export const BrandsFeature: React.FC = () => {
                 disabled={currentPage === 1}
               >
                 <ChevronLeft className="h-4 w-4 mr-1" />
-                Trước
+                {t('prev')}
               </Button>
               <Button
                 variant="secondary"
@@ -444,7 +442,7 @@ export const BrandsFeature: React.FC = () => {
                 }
                 disabled={currentPage === totalPages}
               >
-                Sau
+                {t('next')}
                 <ChevronRight className="h-4 w-4 ml-1" />
               </Button>
             </div>

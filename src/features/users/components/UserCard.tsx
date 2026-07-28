@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from '../../../lib/i18n';
 import { Badge } from '../../../components/ui/Badge';
 import { Mail, Phone, Calendar, UserCheck } from 'lucide-react';
 
@@ -20,7 +21,8 @@ interface UserCardProps {
 }
 
 export const UserCard: React.FC<UserCardProps> = React.memo(({ user }) => {
-  const displayName = user.fullName || user.name || 'Khách hàng';
+  const { t } = useTranslation();
+  const displayName = user.fullName || user.name || t('anonymousUser');
   const initial = displayName.charAt(0).toUpperCase();
   const isAdmin = user.role === 'ADMIN';
 
@@ -57,16 +59,16 @@ export const UserCard: React.FC<UserCardProps> = React.memo(({ user }) => {
       <div className="pt-3 border-t border-slate-100 dark:border-white/5 grid grid-cols-2 gap-2 text-xs">
         <div className="space-y-1">
           <span className="text-[11px] text-slate-400 flex items-center gap-1">
-            <Phone className="h-3 w-3 text-slate-400" /> SĐT
+            <Phone className="h-3 w-3 text-slate-400" /> Phone
           </span>
           <p className="font-semibold text-slate-700 dark:text-slate-200">
-            {user.phone || 'Chưa cập nhật'}
+            {user.phone || 'N/A'}
           </p>
         </div>
 
         <div className="space-y-1 text-right">
           <span className="text-[11px] text-slate-400 flex items-center justify-end gap-1">
-            <UserCheck className="h-3 w-3 text-emerald-500" /> Trạng thái
+            <UserCheck className="h-3 w-3 text-emerald-500" /> {t('status')}
           </span>
           <p className="font-bold text-emerald-600 dark:text-emerald-400 uppercase text-[11px]">
             {user.status || 'ACTIVE'}
@@ -77,7 +79,7 @@ export const UserCard: React.FC<UserCardProps> = React.memo(({ user }) => {
       {user.createdAt && (
         <div className="pt-2 border-t border-slate-100 dark:border-white/5 text-[11px] text-slate-400 flex items-center justify-between">
           <span className="flex items-center gap-1">
-            <Calendar className="h-3 w-3" /> Tham gia:
+            <Calendar className="h-3 w-3" /> {t('createdAt')}:
           </span>
           <span className="font-medium text-slate-500 dark:text-slate-400">
             {new Date(user.createdAt).toLocaleDateString('vi-VN')}

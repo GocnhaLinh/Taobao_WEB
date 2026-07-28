@@ -1,5 +1,6 @@
 import React from 'react';
 import { Percent } from 'lucide-react';
+import { useTranslation } from '../../../lib/i18n';
 import { Input } from '../../../components/ui/Input';
 
 interface ServiceWarehouseFeeCardProps {
@@ -23,17 +24,18 @@ export const ServiceWarehouseFeeCard: React.FC<ServiceWarehouseFeeCardProps> = (
   warehouseFeePerDay,
   setWarehouseFeePerDay,
 }) => {
+  const { t } = useTranslation();
   return (
     <div className="p-4 sm:p-6 bg-white dark:bg-slate-900/50 backdrop-blur-md rounded-2xl border border-slate-200 dark:border-white/10 shadow-sm space-y-4">
       <h3 className="text-slate-900 dark:text-white font-bold text-base sm:text-lg flex items-center gap-2">
         <Percent className="h-5 w-5 text-amber-500 shrink-0" />
-        Phí Dịch vụ & Quy định Kho hàng
+        {t('settingsServiceWarehouseTitle')}
       </h3>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <div className="space-y-1.5">
           <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
-            Phí dịch vụ mua hàng (%)
+            {t('settingsServiceFeeLabel')}
           </label>
           <Input
             type="number"
@@ -46,7 +48,7 @@ export const ServiceWarehouseFeeCard: React.FC<ServiceWarehouseFeeCardProps> = (
 
         <div className="space-y-1.5">
           <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
-            Tỷ lệ đặt cọc tối thiểu (%)
+            {t('settingsDepositLabel')}
           </label>
           <Input
             type="number"
@@ -59,7 +61,7 @@ export const ServiceWarehouseFeeCard: React.FC<ServiceWarehouseFeeCardProps> = (
 
         <div className="space-y-1.5">
           <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
-            Số ngày miễn phí lưu kho (Ngày)
+            {t('settingsWarehouseFreeDaysLabel')}
           </label>
           <Input
             type="number"
@@ -72,7 +74,7 @@ export const ServiceWarehouseFeeCard: React.FC<ServiceWarehouseFeeCardProps> = (
 
         <div className="space-y-1.5">
           <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
-            Phí lưu kho quá hạn (VNĐ / Ngày)
+            {t('settingsWarehouseFeePerDayLabel')}
           </label>
           <Input
             type="number"

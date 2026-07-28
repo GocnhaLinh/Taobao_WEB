@@ -12,7 +12,7 @@ export const TopProductsLeaderboard: React.FC<TopProductsLeaderboardProps> = ({ 
       <div className="flex items-center justify-between">
         <h3 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
           <Crown className="h-5 w-5 text-amber-500" />
-          BXH Sản phẩm bán chạy nhất
+          Top Best Selling Products
         </h3>
         <Badge variant="warning" className="flex items-center gap-1">
           <Sparkles className="h-3 w-3" />
@@ -59,7 +59,7 @@ export const TopProductsLeaderboard: React.FC<TopProductsLeaderboardProps> = ({ 
                       {prod.productName}
                     </h4>
                     <span className="text-[11px] text-slate-500 dark:text-slate-400 block">
-                      Category: {prod.category?.name || 'Thời trang'}
+                      Category: {prod.category?.name || 'Fashion'}
                     </span>
                   </div>
                 </div>
@@ -69,14 +69,14 @@ export const TopProductsLeaderboard: React.FC<TopProductsLeaderboardProps> = ({ 
                     {(prod.price || 250000).toLocaleString()} ₫
                   </span>
                   <span className="text-[10px] text-emerald-500 font-semibold">
-                    Đã bán: {120 - idx * 18} sản phẩm
+                    Sold: {120 - idx * 18} items
                   </span>
                 </div>
               </div>
             );
           })
         ) : (
-          <div className="text-center py-6 text-slate-500 text-xs">Chưa có sản phẩm nào trong hệ thống.</div>
+          <div className="text-center py-6 text-slate-500 text-xs">No products in the system yet.</div>
         )}
       </div>
     </div>

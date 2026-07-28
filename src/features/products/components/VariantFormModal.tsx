@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
+import { useTranslation } from "../../../lib/i18n";
 import { Modal } from "../../../components/ui/Modal";
 import { Input } from "../../../components/ui/Input";
 import { Button } from "../../../components/ui/Button";
@@ -40,6 +41,7 @@ export const VariantFormModal: React.FC<VariantFormModalProps> = ({
   productId,
   categoryName,
 }) => {
+  const { t } = useTranslation();
   const { showNotification } = useNotification();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -127,7 +129,7 @@ export const VariantFormModal: React.FC<VariantFormModalProps> = ({
           const updated = [...images, res.url];
           setImages(updated);
           if (!image) setImage(res.url);
-          showNotification("Tải ảnh biến thể lên thành công!", "success");
+          showNotification(t('variantAdded') || 'Variant image uploaded!', "success");
         }
       } else {
         const resList = await uploadMultipleImagesApi(filesArray);
@@ -137,13 +139,13 @@ export const VariantFormModal: React.FC<VariantFormModalProps> = ({
           setImages(updated);
           if (!image && newUrls[0]) setImage(newUrls[0]);
           showNotification(
-            `Đã tải lên thành công ${newUrls.length} ảnh biến thể!`,
+            `${newUrls.length} variant images uploaded!`,
             "success",
           );
         }
       }
     } catch (err: any) {
-      showNotification(err.message || "Lỗi tải ảnh biến thể", "error");
+      showNotification(err.message || "Variant image error", "error");
     } finally {
       setIsUploading(false);
       if (fileInputRef.current) {
@@ -166,13 +168,13 @@ export const VariantFormModal: React.FC<VariantFormModalProps> = ({
     ) {
       try {
         await deleteImageApi(urlToRemove);
-        showNotification("Đã xóa ảnh thành công!", "success");
+        showNotification(t('variantDeleted') || 'Image deleted!', "success");
       } catch (err) {
-        console.warn("Xóa ảnh thất bại:", err);
-        showNotification("Đã gỡ ảnh khỏi danh sách!", "info");
+        console.warn("Image deletion failed:", err);
+        showNotification("Image removed from list!", "info");
       }
     } else {
-      showNotification("Đã xóa ảnh thành công!", "success");
+      showNotification("Image deleted successfully!", "success");
     }
   };
 
@@ -217,8 +219,8 @@ export const VariantFormModal: React.FC<VariantFormModalProps> = ({
       onClose={onClose}
       title={
         editingVariant
-          ? "Chỉnh sửa Phiên bản Sản phẩm"
-          : "Thêm Phiên bản mới & Tính Lợi Nhuận"
+          ? (t('editVariant') || 'Edit Variant')
+          : (t('addVariant') || 'Add Variant & Profit')
       }
       maxWidth="5xl"
       footer={
@@ -228,14 +230,14 @@ export const VariantFormModal: React.FC<VariantFormModalProps> = ({
             onClick={onClose}
             disabled={isLoading || isUploading}
           >
-            Hủy
+            {t('cancel')}
           </Button>
           <Button
             variant="primary"
             onClick={handleSubmit}
             isLoading={isLoading || isUploading}
           >
-            {editingVariant ? "Cập nhật biến thể" : "Thêm biến thể"}
+            {editingVariant ? t('update') : t('addVariant')}
           </Button>
         </div>
       }
@@ -245,7 +247,7 @@ export const VariantFormModal: React.FC<VariantFormModalProps> = ({
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           <div className="relative">
             <Input
-              label="Mã SKU (Tự động tạo) *"
+              label={t('skuCode')}
               value={sku}
               onChange={(e) => setSku(e.target.value)}
               placeholder="SKU-GIAY-123456"
@@ -258,20 +260,20 @@ export const VariantFormModal: React.FC<VariantFormModalProps> = ({
                 type="button"
                 onClick={() => setSku(generateAutoSku(categoryName))}
                 className="absolute right-2 top-7 p-1.5 rounded-lg text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 dark:hover:bg-white/10 transition-colors cursor-pointer"
-                title="Tạo lại mã SKU mới"
+                title={t('regenerateSku')}
               >
                 <RefreshCw className="h-4 w-4" />
               </button>
             )}
           </div>
           <Input
-            label="Kích thước (Size)"
+            label={t('sizeLabel')}
             value={size}
             onChange={(e) => setSize(e.target.value)}
             placeholder="S, M, L, XL..."
           />
           <Input
-            label="Màu sắc (Color)"
+            label={t('colorLabel')}
             value={color}
             onChange={(e) => setColor(e.target.value)}
             placeholder="Đen, Trắng, Đỏ..."
@@ -281,7 +283,7 @@ export const VariantFormModal: React.FC<VariantFormModalProps> = ({
         {/* Variant Image Upload */}
         <div>
           <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
-            Hình ảnh phiên bản (Tải lên 1 hoặc nhiều ảnh)
+            {t('productImages')}
           </label>
 
           <input
@@ -306,12 +308,12 @@ export const VariantFormModal: React.FC<VariantFormModalProps> = ({
                 {!isUploading && (
                   <Upload className="h-4 w-4 mr-1.5 text-indigo-500" />
                 )}
-                {isUploading ? "Đang tải ảnh..." : "Tải nhiều ảnh từ máy"}
+                {isUploading ? t('uploading') : t('uploadImages')}
               </Button>
 
               <div className="flex-1 min-w-0">
                 <Input
-                  placeholder="Hoặc dán URL ảnh biến thể (https://...)"
+                  placeholder={t('orPasteImageUrl')}
                   value={image}
                   onChange={(e) => {
                     setImage(e.target.value);
@@ -350,7 +352,7 @@ export const VariantFormModal: React.FC<VariantFormModalProps> = ({
                           handleRemoveImage(imgUrl);
                         }}
                         className="absolute top-1 right-1 p-1 bg-rose-600/90 text-white rounded-lg opacity-0 group-hover:opacity-100 hover:bg-rose-600 shadow transition-all"
-                        title="Xóa ảnh"
+                        title={t('deleteImage')}
                       >
                         <Trash2 className="h-3 w-3" />
                       </button>
@@ -367,22 +369,22 @@ export const VariantFormModal: React.FC<VariantFormModalProps> = ({
           <div className="flex items-center justify-between">
             <h4 className="text-xs font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-400 flex items-center gap-1.5">
               <Calculator className="h-4 w-4" />
-              Công cụ tính Lợi Nhuận nhập hàng Trung Quốc
+              {t('initialVariant') || 'China Import Profit Calculator'}
             </h4>
             <Sparkles className="h-4 w-4 text-amber-500 animate-pulse" />
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
             <Input
-              label="Giá gốc NDT (¥ Trung)"
+              label={t('originCostCNY')}
               type="number"
               step="0.01"
               value={originalPriceCNY}
               onChange={(e) => setOriginalPriceCNY(e.target.value)}
-              placeholder="Ví dụ: 45 (Tệ)"
+              placeholder="E.g. 45 (CNY)"
             />
             <Input
-              label="Tỷ giá NDT ➔ VNĐ"
+              label={t('exchangeRateLabel')}
               type="number"
               value={exchangeRate}
               onChange={(e) => setExchangeRate(e.target.value)}
@@ -390,19 +392,19 @@ export const VariantFormModal: React.FC<VariantFormModalProps> = ({
               disabled
             />
             <Input
-              label="Cân nặng (kg)"
+              label={t('weightKg')}
               type="number"
               step="0.01"
               value={weight}
               onChange={(e) => setWeight(e.target.value)}
-              placeholder="Ví dụ: 0.5 (kg)"
+              placeholder="E.g. 0.5 (kg)"
             />
             <Input
-              label="Phí Vận chuyển TQ ➔ VN"
+              label={t('shippingCnFee')}
               type="number"
               value={shippingFeePerKg}
               onChange={(e) => setShippingFeePerKg(e.target.value)}
-              placeholder="Ví dụ: 28000"
+              placeholder="E.g. 28000"
               disabled
             />
           </div>
@@ -412,7 +414,7 @@ export const VariantFormModal: React.FC<VariantFormModalProps> = ({
             <div className="p-3.5 bg-white dark:bg-slate-900/80 rounded-xl border border-indigo-500/20 grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
               <div>
                 <span className="text-slate-500 block text-[11px]">
-                  Phí Vận chuyển TQ➔VN:
+                  {t('shippingFeeCalc')}
                 </span>
                 <strong className="text-slate-900 dark:text-white font-bold text-xs">
                   {shipVND.toLocaleString()} đ ({kg}kg)
@@ -420,7 +422,7 @@ export const VariantFormModal: React.FC<VariantFormModalProps> = ({
               </div>
               <div>
                 <span className="text-slate-500 block text-[11px]">
-                  Giá gốc về kho VN:
+                  {t('totalLandingCost')}
                 </span>
                 <strong className="text-indigo-600 dark:text-indigo-400 font-bold text-xs">
                   {totalCostVND.toLocaleString()} đ
@@ -428,7 +430,7 @@ export const VariantFormModal: React.FC<VariantFormModalProps> = ({
               </div>
               <div>
                 <span className="text-slate-500 block text-[11px]">
-                  Lợi nhuận ước tính:
+                  {t('estimatedProfit')}
                 </span>
                 <strong
                   className={`font-bold text-xs ${profitVND >= 0 ? "text-emerald-500" : "text-rose-500"}`}
@@ -448,7 +450,7 @@ export const VariantFormModal: React.FC<VariantFormModalProps> = ({
                   }
                 >
                   <TrendingUp className="h-3 w-3 mr-1" />
-                  Tỷ suất: {profitMargin}%
+                  {t('profitRate', { margin: profitMargin })}
                 </Badge>
               </div>
             </div>
@@ -458,15 +460,15 @@ export const VariantFormModal: React.FC<VariantFormModalProps> = ({
         {/* Pricing & Stock */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <Input
-            label="Giá bán ra thị trường Việt (VNĐ) *"
+            label={t('sellingPriceVND')}
             type="number"
             value={price}
             onChange={(e) => setPrice(e.target.value)}
-            placeholder="Ví dụ: 250000"
+            placeholder="E.g. 250000"
             required
           />
           <Input
-            label="Số lượng Tồn kho *"
+            label={`${t('stock')} *`}
             type="number"
             value={stock}
             onChange={(e) => setStock(e.target.value)}

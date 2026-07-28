@@ -31,7 +31,7 @@ const NotificationItemView: React.FC<NotificationItemViewProps> = React.memo(
     const isWarning = notif.type === "warning";
 
     const renderMessage = (msg: any) => {
-      if (!msg) return "Thông báo";
+      if (!msg) return t('notification' as any) || 'Notification';
       let text = "";
       if (typeof msg === "string") {
         text = t(msg as any) || msg;
@@ -46,8 +46,8 @@ const NotificationItemView: React.FC<NotificationItemViewProps> = React.memo(
       }
 
       // Filter raw unhandled database constraint errors into a clean user-friendly message
-      if (text.includes("Foreign key constraint") || text.includes("P2003") || text.includes("P2014")) {
-        return "Không thể hoàn tất thao tác vì dữ liệu đang được liên kết với các mục khác.";
+      if (text.includes("Foreign key constraint") || text.includes("P2003") || text.includes("P2014") || text.includes("Không thể xóa vĩnh viễn danh mục") || text.includes("đang có sản phẩm")) {
+        return t('foreignKeyConstraintError' as any) || 'Cannot complete this operation because the data is linked to other items.';
       }
 
       return text;
@@ -89,7 +89,7 @@ const NotificationItemView: React.FC<NotificationItemViewProps> = React.memo(
                 ? "text-amber-700/70 hover:text-amber-950 hover:bg-amber-200/50 dark:text-amber-400 dark:hover:text-white dark:hover:bg-white/10"
                 : "text-emerald-700/70 hover:text-emerald-950 hover:bg-emerald-200/50 dark:text-emerald-400 dark:hover:text-white dark:hover:bg-white/10"
           }`}
-          title="Đóng thông báo"
+          title={t('close' as any) || 'Close notification'}
         >
           <X className="h-4 w-4" />
         </button>

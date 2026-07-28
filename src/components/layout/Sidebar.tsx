@@ -162,7 +162,7 @@ export const Sidebar: React.FC<SidebarProps> = React.memo(({
                 <Boxes
                   className={`h-4.5 w-4.5 shrink-0 ${isCatalogRoute ? "text-indigo-600 dark:text-indigo-400" : "text-slate-400"}`}
                 />
-                <span className="truncate">Hàng hóa & Kho</span>
+                <span className="truncate">{t("catalogGroup")}</span>
               </div>
               <ChevronDown
                 className={`h-4 w-4 transition-transform duration-200 shrink-0 ${
@@ -214,7 +214,7 @@ export const Sidebar: React.FC<SidebarProps> = React.memo(({
                 <ShoppingCart
                   className={`h-4.5 w-4.5 shrink-0 ${isSalesRoute ? "text-indigo-600 dark:text-indigo-400" : "text-slate-400"}`}
                 />
-                <span className="truncate">Đơn hàng & CSKH</span>
+                <span className="truncate">{t("salesGroup")}</span>
               </div>
               <ChevronDown
                 className={`h-4 w-4 transition-transform duration-200 shrink-0 ${
@@ -266,7 +266,7 @@ export const Sidebar: React.FC<SidebarProps> = React.memo(({
                 <Sparkles
                   className={`h-4.5 w-4.5 shrink-0 ${isPromoRoute ? "text-indigo-600 dark:text-indigo-400" : "text-slate-400"}`}
                 />
-                <span className="truncate">Ưu đãi & Cấu hình</span>
+                <span className="truncate">{t("promoGroup")}</span>
               </div>
               <ChevronDown
                 className={`h-4 w-4 transition-transform duration-200 shrink-0 ${

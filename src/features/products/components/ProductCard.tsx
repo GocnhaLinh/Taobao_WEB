@@ -11,6 +11,7 @@ import {
   Truck,
   RotateCcw,
 } from "lucide-react";
+import { useTranslation } from "../../../lib/i18n";
 import { Badge } from "../../../components/ui/Badge";
 import { Button } from "../../../components/ui/Button";
 import type { Product, ProductVariant } from "../../../types";
@@ -40,6 +41,7 @@ export const ProductCard: React.FC<ProductCardProps> = React.memo(({
   onRestoreProduct,
   onForceDeleteProduct,
 }) => {
+  const { t } = useTranslation();
   const [showVariants, setShowVariants] = useState(true);
 
   const variants = (product.variants || []).filter(
@@ -49,7 +51,7 @@ export const ProductCard: React.FC<ProductCardProps> = React.memo(({
   const getRemainingDaysInfo = (deletedAt?: string) => {
     if (!deletedAt) {
       return {
-        text: '⏱️ Tự xóa sau 30 ngày',
+        text: t('autoDeleteDefault'),
         style: 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20 font-medium',
       };
     }
@@ -62,18 +64,18 @@ export const ProductCard: React.FC<ProductCardProps> = React.memo(({
 
     if (remainingDays <= 5) {
       return {
-        text: `⚠️ Sắp xóa (Còn ${remainingDays} ngày)`,
+        text: t('aboutToDelete', { days: remainingDays }),
         style: 'bg-rose-500/15 text-rose-600 dark:text-rose-400 border-rose-500/30 animate-pulse font-bold',
       };
     }
     if (remainingDays <= 15) {
       return {
-        text: `⏱️ Tự xóa sau ${remainingDays} ngày`,
+        text: t('autoDeleteInDays', { days: remainingDays }),
         style: 'bg-amber-500/15 text-amber-600 dark:text-amber-400 border-amber-500/30 font-semibold',
       };
     }
     return {
-      text: `⏱️ Tự xóa sau ${remainingDays} ngày`,
+      text: t('autoDeleteInDays', { days: remainingDays }),
       style: 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20 font-medium',
     };
   };
@@ -89,7 +91,7 @@ export const ProductCard: React.FC<ProductCardProps> = React.memo(({
           <div
             onClick={() => onViewDetail?.(product)}
             className="h-16 w-16 rounded-2xl overflow-hidden bg-slate-100 dark:bg-white/5 shrink-0 border border-slate-200 dark:border-white/10 cursor-pointer group/thumb relative"
-            title="Bấm để xem chi tiết sản phẩm"
+            title={t('clickToViewDetail')}
           >
             {product.thumbnail ? (
               <img
@@ -115,20 +117,20 @@ export const ProductCard: React.FC<ProductCardProps> = React.memo(({
 
               {isDeletedTab ? (
                 <Badge variant="danger" className="font-semibold">
-                  🗑️ Trong Thùng rác
+                  🗑️ {t('inTrash')}
                 </Badge>
               ) : variants.length === 0 || product.status === "INACTIVE" ? (
                 <Badge variant="danger" className="font-semibold animate-pulse">
-                  ⚠️ Chưa có biến thể (Chưa hoạt động)
+                  ⚠️ {t('noVariants')}
                 </Badge>
               ) : (
-                <Badge variant="success">✓ Đang hoạt động</Badge>
+                <Badge variant="success">✓ {t('active')}</Badge>
               )}
             </div>
             <h3
               onClick={() => onViewDetail?.(product)}
               className="font-bold text-slate-900 dark:text-white text-base mt-1 line-clamp-1 cursor-pointer hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"
-              title="Bấm để xem chi tiết sản phẩm"
+              title={t('clickToViewDetail')}
             >
               {product.productName}
             </h3>
@@ -148,7 +150,7 @@ export const ProductCard: React.FC<ProductCardProps> = React.memo(({
               type="button"
               onClick={() => onRestoreProduct?.(product)}
               className="p-2 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-950/40 rounded-xl transition-all cursor-pointer"
-              title="Khôi phục sản phẩm"
+              title={t('restore')}
             >
               <RotateCcw className="h-4 w-4" />
             </button>
@@ -156,7 +158,7 @@ export const ProductCard: React.FC<ProductCardProps> = React.memo(({
               type="button"
               onClick={() => onForceDeleteProduct?.(product)}
               className="p-2 text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 rounded-xl transition-all cursor-pointer"
-              title="Xóa vĩnh viễn"
+              title={t('hardDelete')}
             >
               <Trash2 className="h-4 w-4" />
             </button>
@@ -169,7 +171,7 @@ export const ProductCard: React.FC<ProductCardProps> = React.memo(({
               onClick={() => onAddVariant(product.id)}
             >
               <Plus className="h-3.5 w-3.5 mr-1" />
-              Biến thể
+              {t('addVariant')}
             </Button>
             <Button
               variant="ghost"
@@ -205,7 +207,7 @@ export const ProductCard: React.FC<ProductCardProps> = React.memo(({
           <div className="flex items-center gap-2">
             <Tag className="h-4 w-4 text-indigo-500" />
             <span className="text-xs font-bold text-slate-800 dark:text-slate-200">
-              Danh sách Phiên bản & Lợi Nhuận ({variants.length})
+              {t('variantsList')} ({variants.length})
             </span>
           </div>
           {showVariants ? (
@@ -219,7 +221,7 @@ export const ProductCard: React.FC<ProductCardProps> = React.memo(({
           <div className="space-y-2.5 mt-2">
             {variants.length === 0 ? (
               <div className="p-4 text-center text-xs text-slate-400 bg-slate-50 dark:bg-white/5 rounded-2xl">
-                Chưa có phiên bản sản phẩm nào. Bấm "+ Biến thể" để tạo mới.
+                {t('noVariants')}
               </div>
             ) : (
               variants.map((v) => {
@@ -246,16 +248,16 @@ export const ProductCard: React.FC<ProductCardProps> = React.memo(({
                         </Badge>
                         {v.size && (
                           <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">
-                            Size: {v.size}
+                            {t('size')}: {v.size}
                           </span>
                         )}
                         {v.color && (
                           <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">
-                            Màu: {v.color}
+                            {t('color')}: {v.color}
                           </span>
                         )}
                         <span className="text-xs text-slate-500 dark:text-slate-400 ml-2">
-                          Kho: <strong>{v.stock}</strong>
+                          {t('stock')}: <strong>{v.stock}</strong>
                         </span>
                       </div>
 
@@ -264,18 +266,18 @@ export const ProductCard: React.FC<ProductCardProps> = React.memo(({
                         {v.originalPriceCNY && (
                           <span className="flex items-center gap-1 text-amber-600 dark:text-amber-400 font-medium">
                             <Coins className="h-3 w-3" />
-                            Gốc: ¥{v.originalPriceCNY}{v.exchangeRate ? ` (tỷ giá ${v.exchangeRate.toLocaleString()})` : ''}
+                            {t('originCost')}: ¥{v.originalPriceCNY}{v.exchangeRate ? ` (rate: ${v.exchangeRate.toLocaleString()})` : ''}
                           </span>
                         )}
                         {v.weight !== undefined && v.weight !== null && v.weight > 0 && (
                           <span className="flex items-center gap-1 text-indigo-600 dark:text-indigo-400 font-medium">
                             <Truck className="h-3 w-3" />
-                            Nặng: {v.weight}kg {v.shippingCostVND ? `(+${v.shippingCostVND.toLocaleString()}đ ship)` : ''}
+                            {t('weight')}: {v.weight}kg {v.shippingCostVND ? `(+${v.shippingCostVND.toLocaleString()}đ ${t('shippingCnFee')})` : ''}
                           </span>
                         )}
                         {v.totalCostVND && (
                           <span className="flex items-center gap-1 text-slate-600 dark:text-slate-300 font-semibold bg-indigo-50 dark:bg-white/5 px-2 py-0.5 rounded-lg border border-indigo-100 dark:border-white/10">
-                            Vốn về kho: <strong className="text-indigo-600 dark:text-indigo-400">{v.totalCostVND.toLocaleString()} đ</strong>
+                            {t('capitalCost')}: <strong className="text-indigo-600 dark:text-indigo-400">{v.totalCostVND.toLocaleString()} đ</strong>
                           </span>
                         )}
                       </div>
@@ -285,7 +287,7 @@ export const ProductCard: React.FC<ProductCardProps> = React.memo(({
                     <div className="flex items-center justify-between md:justify-end gap-3 shrink-0 pt-2 md:pt-0 border-t md:border-t-0 border-slate-200 dark:border-white/5">
                       <div className="text-left md:text-right">
                         <span className="text-[10px] text-slate-400 uppercase tracking-wider block font-semibold">
-                          Giá bán thị trường
+                          {t('marketPrice')}
                         </span>
                         <span className="font-bold text-slate-900 dark:text-white text-sm">
                           {v.price.toLocaleString()} đ

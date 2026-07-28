@@ -20,7 +20,7 @@ export const OverviewMetricsGrid: React.FC<OverviewMetricsGridProps> = ({
       {/* Metric 1: Exchange Rate */}
       <div className="p-6 bg-white dark:bg-slate-900/50 backdrop-blur-md rounded-2xl border border-slate-200 dark:border-white/10 shadow-sm relative overflow-hidden group hover:border-indigo-500/50 transition-all">
         <div className="flex items-center justify-between mb-4">
-          <span className="text-sm text-slate-500 dark:text-slate-400 font-medium">Tỷ giá NDT (¥ ➔ VNĐ)</span>
+          <span className="text-sm text-slate-500 dark:text-slate-400 font-medium">{t('exchangeRate')}</span>
           <div className="p-2 bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-400 rounded-xl">
             <Globe className="h-6 w-6" />
           </div>
@@ -31,7 +31,7 @@ export const OverviewMetricsGrid: React.FC<OverviewMetricsGridProps> = ({
           </span>
           <div className="flex items-center gap-1 text-[11px] text-emerald-500 font-semibold">
             <TrendingUp className="h-3 w-3" />
-            <span>Cập nhật từ Cấu hình Phí</span>
+            <span>Updated from Fee Config</span>
           </div>
         </div>
       </div>
@@ -39,7 +39,7 @@ export const OverviewMetricsGrid: React.FC<OverviewMetricsGridProps> = ({
       {/* Metric 2: Categories */}
       <div className="p-6 bg-white dark:bg-slate-900/50 backdrop-blur-md rounded-2xl border border-slate-200 dark:border-white/10 shadow-sm relative overflow-hidden group hover:border-purple-500/50 transition-all">
         <div className="flex items-center justify-between mb-4">
-          <span className="text-sm text-slate-500 dark:text-slate-400 font-medium">Danh mục sản phẩm</span>
+          <span className="text-sm text-slate-500 dark:text-slate-400 font-medium">{t('productCategories')}</span>
           <div className="p-2 bg-purple-50 dark:bg-purple-950/50 text-purple-600 dark:text-purple-400 rounded-xl">
             <Layers className="h-6 w-6" />
           </div>
@@ -49,7 +49,7 @@ export const OverviewMetricsGrid: React.FC<OverviewMetricsGridProps> = ({
             {categoriesCount}
           </span>
           <span className="text-[11px] text-purple-600 dark:text-purple-400 font-semibold block">
-            Danh mục hệ thống MongoDB
+            {t('productCategories')} MongoDB
           </span>
         </div>
       </div>
@@ -57,17 +57,17 @@ export const OverviewMetricsGrid: React.FC<OverviewMetricsGridProps> = ({
       {/* Metric 3: Warehouses */}
       <div className="p-6 bg-white dark:bg-slate-900/50 backdrop-blur-md rounded-2xl border border-slate-200 dark:border-white/10 shadow-sm relative overflow-hidden group hover:border-emerald-500/50 transition-all">
         <div className="flex items-center justify-between mb-4">
-          <span className="text-sm text-slate-500 dark:text-slate-400 font-medium">Hệ thống Kho hàng</span>
+          <span className="text-sm text-slate-500 dark:text-slate-400 font-medium">{t('warehouseManagement')}</span>
           <div className="p-2 bg-emerald-50 dark:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400 rounded-xl">
             <WarehouseIcon className="h-6 w-6" />
           </div>
         </div>
         <div className="space-y-1">
           <span className="text-2xl font-extrabold text-slate-900 dark:text-white tracking-tight">
-            {warehousesCount} Kho
+            {warehousesCount} {t('warehouses')}
           </span>
           <span className="text-[11px] text-emerald-600 dark:text-emerald-400 font-semibold block">
-            Hà Nội, Hồ Chí Minh, Đà Nẵng
+            {t('warehouseSupportedArea')} Hanoi, HCMC, Da Nang
           </span>
         </div>
       </div>
@@ -83,7 +83,7 @@ export const OverviewMetricsGrid: React.FC<OverviewMetricsGridProps> = ({
         <div className="space-y-1">
           <span className="text-2xl font-extrabold text-slate-900 dark:text-slate-100 tracking-tight">12</span>
           <span className="text-[11px] text-amber-600 dark:text-amber-400 font-semibold block">
-            Mã khuyến mãi đang khả dụng
+            {t('vouchersAvailable')}
           </span>
         </div>
       </div>

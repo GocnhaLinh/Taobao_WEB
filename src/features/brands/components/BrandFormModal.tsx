@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import type { Brand } from "../../../types";
+import { useTranslation } from "../../../lib/i18n";
 import { Modal } from "../../../components/ui/Modal";
 import { Input } from "../../../components/ui/Input";
 import { Button } from "../../../components/ui/Button";
@@ -29,6 +30,7 @@ export const BrandFormModal: React.FC<BrandFormModalProps> = ({
   initialData,
   isLoading = false,
 }) => {
+  const { t } = useTranslation();
   const { showNotification } = useNotification();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -59,7 +61,7 @@ export const BrandFormModal: React.FC<BrandFormModalProps> = ({
 
     if (!file.type.startsWith("image/")) {
       showNotification(
-        "Vui lòng chọn file hình ảnh hợp lệ (PNG, JPG, WEBP).",
+        "Please select a valid image file (PNG, JPG, WEBP).",
         "error",
       );
       return;
@@ -71,11 +73,11 @@ export const BrandFormModal: React.FC<BrandFormModalProps> = ({
       if (res && res.url) {
         setLogo(res.url);
         setImgError(false);
-        showNotification("Tải ảnh logo lên thành công!", "success");
+        showNotification(t('brandCreated') || "Logo uploaded successfully!", "success");
       }
     } catch (error: any) {
       showNotification(
-        error.message || "Tải ảnh thất bại, vui lòng thử lại.",
+        error.message || "Logo upload failed, please try again.",
         "error",
       );
     } finally {
@@ -101,14 +103,14 @@ export const BrandFormModal: React.FC<BrandFormModalProps> = ({
       try {
         setIsDeletingLogo(true);
         await deleteImageApi(logoToDelete);
-        showNotification("Đã xóa logo thành công!", "success");
+        showNotification("Logo removed successfully!", "success");
       } catch (err: any) {
-        console.warn("Xóa ảnh trên máy chủ thất bại:", err);
+        console.warn("Failed to delete image from server:", err);
       } finally {
         setIsDeletingLogo(false);
       }
     } else {
-      showNotification("Đã xóa logo thành công!", "success");
+      showNotification("Logo removed successfully!", "success");
     }
   };
 
@@ -123,8 +125,8 @@ export const BrandFormModal: React.FC<BrandFormModalProps> = ({
   };
 
   const modalTitle = initialData
-    ? "Chỉnh sửa Thương hiệu"
-    : "Thêm Thương hiệu Mới";
+    ? t('editBrandTitle')
+    : t('addBrandTitle');
 
   return (
     <Modal
@@ -138,7 +140,7 @@ export const BrandFormModal: React.FC<BrandFormModalProps> = ({
             onClick={onClose}
             disabled={isUploading || isDeletingLogo}
           >
-            Hủy
+            {t('cancel')}
           </Button>
           <Button
             variant="primary"
@@ -146,7 +148,7 @@ export const BrandFormModal: React.FC<BrandFormModalProps> = ({
             isLoading={isLoading}
             disabled={isUploading || isDeletingLogo}
           >
-            {initialData ? "Cập nhật" : "Lưu thương hiệu"}
+            {initialData ? t('updateBrand') : t('saveBrand')}
           </Button>
         </>
       }
@@ -154,8 +156,8 @@ export const BrandFormModal: React.FC<BrandFormModalProps> = ({
       <form onSubmit={handleSubmit} className="space-y-4">
         {/* Brand Name Input */}
         <Input
-          label="Tên thương hiệu *"
-          placeholder="Ví dụ: Louis Vuitton, Nike, Gucci..."
+          label={t('brandName')}
+          placeholder={t('brandNamePlaceholder')}
           value={name}
           onChange={(e) => setName(e.target.value)}
           required
@@ -164,7 +166,7 @@ export const BrandFormModal: React.FC<BrandFormModalProps> = ({
         {/* Logo Upload Section */}
         <div>
           <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
-            Logo thương hiệu
+            {t('brandLogo')}
           </label>
 
           {/* Hidden File Input */}
@@ -191,12 +193,12 @@ export const BrandFormModal: React.FC<BrandFormModalProps> = ({
                 {!isUploading && (
                   <Upload className="h-4 w-4 mr-1.5 text-indigo-500" />
                 )}
-                {isUploading ? "Đang tải ảnh..." : "Tải tệp từ máy"}
+                {isUploading ? t('uploading') : t('uploadBrandImage')}
               </Button>
 
               <div className="flex-1 min-w-0">
                 <Input
-                  placeholder="Hoặc dán URL logo (https://...)"
+                  placeholder="Or paste logo URL (https://...)"
                   value={logo}
                   onChange={(e) => {
                     setLogo(e.target.value);
@@ -225,7 +227,7 @@ export const BrandFormModal: React.FC<BrandFormModalProps> = ({
                   </div>
                   <div className="min-w-0">
                     <span className="text-xs font-bold text-slate-900 dark:text-white block truncate">
-                      {imgError ? "Ảnh không hợp lệ" : "Logo đã sẵn sàng"}
+                      {imgError ? t('brandLogoInvalid') : t('brandLogoReady')}
                     </span>
                     <span className="text-[11px] text-slate-500 dark:text-slate-400 font-mono block truncate max-w-[200px] sm:max-w-[260px]">
                       {logo}
@@ -238,15 +240,14 @@ export const BrandFormModal: React.FC<BrandFormModalProps> = ({
                   onClick={handleRemoveLogo}
                   disabled={isDeletingLogo}
                   className="p-1.5 text-slate-400 hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/40 rounded-xl transition-all cursor-pointer disabled:opacity-50"
-                  title="Xóa logo và gỡ server"
+                  title={t('deleteImage') || "Remove logo from server"}
                 >
                   <X className="h-4 w-4" />
                 </button>
               </div>
             ) : (
               <p className="text-[11px] text-slate-400">
-                Nhấn <strong>"Tải tệp từ máy"</strong> để chọn ảnh logo từ thiết
-                bị hoặc dán đường dẫn URL trực tiếp.
+                Click <strong>"Upload file"</strong> to select a logo image from your device, or paste a URL directly.
               </p>
             )}
           </div>
@@ -255,12 +256,12 @@ export const BrandFormModal: React.FC<BrandFormModalProps> = ({
         {/* Description Input */}
         <div>
           <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
-            Mô tả thương hiệu
+            {t('brandDescription')}
           </label>
           <textarea
             value={description}
             onChange={(e) => setDescription(e.target.value)}
-            placeholder="Nhập mô tả ngắn về xuất xứ, dòng sản phẩm tiêu biểu..."
+            placeholder="Enter a short description about the brand's origin and products..."
             rows={3}
             className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-white/10 rounded-xl text-xs text-slate-900 dark:text-white placeholder-slate-400 focus:outline-hidden focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition-all resize-none"
           />

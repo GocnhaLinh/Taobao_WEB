@@ -1,5 +1,6 @@
 import React from 'react';
 import { Edit2, Trash2, RotateCcw, Building2, MapPin, ShieldCheck } from 'lucide-react';
+import { useTranslation } from '../../../lib/i18n';
 import type { Warehouse } from '../../../types';
 
 interface WarehouseRowProps {
@@ -19,11 +20,12 @@ export const WarehouseRow: React.FC<WarehouseRowProps> = React.memo(({
   onRestore,
   onHardDelete,
 }) => {
+  const { t } = useTranslation();
   // Calculate remaining days until 30-day auto deletion
   const getRemainingDaysInfo = (deletedAt?: string) => {
     if (!deletedAt) {
       return {
-        text: '⏱️ Tự xóa sau 30 ngày',
+        text: t('autoDeleteDefault'),
         style: 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20 font-medium',
       };
     }
@@ -36,18 +38,18 @@ export const WarehouseRow: React.FC<WarehouseRowProps> = React.memo(({
 
     if (remainingDays <= 5) {
       return {
-        text: `⚠️ Sắp xóa (Còn ${remainingDays} ngày)`,
+        text: t('aboutToDelete', { days: remainingDays }),
         style: 'bg-rose-500/15 text-rose-600 dark:text-rose-400 border-rose-500/30 animate-pulse font-bold',
       };
     }
     if (remainingDays <= 15) {
       return {
-        text: `⏱️ Tự xóa sau ${remainingDays} ngày`,
+        text: t('autoDeleteInDays', { days: remainingDays }),
         style: 'bg-amber-500/15 text-amber-600 dark:text-amber-400 border-amber-500/30 font-semibold',
       };
     }
     return {
-      text: `⏱️ Tự xóa sau ${remainingDays} ngày`,
+      text: t('autoDeleteInDays', { days: remainingDays }),
       style: 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20 font-medium',
     };
   };
@@ -75,7 +77,7 @@ export const WarehouseRow: React.FC<WarehouseRowProps> = React.memo(({
             </span>
             {warehouse.isDefault && (
               <span className="px-2 py-0.5 rounded-md text-[10px] font-bold bg-amber-500/15 text-amber-600 dark:text-amber-400 border border-amber-500/30 flex items-center gap-1">
-                <ShieldCheck className="h-3 w-3" /> KHO MẶC ĐỊNH
+                <ShieldCheck className="h-3 w-3" /> {t('warehouseDefault')}
               </span>
             )}
           </div>
@@ -102,14 +104,14 @@ export const WarehouseRow: React.FC<WarehouseRowProps> = React.memo(({
               <button
                 onClick={() => onEdit?.(warehouse)}
                 className="p-2 text-slate-600 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-950/40 rounded-xl transition-all cursor-pointer"
-                title="Chỉnh sửa kho hàng"
+                title={t('edit')}
               >
                 <Edit2 className="h-4 w-4" />
               </button>
               <button
                 onClick={() => onSoftDelete?.(warehouse)}
                 className="p-2 text-slate-600 dark:text-slate-300 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 rounded-xl transition-all cursor-pointer"
-                title="Chuyển vào thùng rác"
+                title={t('softDelete')}
               >
                 <Trash2 className="h-4 w-4" />
               </button>
@@ -119,14 +121,14 @@ export const WarehouseRow: React.FC<WarehouseRowProps> = React.memo(({
               <button
                 onClick={() => onRestore?.(warehouse)}
                 className="p-2 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-950/40 rounded-xl transition-all cursor-pointer"
-                title="Khôi phục kho hàng"
+                title={t('restore')}
               >
                 <RotateCcw className="h-4 w-4" />
               </button>
               <button
                 onClick={() => onHardDelete?.(warehouse)}
                 className="p-2 text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 rounded-xl transition-all cursor-pointer"
-                title="Xóa vĩnh viễn"
+                title={t('hardDelete')}
               >
                 <Trash2 className="h-4 w-4" />
               </button>

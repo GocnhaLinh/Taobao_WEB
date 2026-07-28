@@ -77,10 +77,10 @@ export const CouponsFeature: React.FC = () => {
       }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['coupons'] });
-      showNotification('Tạo mã giảm giá mới thành công!', 'success');
+      showNotification(t('couponCreated'), 'success');
     },
     onError: (err: any) => {
-      showNotification(err.response?.data?.error || err.message || 'Tạo mã thất bại', 'error');
+      showNotification(err.response?.data?.error || err.message || 'Failed to create', 'error');
     },
   });
 
@@ -98,10 +98,10 @@ export const CouponsFeature: React.FC = () => {
       }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['coupons'] });
-      showNotification('Cập nhật mã giảm giá thành công!', 'success');
+      showNotification(t('couponUpdated'), 'success');
     },
     onError: (err: any) => {
-      showNotification(err.response?.data?.error || err.message || 'Cập nhật thất bại', 'error');
+      showNotification(err.response?.data?.error || err.message || 'Failed to update', 'error');
     },
   });
 
@@ -110,10 +110,10 @@ export const CouponsFeature: React.FC = () => {
     mutationFn: (id: string) => deleteCouponApi(id, true),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['coupons'] });
-      showNotification('Đã xóa mã giảm giá thành công!', 'success');
+      showNotification(t('couponDeleted'), 'success');
     },
     onError: (err: any) => {
-      showNotification(err.response?.data?.error || err.message || 'Xóa thất bại', 'error');
+      showNotification(err.response?.data?.error || err.message || 'Failed to delete', 'error');
     },
   });
 
@@ -135,9 +135,9 @@ export const CouponsFeature: React.FC = () => {
 
   const handleDeleteRequest = async (coupon: CouponItem) => {
     const isConfirmed = await confirm({
-      title: 'Xác Nhận Xóa Mã Giảm Giá',
-      description: `Bạn có chắc chắn muốn xóa mã voucher "${coupon.code}" khỏi hệ thống không?`,
-      confirmText: 'Xóa Voucher',
+      title: t('confirmDeleteCouponTitle'),
+      description: t('confirmDeleteCouponDesc', { code: coupon.code }),
+      confirmText: t('confirmDeleteCouponBtn'),
     });
 
     if (isConfirmed) {
@@ -194,7 +194,7 @@ export const CouponsFeature: React.FC = () => {
             className="inline-flex items-center gap-2 px-3.5 py-2 bg-white dark:bg-slate-900/80 border border-slate-200 dark:border-white/10 text-slate-700 dark:text-slate-200 rounded-xl hover:bg-slate-100 dark:hover:bg-white/10 transition cursor-pointer text-xs font-semibold shadow-sm"
           >
             <RefreshCw className={`h-4 w-4 text-indigo-500 ${isLoading ? 'animate-spin' : ''}`} />
-            Làm mới
+            {t('refresh')}
           </button>
 
           <Button
@@ -203,7 +203,7 @@ export const CouponsFeature: React.FC = () => {
             className="gap-2 text-xs"
           >
             <Calculator className="h-4 w-4 text-indigo-500" />
-            Thử Nghiệm Mã
+            {t('testCoupon')}
           </Button>
 
           <Button
@@ -212,7 +212,7 @@ export const CouponsFeature: React.FC = () => {
             className="gap-2 shadow-lg shadow-indigo-500/25 self-start sm:self-auto text-xs"
           >
             <Plus className="h-4 w-4" />
-            Tạo Mã Giảm Giá
+            {t('createCoupon')}
           </Button>
         </div>
       </div>
@@ -224,7 +224,7 @@ export const CouponsFeature: React.FC = () => {
             <Ticket className="h-6 w-6" />
           </div>
           <div>
-            <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Mã Đang Hoạt Động</p>
+            <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">{t('activeCountLabel')}</p>
             <h4 className="text-2xl font-black text-slate-900 dark:text-white mt-0.5">{activeCount}</h4>
           </div>
         </div>
@@ -234,7 +234,7 @@ export const CouponsFeature: React.FC = () => {
             <Power className="h-6 w-6" />
           </div>
           <div>
-            <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Mã Tạm Khóa (Tắt)</p>
+            <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">{t('disabledCountLabel')}</p>
             <h4 className="text-2xl font-black text-slate-900 dark:text-white mt-0.5">{disabledCount}</h4>
           </div>
         </div>
@@ -244,7 +244,7 @@ export const CouponsFeature: React.FC = () => {
             <Clock className="h-6 w-6" />
           </div>
           <div>
-            <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Mã Đã Hết Hạn</p>
+            <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">{t('expiredCountLabel')}</p>
             <h4 className="text-2xl font-black text-slate-900 dark:text-white mt-0.5">{expiredCount}</h4>
           </div>
         </div>
@@ -255,9 +255,9 @@ export const CouponsFeature: React.FC = () => {
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-slate-200 dark:border-white/10">
           <div>
             <h3 className="text-slate-900 dark:text-white font-bold text-lg flex items-center gap-2">
-              Danh sách Voucher Khuyến Mãi
+              {t('voucherList')}
               <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-indigo-500/10 text-indigo-500 border border-indigo-500/20">
-                {filteredCoupons.length} voucher
+                {t('voucherCount', { count: filteredCoupons.length })}
               </span>
             </h3>
           </div>
@@ -268,7 +268,7 @@ export const CouponsFeature: React.FC = () => {
               <Search className="absolute left-3.5 top-2.5 h-4 w-4 text-slate-400" />
               <input
                 type="text"
-                placeholder="Tìm theo mã voucher..."
+                placeholder={t('searchCouponPlaceholder')}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="w-full pl-9 pr-4 py-1.5 text-xs font-medium rounded-xl bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 text-slate-900 dark:text-white focus:outline-none focus:border-indigo-500 transition-all"
@@ -282,10 +282,10 @@ export const CouponsFeature: React.FC = () => {
               value={statusFilter}
               onChange={setStatusFilter}
               options={[
-                { value: 'ALL', label: 'Tất cả trạng thái' },
-                { value: 'ACTIVE', label: 'Đang hoạt động (ACTIVE)' },
-                { value: 'DISABLED', label: 'Tạm khóa / Tắt (DISABLED)' },
-                { value: 'EXPIRED', label: 'Đã hết hạn (EXPIRED)' },
+                { value: 'ALL', label: t('allStatuses') },
+                { value: 'ACTIVE', label: t('activeStatus') },
+                { value: 'DISABLED', label: t('disabledStatus') },
+                { value: 'EXPIRED', label: t('expiredStatus') },
               ]}
             />
 
@@ -296,9 +296,9 @@ export const CouponsFeature: React.FC = () => {
               value={typeFilter}
               onChange={setTypeFilter}
               options={[
-                { value: 'ALL', label: 'Tất cả loại' },
-                { value: 'FIXED', label: 'Số tiền cố định' },
-                { value: 'PERCENT', label: 'Phần trăm (%)' },
+                { value: 'ALL', label: t('allTypes') },
+                { value: 'FIXED', label: t('fixedAmount') },
+                { value: 'PERCENT', label: t('percentDiscount') },
               ]}
             />
           </div>
@@ -308,14 +308,14 @@ export const CouponsFeature: React.FC = () => {
         {isLoading ? (
           <div className="py-16 text-center text-slate-500 dark:text-slate-400 text-sm space-y-2">
             <RefreshCw className="h-7 w-7 animate-spin mx-auto text-indigo-500" />
-            <p className="font-semibold">Đang tải danh sách voucher từ CSDL...</p>
+            <p className="font-semibold">{t('loadingCoupons')}</p>
           </div>
         ) : filteredCoupons.length === 0 ? (
           <div className="py-16 text-center space-y-3">
             <Ticket className="h-12 w-12 text-slate-400 dark:text-slate-600 mx-auto stroke-1" />
-            <h4 className="text-slate-700 dark:text-slate-300 font-bold text-base">Không tìm thấy voucher phù hợp</h4>
+            <h4 className="text-slate-700 dark:text-slate-300 font-bold text-base">{t('noCouponsFound')}</h4>
             <p className="text-xs text-slate-400 max-w-sm mx-auto">
-              Thử thay đổi từ khóa tìm kiếm hoặc bấm nút "Tạo Mã Giảm Giá" phía trên.
+              {t('noCouponsHint')}
             </p>
           </div>
         ) : (

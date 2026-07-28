@@ -39,7 +39,8 @@ export const useConfirm = () => {
   }, []);
 
   const ConfirmDialog = options ? (
-    <Modal isOpen={true} onClose={handleClose} title={options.title || 'Xác nhận'}>
+    <Modal isOpen={true} onClose={handleClose} title={options.title || 'Confirmation'}>
+  
       <div className="space-y-5">
         <div
           className={`flex items-start gap-4 p-4 rounded-2xl border ${
@@ -66,16 +67,16 @@ export const useConfirm = () => {
             )}
           </div>
           <div>
-            <h4 className="font-bold text-slate-900 dark:text-white text-sm">Hành động này cần xác nhận</h4>
+            <h4 className="font-bold text-slate-900 dark:text-white text-sm">Confirmation Required</h4>
             <p className="text-xs text-slate-600 dark:text-slate-300 mt-1 leading-relaxed">
-              {options.description || 'Bạn có chắc chắn muốn thực hiện hành động này?'}
+              {options.description || 'Are you sure you want to perform this action?'}
             </p>
           </div>
         </div>
 
         <div className="flex items-center justify-end gap-3 pt-2">
           <Button variant="ghost" type="button" onClick={handleClose}>
-            {options.cancelText || 'Hủy bỏ'}
+            {options.cancelText || 'Cancel'}
           </Button>
           <Button
             variant={options.variant === 'danger' ? 'danger' : 'primary'}
@@ -86,7 +87,7 @@ export const useConfirm = () => {
             }`}
           >
             {options.variant === 'danger' ? <Trash2 className="h-4 w-4" /> : <CheckCircle className="h-4 w-4" />}
-            {options.confirmText || 'Đồng ý'}
+            {options.confirmText || 'Confirm'}
           </Button>
         </div>
       </div>

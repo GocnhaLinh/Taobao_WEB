@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from '../../../lib/i18n';
 import { Modal } from '../../../components/ui/Modal';
 import { Badge } from '../../../components/ui/Badge';
 import { Button } from '../../../components/ui/Button';
@@ -32,6 +33,7 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
   onAddVariant,
   onEditVariant,
 }) => {
+  const { t } = useTranslation();
   const [selectedImage, setSelectedImage] = useState<string>('');
 
   // Collect all unique images from product thumbnail, detail images array & variants
@@ -40,21 +42,21 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
     const list: { url: string; label: string }[] = [];
 
     if (product.thumbnail) {
-      list.push({ url: product.thumbnail, label: 'Ảnh chính (Thumbnail)' });
+      list.push({ url: product.thumbnail, label: t('mainImage') || 'Main (Thumbnail)' });
     }
 
     if (product.images && product.images.length > 0) {
       product.images.forEach((img, idx) => {
         if (img.imageUrl && !list.some((item) => item.url === img.imageUrl)) {
-          list.push({ url: img.imageUrl, label: `Ảnh sản phẩm #${idx + 1}` });
+          list.push({ url: img.imageUrl, label: `Product Image #${idx + 1}` });
         }
       });
     }
 
     if (product.variants && product.variants.length > 0) {
       product.variants.forEach((v) => {
-        const attr = [v.size ? `Size ${v.size}` : '', v.color ? `Màu ${v.color}` : ''].filter(Boolean).join(' - ');
-        const labelBase = `Biến thể ${v.sku}${attr ? ` (${attr})` : ''}`;
+        const attr = [v.size ? `${t('size')} ${v.size}` : '', v.color ? `${t('color')} ${v.color}` : ''].filter(Boolean).join(' - ');
+        const labelBase = `${t('variant')} ${v.sku}${attr ? ` (${attr})` : ''}`;
 
         if (v.image && !list.some((item) => item.url === v.image)) {
           list.push({
@@ -68,7 +70,7 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
             if (imgUrl && !list.some((item) => item.url === imgUrl)) {
               list.push({
                 url: imgUrl,
-                label: `${labelBase} - Ảnh #${imgIdx + 1}`,
+                label: `${labelBase} - Image #${imgIdx + 1}`,
               });
             }
           });
@@ -96,7 +98,7 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      title="Chi Tiết Sản Phẩm & Thống Kê Phiên Bản"
+      title={t('productProfitManagement') || 'Product Details & Variants'}
       maxWidth="5xl"
       footer={
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 w-full">
@@ -113,7 +115,7 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
                 className="flex-1 sm:flex-initial text-xs whitespace-nowrap"
               >
                 <Edit2 className="h-4 w-4 mr-1.5 text-indigo-500 shrink-0" />
-                Chỉnh sửa sản phẩm
+                {t('edit') || 'Edit'}
               </Button>
             )}
             {onAddVariant && (
@@ -127,7 +129,7 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
                 className="flex-1 sm:flex-initial text-xs whitespace-nowrap"
               >
                 <Plus className="h-4 w-4 mr-1.5 shrink-0" />
-                Thêm biến thể
+                {t('addVariant')}
               </Button>
             )}
           </div>
@@ -142,20 +144,20 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
               {product.category && <Badge variant="info">{product.category.name}</Badge>}
               {product.brand && <Badge variant="neutral">{product.brand.name}</Badge>}
               {product.status === 'DELETED' ? (
-                <Badge variant="danger">🗑️ Trong Thùng rác</Badge>
+                <Badge variant="danger">🗑️ {t('inTrash')}</Badge>
               ) : activeVariants.length === 0 || product.status === 'INACTIVE' ? (
                 <Badge variant="danger" className="animate-pulse">
-                  ⚠️ Chưa có biến thể (Chưa hoạt động)
+                  ⚠️ {t('noVariants')}
                 </Badge>
               ) : (
-                <Badge variant="success">✓ Đang hoạt động</Badge>
+                <Badge variant="success">✓ {t('active')}</Badge>
               )}
             </div>
 
             <div className="flex items-center gap-3 text-xs text-slate-600 dark:text-slate-300">
               <span className="flex items-center gap-1 font-semibold">
                 <ShoppingBag className="h-4 w-4 text-indigo-500" />
-                Đã bán: <strong className="text-slate-900 dark:text-white">{product.soldCount || 0}</strong>
+                {t('soldCount')}: <strong className="text-slate-900 dark:text-white">{product.soldCount || 0}</strong>
               </span>
               {product.ratingAverage !== undefined && (
                 <span className="flex items-center gap-1 font-semibold text-amber-500">
@@ -180,7 +182,7 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
         <div className="space-y-3">
           <h4 className="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 flex items-center gap-2">
             <ImageIcon className="h-4 w-4 text-indigo-500" />
-            Bộ Sưu Tập Hình Ảnh Sản Phẩm ({allImages.length} ảnh)
+            {t('productImages')} ({allImages.length})
           </h4>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -204,13 +206,13 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
               ) : (
                 <div className="flex flex-col items-center gap-2 text-slate-400">
                   <Package className="h-12 w-12" />
-                  <span className="text-xs font-medium">Chưa có hình ảnh nào</span>
+                  <span className="text-xs font-medium">No images</span>
                 </div>
               )}
 
               {selectedImage && (
                 <div className="absolute bottom-3 left-3 right-3 z-20 p-2.5 bg-slate-950/80 backdrop-blur-md rounded-2xl text-[11px] text-white truncate font-semibold border border-white/10 flex items-center justify-between">
-                  <span className="truncate">{allImages.find((img) => img.url === selectedImage)?.label || 'Xem ảnh'}</span>
+                  <span className="truncate">{allImages.find((img) => img.url === selectedImage)?.label || (t('clickToViewDetail') || 'View image')}</span>
                   <span className="text-[10px] text-indigo-400 font-mono shrink-0 ml-2">HD Preview</span>
                 </div>
               )}
@@ -220,7 +222,7 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
             <div className="space-y-2 max-h-[380px] overflow-y-auto pr-1">
               {allImages.length === 0 ? (
                 <div className="p-6 text-center text-xs text-slate-400 border border-dashed rounded-2xl">
-                  Chưa có ảnh đại diện hoặc ảnh biến thể.
+                  No images available.
                 </div>
               ) : (
                 allImages.map((item, index) => {
@@ -244,7 +246,7 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
                         <p className="text-xs font-semibold text-slate-800 dark:text-slate-200 truncate">
                           {item.label}
                         </p>
-                        <span className="text-[10px] text-indigo-500 font-mono">Bấm để phóng to</span>
+                        <span className="text-[10px] text-indigo-500 font-mono">{t('clickToViewDetail')}</span>
                       </div>
                     </div>
                   );
@@ -259,7 +261,7 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
           <div className="space-y-2">
             <h4 className="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 flex items-center gap-2">
               <Info className="h-4 w-4 text-indigo-500" />
-              Mô Tả Sản Phẩm
+              {t('productDescription')}
             </h4>
             <div className="p-4 bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl text-xs text-slate-700 dark:text-slate-300 leading-relaxed whitespace-pre-line">
               {product.description}
@@ -272,16 +274,16 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
           <div className="flex items-center justify-between">
             <h4 className="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 flex items-center gap-2">
               <Tag className="h-4 w-4 text-indigo-500" />
-              Danh Sách Phiên Bản & Tính Toán Lợi Nhuận ({activeVariants.length})
+              {t('variantsList')} ({activeVariants.length})
             </h4>
             <span className="text-xs text-slate-500">
-              Tổng tồn kho: <strong className="text-indigo-600 dark:text-indigo-400 font-bold">{totalStock}</strong>
+              {t('stock')}: <strong className="text-indigo-600 dark:text-indigo-400 font-bold">{totalStock}</strong>
             </span>
           </div>
 
           {activeVariants.length === 0 ? (
             <div className="p-6 text-center text-xs text-slate-400 bg-slate-50 dark:bg-white/5 rounded-2xl border border-dashed">
-              Chưa có phiên bản nào cho sản phẩm này.
+              {t('noVariants')}
             </div>
           ) : (
             <div className="space-y-3">
@@ -329,7 +331,7 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
                           className="self-end sm:self-auto text-xs"
                         >
                           <Edit2 className="h-3.5 w-3.5 mr-1 text-indigo-500" />
-                          Sửa biến thể
+                          {t('edit')}
                         </Button>
                       )}
                     </div>
@@ -337,7 +339,7 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
                     {/* Financial Metrics Row */}
                     <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs bg-slate-50 dark:bg-white/5 p-3 rounded-xl">
                       <div>
-                        <span className="text-slate-400 block text-[10px] uppercase font-semibold">Giá gốc NDT (¥)</span>
+                        <span className="text-slate-400 block text-[10px] uppercase font-semibold">{t('originCost')} (¥)</span>
                         <span className="font-bold text-amber-600 dark:text-amber-400">
                           {v.originalPriceCNY ? `¥${v.originalPriceCNY}` : 'N/A'}
                           {v.exchangeRate ? ` (${v.exchangeRate.toLocaleString()}đ)` : ''}
@@ -345,7 +347,7 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
                       </div>
 
                       <div>
-                        <span className="text-slate-400 block text-[10px] uppercase font-semibold">Phí Ship TQ➔VN</span>
+                        <span className="text-slate-400 block text-[10px] uppercase font-semibold">{t('shippingCnFee')}</span>
                         <span className="font-bold text-indigo-600 dark:text-indigo-400">
                           {v.shippingCostVND ? `${v.shippingCostVND.toLocaleString()}đ` : '0đ'}
                           {v.weight ? ` (${v.weight}kg)` : ''}
@@ -353,14 +355,14 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
                       </div>
 
                       <div>
-                        <span className="text-slate-400 block text-[10px] uppercase font-semibold">Giá vốn về kho VN</span>
+                        <span className="text-slate-400 block text-[10px] uppercase font-semibold">{t('capitalCost')}</span>
                         <span className="font-bold text-slate-900 dark:text-white">
                           {v.totalCostVND ? `${v.totalCostVND.toLocaleString()}đ` : 'N/A'}
                         </span>
                       </div>
 
                       <div>
-                        <span className="text-slate-400 block text-[10px] uppercase font-semibold">Giá bán thị trường</span>
+                        <span className="text-slate-400 block text-[10px] uppercase font-semibold">{t('marketPrice')}</span>
                         <span className="font-bold text-slate-900 dark:text-white">
                           {v.price.toLocaleString()}đ
                         </span>
@@ -370,7 +372,7 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
                     {/* Profit Summary */}
                     {v.profitVND !== undefined && v.profitVND !== null && (
                       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 sm:gap-2 text-xs pt-1 px-1">
-                        <span className="text-slate-500">Lợi nhuận ước tính trên mỗi sản phẩm bán ra:</span>
+                        <span className="text-slate-500">{t('estimatedProfit')}</span>
                         <div className="flex items-center gap-2 self-start sm:self-auto">
                           <span className={`font-extrabold whitespace-nowrap ${v.profitVND >= 0 ? 'text-emerald-500' : 'text-rose-500'}`}>
                             {v.profitVND >= 0 ? '+' : ''}{v.profitVND.toLocaleString()}đ
@@ -378,7 +380,7 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
                           {margin && (
                             <Badge variant={parseFloat(margin) >= 30 ? 'success' : parseFloat(margin) > 0 ? 'info' : 'danger'}>
                               <TrendingUp className="h-3 w-3 mr-1 shrink-0" />
-                              Tỷ suất {margin}%
+                              {t('profitRate', { margin: margin || '0' })}
                             </Badge>
                           )}
                         </div>
