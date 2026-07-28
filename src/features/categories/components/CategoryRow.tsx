@@ -5,6 +5,7 @@ import { useTranslation } from '../../../lib/i18n';
 
 interface CategoryRowProps {
   category: Category;
+  labelsMap?: Record<string, string>;
   isTrashView?: boolean;
   onEdit?: (category: Category) => void;
   onSoftDelete?: (category: Category) => void;
@@ -14,6 +15,7 @@ interface CategoryRowProps {
 
 export const CategoryRow: React.FC<CategoryRowProps> = React.memo(({
   category,
+  labelsMap = {},
   isTrashView = false,
   onEdit,
   onSoftDelete,
@@ -63,7 +65,9 @@ export const CategoryRow: React.FC<CategoryRowProps> = React.memo(({
     if (val === 'KID' || val === 'KIDS') return `🧒 ${t('sexKid') || 'Trẻ em'}`;
     if (val === 'OTHER') return `✨ ${t('sexOther') || 'Khác'}`;
     if (val === 'UNISEX') return `👫 ${t('sexUnisex') || 'Unisex'}`;
-    return `🏷️ ${sexVal}`;
+    // Custom label: look up icon from labelsMap
+    const customIcon = labelsMap[sexVal] || '🏷️';
+    return `${customIcon} ${sexVal}`;
   };
 
   const getSexBadgeStyle = (sexVal?: string) => {
@@ -72,7 +76,9 @@ export const CategoryRow: React.FC<CategoryRowProps> = React.memo(({
     if (val === 'FEMALE' || val === 'F') return 'bg-rose-500/15 text-rose-600 dark:text-rose-400 border border-rose-500/30';
     if (val === 'KID' || val === 'KIDS') return 'bg-amber-500/15 text-amber-600 dark:text-amber-400 border border-amber-500/30';
     if (val === 'OTHER') return 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30';
-    return 'bg-indigo-500/15 text-indigo-600 dark:text-indigo-400 border border-indigo-500/30';
+    if (val === 'UNISEX') return 'bg-indigo-500/15 text-indigo-600 dark:text-indigo-400 border border-indigo-500/30';
+    // Custom label style
+    return 'bg-violet-500/15 text-violet-600 dark:text-violet-400 border border-violet-500/30';
   };
 
   const remainingInfo = getRemainingDaysInfo(category.deletedAt);

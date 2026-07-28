@@ -1,11 +1,12 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { ChevronDown, Check, Trash2 } from 'lucide-react';
+import { ChevronDown, Check, Trash2, Edit2 } from 'lucide-react';
 
 export interface SelectOption {
   value: string;
   label: string;
   icon?: React.ReactNode;
   onDelete?: () => void;
+  onEdit?: () => void;
 }
 
 interface CustomSelectProps {
@@ -85,6 +86,7 @@ export const CustomSelect: React.FC<CustomSelectProps> = ({
           <div className="absolute right-0 left-0 mt-2 py-1.5 bg-white/95 dark:bg-slate-900/95 border border-pink-200/80 dark:border-white/15 rounded-2xl shadow-2xl backdrop-blur-xl z-50 overflow-hidden animate-in fade-in zoom-in-95 duration-150 min-w-[160px] max-h-60 overflow-y-auto no-scrollbar">
             {options.map((opt) => {
               const isSelected = opt.value === value;
+              const hasActions = opt.onDelete || opt.onEdit;
               return (
                 <button
                   key={opt.value}
@@ -104,7 +106,23 @@ export const CustomSelect: React.FC<CustomSelectProps> = ({
                     <span className="truncate">{opt.label}</span>
                   </span>
 
-                  <div className="flex items-center gap-1.5 shrink-0 ml-2 relative">
+                  <div className="flex items-center gap-1 shrink-0 ml-2 relative">
+                    {opt.onEdit && (
+                      <span
+                        role="button"
+                        tabIndex={0}
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          setIsOpen(false);
+                          opt.onEdit?.();
+                        }}
+                        title="Sửa nhãn này"
+                        className="opacity-0 group-hover:opacity-100 p-1 text-slate-400 hover:text-indigo-500 hover:bg-indigo-100 dark:hover:bg-indigo-950/60 rounded-md transition-opacity cursor-pointer z-10"
+                      >
+                        <Edit2 className="h-3.5 w-3.5" />
+                      </span>
+                    )}
                     {opt.onDelete && (
                       <span
                         role="button"
@@ -112,6 +130,7 @@ export const CustomSelect: React.FC<CustomSelectProps> = ({
                         onClick={(e) => {
                           e.preventDefault();
                           e.stopPropagation();
+                          setIsOpen(false);
                           opt.onDelete?.();
                         }}
                         title="Xóa nhãn này"
@@ -123,7 +142,7 @@ export const CustomSelect: React.FC<CustomSelectProps> = ({
                     {isSelected && (
                       <Check
                         className={`h-3.5 w-3.5 text-indigo-500 shrink-0 ${
-                          opt.onDelete ? 'group-hover:opacity-0 transition-opacity' : ''
+                          hasActions ? 'group-hover:opacity-0 transition-opacity' : ''
                         }`}
                       />
                     )}

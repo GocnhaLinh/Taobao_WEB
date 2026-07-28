@@ -24,6 +24,7 @@ import {
   restoreCategoryApi,
   hardDeleteCategoryApi,
 } from "../../services/categoryService";
+import { fetchCategoryLabelsApi } from "../../services/categoryLabelService";
 import type { Category } from "../../types";
 import { Button } from "../../components/ui/Button";
 import { Input } from "../../components/ui/Input";
@@ -102,6 +103,21 @@ export const CategoriesFeature: React.FC = () => {
       queryKey: ["categories", "DELETED"],
       queryFn: fetchDeletedCategories,
     });
+
+  // Fetch category labels for icon mapping
+  const { data: categoryLabels = [] } = useQuery({
+    queryKey: ["categoryLabels"],
+    queryFn: fetchCategoryLabelsApi,
+  });
+
+  // Build labelsMap: label name -> icon
+  const labelsMap = useMemo(() => {
+    const map: Record<string, string> = {};
+    categoryLabels.forEach((lbl) => {
+      map[lbl.name] = lbl.icon || '🏷️';
+    });
+    return map;
+  }, [categoryLabels]);
 
   // Mutations
   const createMutation = useMutation({
@@ -401,6 +417,7 @@ export const CategoriesFeature: React.FC = () => {
               <CategoryCard
                 key={cat.id}
                 category={cat}
+                labelsMap={labelsMap}
                 isTrashView={activeTab === "TRASH"}
                 onEdit={handleOpenEdit}
                 onSoftDelete={(c) => openConfirmModal(c, "SOFT_DELETE")}
@@ -415,6 +432,7 @@ export const CategoriesFeature: React.FC = () => {
               <CategoryRow
                 key={cat.id}
                 category={cat}
+                labelsMap={labelsMap}
                 isTrashView={activeTab === "TRASH"}
                 onEdit={handleOpenEdit}
                 onSoftDelete={(c) => openConfirmModal(c, "SOFT_DELETE")}
@@ -472,6 +490,7 @@ export const CategoriesFeature: React.FC = () => {
           initialData={editingCategory}
           defaultSex="UNISEX"
           isLoading={isFormLoading}
+          onLabelsChanged={() => queryClient.invalidateQueries({ queryKey: ["categoryLabels"] })}
         />
 
         {/* Confirmation Modal (Soft Delete, Restore, Hard Delete) */}
