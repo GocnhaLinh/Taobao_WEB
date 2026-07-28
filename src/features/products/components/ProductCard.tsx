@@ -283,8 +283,8 @@ export const ProductCard: React.FC<ProductCardProps> = React.memo(({
 
                     {/* Right: Selling Price, Profit Margin & Actions */}
                     <div className="flex items-center justify-between md:justify-end gap-3 shrink-0 pt-2 md:pt-0 border-t md:border-t-0 border-slate-200 dark:border-white/5">
-                      <div className="text-right">
-                        <span className="text-[10px] text-slate-400 uppercase tracking-wider block">
+                      <div className="text-left md:text-right">
+                        <span className="text-[10px] text-slate-400 uppercase tracking-wider block font-semibold">
                           Giá bán thị trường
                         </span>
                         <span className="font-bold text-slate-900 dark:text-white text-sm">
@@ -292,9 +292,9 @@ export const ProductCard: React.FC<ProductCardProps> = React.memo(({
                         </span>
 
                         {v.profitVND !== undefined && v.profitVND !== null && (
-                          <div className="flex items-center justify-end gap-1.5 mt-0.5">
+                          <div className="flex items-center justify-start md:justify-end gap-1.5 mt-0.5">
                             <span
-                              className={`text-xs font-bold ${v.profitVND >= 0 ? "text-emerald-500" : "text-rose-500"}`}
+                              className={`text-xs font-bold whitespace-nowrap ${v.profitVND >= 0 ? "text-emerald-500" : "text-rose-500"}`}
                             >
                               {v.profitVND >= 0 ? '+' : ''}{v.profitVND.toLocaleString()}đ
                             </span>
@@ -316,7 +316,7 @@ export const ProductCard: React.FC<ProductCardProps> = React.memo(({
                       </div>
 
                       {/* Variant Buttons */}
-                      <div className="flex items-center gap-1">
+                      <div className="flex items-center gap-1 shrink-0">
                         <Button
                           variant="ghost"
                           size="sm"

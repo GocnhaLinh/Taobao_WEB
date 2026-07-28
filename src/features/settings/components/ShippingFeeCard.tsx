@@ -16,10 +16,10 @@ export const ShippingFeeCard: React.FC<ShippingFeeCardProps> = ({
   setShippingVnPerKg,
 }) => {
   return (
-    <div className="p-6 bg-white dark:bg-slate-900/50 backdrop-blur-md rounded-2xl border border-slate-200 dark:border-white/10 shadow-sm space-y-4">
+    <div className="p-4 sm:p-6 bg-white dark:bg-slate-900/50 backdrop-blur-md rounded-2xl border border-slate-200 dark:border-white/10 shadow-sm space-y-4">
       <div>
-        <h3 className="text-slate-900 dark:text-white font-bold text-lg flex items-center gap-2">
-          <Truck className="h-5 w-5 text-emerald-500" />
+        <h3 className="text-slate-900 dark:text-white font-bold text-base sm:text-lg flex items-center gap-2">
+          <Truck className="h-5 w-5 text-emerald-500 shrink-0" />
           Phí Vận chuyển & Logistics
         </h3>
         <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">

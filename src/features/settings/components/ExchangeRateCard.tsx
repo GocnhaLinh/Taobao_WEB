@@ -16,13 +16,15 @@ export const ExchangeRateCard: React.FC<ExchangeRateCardProps> = ({
   const sampleVnd = 100 * rateNum;
 
   return (
-    <div className="p-6 bg-white dark:bg-slate-900/50 backdrop-blur-md rounded-2xl border border-slate-200 dark:border-white/10 shadow-sm space-y-4">
-      <div className="flex items-center justify-between">
-        <h3 className="text-slate-900 dark:text-white font-bold text-lg flex items-center gap-2">
-          <Globe className="h-5 w-5 text-indigo-500" />
+    <div className="p-4 sm:p-6 bg-white dark:bg-slate-900/50 backdrop-blur-md rounded-2xl border border-slate-200 dark:border-white/10 shadow-sm space-y-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+        <h3 className="text-slate-900 dark:text-white font-bold text-base sm:text-lg flex items-center gap-2">
+          <Globe className="h-5 w-5 text-indigo-500 shrink-0" />
           Tỷ giá Quy đổi ngoại tệ (NDT ➔ VNĐ)
         </h3>
-        <Badge variant="success">Active System Rate</Badge>
+        <div className="self-start sm:self-auto">
+          <Badge variant="success">Active System Rate</Badge>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -38,19 +40,19 @@ export const ExchangeRateCard: React.FC<ExchangeRateCardProps> = ({
             placeholder="Ví dụ: 3995"
             required
           />
-          <span className="text-[11px] text-slate-500 dark:text-slate-400 block">
+          <span className="text-[11px] text-slate-500 dark:text-slate-400 block leading-tight">
             Tỷ giá này sẽ được áp dụng tự động để tính toán giá VNĐ cho tất cả sản phẩm nhập từ Trung Quốc.
           </span>
         </div>
 
-        <div className="p-4 bg-indigo-50/50 dark:bg-indigo-950/30 rounded-2xl border border-indigo-200 dark:border-indigo-800/40 flex items-center justify-between">
+        <div className="p-4 bg-indigo-50/50 dark:bg-indigo-950/30 rounded-2xl border border-indigo-200 dark:border-indigo-800/40 flex items-center justify-between gap-3">
           <div>
             <span className="text-xs text-indigo-600 dark:text-indigo-400 font-semibold block">Quy đổi mẫu:</span>
-            <span className="text-xl font-extrabold text-slate-900 dark:text-white tracking-tight">
+            <span className="text-base sm:text-xl font-extrabold text-slate-900 dark:text-white tracking-tight">
               ¥ 100 RMB = {sampleVnd.toLocaleString()} VNĐ
             </span>
           </div>
-          <DollarSign className="h-8 w-8 text-indigo-500 opacity-80" />
+          <DollarSign className="h-7 w-7 sm:h-8 sm:w-8 text-indigo-500 opacity-80 shrink-0" />
         </div>
       </div>
     </div>

@@ -102,23 +102,23 @@ export const SettingsFeature: React.FC = () => {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h2 className="text-2xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
-            <Sliders className="h-6 w-6 text-indigo-500" />
+          <h2 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
+            <Sliders className="h-5 w-5 sm:h-6 sm:w-6 text-indigo-500 shrink-0" />
             Cấu hình Phí & Tỷ giá Hệ thống
           </h2>
-          <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
+          <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">
             Quản lý tỷ giá quy đổi NDT ➔ VNĐ, phí vận chuyển và các tỷ lệ phí dịch vụ nhập hàng.
           </p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex items-center gap-2 w-full sm:w-auto">
           <Button
             variant="outline"
             size="sm"
             onClick={() => refetch()}
             disabled={isLoading}
-            className="flex items-center gap-1.5"
+            className="flex-1 sm:flex-initial items-center justify-center gap-1.5"
           >
-            <RefreshCw className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
+            <RefreshCw className={`h-4 w-4 shrink-0 ${isLoading ? 'animate-spin' : ''}`} />
             Làm mới
           </Button>
           <Button
@@ -126,9 +126,9 @@ export const SettingsFeature: React.FC = () => {
             size="sm"
             onClick={handleSubmit}
             isLoading={saveMutation.isPending}
-            className="flex items-center gap-1.5 shadow-md shadow-indigo-500/20"
+            className="flex-1 sm:flex-initial items-center justify-center gap-1.5 shadow-md shadow-indigo-500/20"
           >
-            <Save className="h-4 w-4" />
+            <Save className="h-4 w-4 shrink-0" />
             Lưu thay đổi
           </Button>
         </div>
@@ -154,12 +154,13 @@ export const SettingsFeature: React.FC = () => {
           setWarehouseFeePerDay={setWarehouseFeePerDay}
         />
 
-        <div className="flex justify-end gap-3 pt-2">
+        <div className="flex flex-col sm:flex-row justify-end gap-2 sm:gap-3 pt-2">
           <Button
             type="button"
             variant="outline"
             onClick={() => refetch()}
             disabled={isLoading || saveMutation.isPending}
+            className="w-full sm:w-auto"
           >
             Hủy thay đổi
           </Button>
@@ -168,9 +169,9 @@ export const SettingsFeature: React.FC = () => {
             variant="primary"
             onClick={handleSubmit}
             isLoading={saveMutation.isPending}
-            className="shadow-lg shadow-indigo-500/25 px-6"
+            className="w-full sm:w-auto shadow-lg shadow-indigo-500/25 px-6"
           >
-            <Save className="h-4 w-4 mr-2" />
+            <Save className="h-4 w-4 mr-2 shrink-0" />
             Lưu cấu hình Phí & Tỷ giá
           </Button>
         </div>

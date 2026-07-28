@@ -315,24 +315,24 @@ export const ProductsFeature: React.FC = () => {
           <div className="flex items-center p-1 bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl w-full sm:w-auto">
             <button
               onClick={() => setActiveTab("ACTIVE")}
-              className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+              className={`flex-1 sm:flex-initial justify-center whitespace-nowrap flex items-center gap-2 px-3 sm:px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
                 activeTab === "ACTIVE"
                   ? "bg-white dark:bg-indigo-600 text-indigo-600 dark:text-white shadow-xs"
                   : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
               }`}
             >
-              <Package className="h-4 w-4" />
+              <Package className="h-4 w-4 shrink-0" />
               Sản phẩm ({activeProducts.length})
             </button>
             <button
               onClick={() => setActiveTab("DELETED")}
-              className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+              className={`flex-1 sm:flex-initial justify-center whitespace-nowrap flex items-center gap-2 px-3 sm:px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
                 activeTab === "DELETED"
                   ? "bg-white dark:bg-indigo-600 text-indigo-600 dark:text-white shadow-xs"
                   : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
               }`}
             >
-              <Archive className="h-4 w-4" />
+              <Archive className="h-4 w-4 shrink-0" />
               Thùng rác ({deletedProducts.length})
             </button>
           </div>

@@ -99,9 +99,9 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
       title="Chi Tiết Sản Phẩm & Thống Kê Phiên Bản"
       maxWidth="5xl"
       footer={
-        <div className="flex items-center justify-between w-full">
-          <div className="text-xs text-slate-500 font-mono">ID: {product.id}</div>
-          <div className="flex gap-2">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 w-full">
+          <div className="text-xs text-slate-500 font-mono truncate max-w-full sm:max-w-xs">ID: {product.id}</div>
+          <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
             {onEditProduct && (
               <Button
                 variant="outline"
@@ -110,8 +110,9 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
                   onClose();
                   onEditProduct(product);
                 }}
+                className="flex-1 sm:flex-initial text-xs whitespace-nowrap"
               >
-                <Edit2 className="h-4 w-4 mr-1.5 text-indigo-500" />
+                <Edit2 className="h-4 w-4 mr-1.5 text-indigo-500 shrink-0" />
                 Chỉnh sửa sản phẩm
               </Button>
             )}
@@ -123,8 +124,9 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
                   onClose();
                   onAddVariant(product.id);
                 }}
+                className="flex-1 sm:flex-initial text-xs whitespace-nowrap"
               >
-                <Plus className="h-4 w-4 mr-1.5" />
+                <Plus className="h-4 w-4 mr-1.5 shrink-0" />
                 Thêm biến thể
               </Button>
             )}
@@ -367,15 +369,15 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
 
                     {/* Profit Summary */}
                     {v.profitVND !== undefined && v.profitVND !== null && (
-                      <div className="flex items-center justify-between text-xs pt-1 px-1">
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 sm:gap-2 text-xs pt-1 px-1">
                         <span className="text-slate-500">Lợi nhuận ước tính trên mỗi sản phẩm bán ra:</span>
-                        <div className="flex items-center gap-2">
-                          <span className={`font-extrabold ${v.profitVND >= 0 ? 'text-emerald-500' : 'text-rose-500'}`}>
+                        <div className="flex items-center gap-2 self-start sm:self-auto">
+                          <span className={`font-extrabold whitespace-nowrap ${v.profitVND >= 0 ? 'text-emerald-500' : 'text-rose-500'}`}>
                             {v.profitVND >= 0 ? '+' : ''}{v.profitVND.toLocaleString()}đ
                           </span>
                           {margin && (
                             <Badge variant={parseFloat(margin) >= 30 ? 'success' : parseFloat(margin) > 0 ? 'info' : 'danger'}>
-                              <TrendingUp className="h-3 w-3 mr-1" />
+                              <TrendingUp className="h-3 w-3 mr-1 shrink-0" />
                               Tỷ suất {margin}%
                             </Badge>
                           )}
