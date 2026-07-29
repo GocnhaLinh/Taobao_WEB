@@ -95,6 +95,8 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
     }
   }, [allImages]);
 
+  const [touchStartX, setTouchStartX] = useState<number | null>(null);
+
   // Keyboard navigation for full-screen Lightbox
   useEffect(() => {
     if (!isLightboxOpen) return;
@@ -118,6 +120,27 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
       setIsLightboxOpen(false);
     }
   }, [isOpen]);
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    setTouchStartX(e.touches[0].clientX);
+  };
+
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    if (touchStartX === null) return;
+    const touchEndX = e.changedTouches[0].clientX;
+    const diffX = touchStartX - touchEndX;
+
+    if (Math.abs(diffX) > 40) {
+      if (diffX > 0) {
+        // Swiped Left -> Next Image
+        setLightboxIndex((prev) => (prev < allImages.length - 1 ? prev + 1 : 0));
+      } else {
+        // Swiped Right -> Prev Image
+        setLightboxIndex((prev) => (prev > 0 ? prev - 1 : allImages.length - 1));
+      }
+    }
+    setTouchStartX(null);
+  };
 
   if (!product) return null;
 
@@ -478,25 +501,29 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
           </div>
 
           {/* Main Image Container & Navigation Arrows */}
-          <div className="relative flex-1 flex items-center justify-center p-4 sm:p-8">
+          <div
+            className="relative flex-1 flex items-center justify-center p-2 sm:p-8 touch-pan-y select-none"
+            onTouchStart={handleTouchStart}
+            onTouchEnd={handleTouchEnd}
+          >
             {/* Left Arrow Button */}
             {allImages.length > 1 && (
               <button
                 type="button"
                 onClick={handlePrevImage}
-                className="absolute left-4 sm:left-8 z-30 p-3.5 bg-black/50 hover:bg-white/20 text-white rounded-full transition-all cursor-pointer border border-white/10 backdrop-blur-md shadow-2xl hover:scale-110 active:scale-95"
+                className="absolute left-1.5 sm:left-8 z-30 p-2 sm:p-3.5 bg-black/40 hover:bg-black/70 sm:hover:bg-white/20 text-white/90 hover:text-white rounded-full transition-all cursor-pointer border border-white/10 backdrop-blur-md shadow-xl hover:scale-110 active:scale-90 shrink-0"
                 title="Ảnh trước (Mũi tên Trái)"
               >
-                <ChevronLeft className="h-7 w-7" />
+                <ChevronLeft className="h-5 w-5 sm:h-7 sm:w-7" />
               </button>
             )}
 
             {/* Centered Image */}
-            <div className="relative max-h-[80vh] max-w-[90vw] flex items-center justify-center">
+            <div className="relative max-h-[75vh] sm:max-h-[80vh] max-w-[92vw] sm:max-w-[90vw] flex items-center justify-center">
               <img
                 src={allImages[lightboxIndex]?.url}
                 alt={allImages[lightboxIndex]?.label || product.productName}
-                className="max-h-[80vh] max-w-[90vw] object-contain rounded-2xl shadow-2xl transition-all duration-300"
+                className="max-h-[75vh] sm:max-h-[80vh] max-w-[92vw] sm:max-w-[90vw] object-contain rounded-2xl shadow-2xl transition-all duration-300 pointer-events-auto"
               />
             </div>
 
@@ -505,10 +532,10 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
               <button
                 type="button"
                 onClick={handleNextImage}
-                className="absolute right-4 sm:right-8 z-30 p-3.5 bg-black/50 hover:bg-white/20 text-white rounded-full transition-all cursor-pointer border border-white/10 backdrop-blur-md shadow-2xl hover:scale-110 active:scale-95"
+                className="absolute right-1.5 sm:right-8 z-30 p-2 sm:p-3.5 bg-black/40 hover:bg-black/70 sm:hover:bg-white/20 text-white/90 hover:text-white rounded-full transition-all cursor-pointer border border-white/10 backdrop-blur-md shadow-xl hover:scale-110 active:scale-90 shrink-0"
                 title="Ảnh tiếp theo (Mũi tên Phải)"
               >
-                <ChevronRight className="h-7 w-7" />
+                <ChevronRight className="h-5 w-5 sm:h-7 sm:w-7" />
               </button>
             )}
           </div>
