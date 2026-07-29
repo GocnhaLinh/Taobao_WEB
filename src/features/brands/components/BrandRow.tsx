@@ -34,13 +34,13 @@ export const BrandRow: React.FC<BrandRowProps> = React.memo(({
     >
       {/* Brand Info Left Side */}
       <div className="flex items-center gap-3.5 min-w-0">
-        <div className="h-10 w-10 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-white/10 flex items-center justify-center shrink-0 overflow-hidden shadow-2xs">
+        <div className="h-10 w-10 rounded-xl bg-white border border-slate-200/80 flex items-center justify-center shrink-0 overflow-hidden shadow-2xs">
           {brand.logo && !imgError ? (
             <img
               src={brand.logo}
               alt={brand.name}
               onError={() => setImgError(true)}
-              className="h-full w-full object-cover"
+              className="h-full w-full object-contain p-1"
             />
           ) : (
             <Award className="h-5 w-5 text-indigo-500" />

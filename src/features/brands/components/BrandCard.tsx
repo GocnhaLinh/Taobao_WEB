@@ -35,13 +35,13 @@ export const BrandCard: React.FC<BrandCardProps> = React.memo(({
       <div>
         {/* Brand Logo & Header */}
         <div className="flex items-center gap-3.5 mb-3">
-          <div className="h-12 w-12 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-white/10 flex items-center justify-center shrink-0 overflow-hidden shadow-xs">
+          <div className="h-12 w-12 rounded-xl bg-white border border-slate-200/80 flex items-center justify-center shrink-0 overflow-hidden shadow-xs">
             {brand.logo && !imgError ? (
               <img
                 src={brand.logo}
                 alt={brand.name}
                 onError={() => setImgError(true)}
-                className="h-full w-full object-cover"
+                className="h-full w-full object-contain p-1"
               />
             ) : (
               <Award className="h-6 w-6 text-indigo-500" />

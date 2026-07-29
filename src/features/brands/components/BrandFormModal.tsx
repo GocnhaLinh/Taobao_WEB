@@ -224,13 +224,13 @@ export const BrandFormModal: React.FC<BrandFormModalProps> = ({
             {logo ? (
               <div className="p-3 bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-white/10 rounded-2xl flex items-center justify-between gap-3">
                 <div className="flex items-center gap-3 min-w-0">
-                  <div className="h-12 w-12 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-white/10 flex items-center justify-center shrink-0 overflow-hidden shadow-2xs">
+                  <div className="h-12 w-12 rounded-xl bg-white border border-slate-200/80 flex items-center justify-center shrink-0 overflow-hidden shadow-2xs">
                     {!imgError ? (
                       <img
                         src={logo}
                         alt="Preview"
                         onError={() => setImgError(true)}
-                        className="h-full w-full object-cover"
+                        className="h-full w-full object-contain p-1"
                       />
                     ) : (
                       <Award className="h-6 w-6 text-slate-400" />
