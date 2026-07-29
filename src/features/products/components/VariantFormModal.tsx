@@ -245,27 +245,27 @@ export const VariantFormModal: React.FC<VariantFormModalProps> = ({
       <form onSubmit={handleSubmit} className="space-y-4">
         {/* Basic Variant Info */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-          <div className="relative">
-            <Input
-              label={t('skuCode')}
-              value={sku}
-              onChange={(e) => setSku(e.target.value)}
-              placeholder="SKU-GIAY-123456"
-              disabled
-              required
-              className="bg-slate-100 dark:bg-slate-800/80 text-slate-500 cursor-not-allowed font-mono font-semibold pr-9"
-            />
-            {!editingVariant && (
-              <button
-                type="button"
-                onClick={() => setSku(generateAutoSku(categoryName))}
-                className="absolute right-2 top-7 p-1.5 rounded-lg text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 dark:hover:bg-white/10 transition-colors cursor-pointer"
-                title={t('regenerateSku')}
-              >
-                <RefreshCw className="h-4 w-4" />
-              </button>
-            )}
-          </div>
+          <Input
+            label={t('skuCode')}
+            value={sku}
+            onChange={(e) => setSku(e.target.value)}
+            placeholder="SKU-GIAY-123456"
+            disabled
+            required
+            className="bg-slate-100 dark:bg-slate-800/80 text-slate-500 cursor-not-allowed font-mono font-semibold"
+            rightElement={
+              !editingVariant ? (
+                <button
+                  type="button"
+                  onClick={() => setSku(generateAutoSku(categoryName))}
+                  className="p-1 rounded-lg text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 dark:hover:bg-white/10 transition-colors cursor-pointer"
+                  title={t('regenerateSku')}
+                >
+                  <RefreshCw className="h-4 w-4" />
+                </button>
+              ) : undefined
+            }
+          />
           <Input
             label={t('sizeLabel')}
             value={size}

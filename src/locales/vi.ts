@@ -545,12 +545,14 @@ export const vi = {
 
   // Common
   save: "Lưu lại",
+  saving: "Đang lưu...",
   cancel: "Hủy",
   update: "Cập nhật",
   delete: "Xóa",
   edit: "Sửa",
   create: "Tạo",
   search: "Tìm kiếm",
+  sort: "Sắp xếp",
   loading: "Đang tải...",
   noData: "Không có dữ liệu",
   confirm: "Xác nhận",
@@ -592,4 +594,5 @@ export const vi = {
   recovered: "Đã khôi phục",
   deleteForever: "Xóa vĩnh viễn",
   restoreAction: "Khôi phục",
+  requiredField: "Trường này là bắt buộc",
 };

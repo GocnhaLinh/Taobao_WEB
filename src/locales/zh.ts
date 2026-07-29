@@ -522,12 +522,14 @@ export const zh = {
 
   // Common
   save: "保存",
+  saving: "保存中...",
   cancel: "取消",
   update: "更新",
   delete: "删除",
   edit: "编辑",
   create: "创建",
   search: "搜索",
+  sort: "排序",
   loading: "加载中...",
   noData: "暂无数据",
   confirm: "确认",
@@ -568,4 +570,5 @@ export const zh = {
   recovered: "已恢复",
   deleteForever: "永久删除",
   restoreAction: "恢复",
+  requiredField: "此项为必填项",
 };

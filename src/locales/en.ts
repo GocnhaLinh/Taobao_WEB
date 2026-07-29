@@ -541,12 +541,14 @@ export const en = {
 
   // Common
   save: "Save",
+  saving: "Saving...",
   cancel: "Cancel",
   update: "Update",
   delete: "Delete",
   edit: "Edit",
   create: "Create",
   search: "Search",
+  sort: "Sort",
   loading: "Loading...",
   noData: "No data",
   confirm: "Confirm",
@@ -588,4 +590,5 @@ export const en = {
   recovered: "Recovered",
   deleteForever: "Delete Forever",
   restoreAction: "Restore",
+  requiredField: "This field is required",
 };

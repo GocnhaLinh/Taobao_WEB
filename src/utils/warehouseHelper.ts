@@ -53,7 +53,7 @@ const getAcronym = (text: string, maxLen = 5): string => {
 /**
  * Generate a random 3-digit number (100-999).
  */
-const randomDigits = (): string => {
+export const randomDigits = (): string => {
   return String(Math.floor(100 + Math.random() * 900));
 };
 
@@ -69,6 +69,15 @@ export const generateWarehouseCode = (name: string, province: string, fixedSuffi
   const nameCode = getAcronym(name, 5) || 'WH';
   const suffix = fixedSuffix || randomDigits();
   return `WH-${provinceCode}-${nameCode}-${suffix}`;
+};
+
+/**
+ * Extract trailing digits from a warehouse code.
+ * Example: "WH-HN2-K1HN-374" -> "374"
+ */
+export const extractCodeSuffix = (existingCode: string): string | undefined => {
+  const match = existingCode.match(/(\d+)$/);
+  return match ? match[1] : undefined;
 };
 
 /**

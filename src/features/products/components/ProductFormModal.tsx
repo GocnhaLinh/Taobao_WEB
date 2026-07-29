@@ -443,29 +443,29 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({
                 placeholder="E.g. 28000"
                 disabled
               />
-              <div className="relative">
                 <Input
                   label={t('skuCode')}
                   value={variantSku}
                   onChange={(e) => setVariantSku(e.target.value)}
                   placeholder="SKU-GIAY-123456"
                   disabled
-                  className="bg-slate-100 dark:bg-slate-800/80 text-slate-500 cursor-not-allowed font-mono font-semibold pr-9"
+                  className="bg-slate-100 dark:bg-slate-800/80 text-slate-500 cursor-not-allowed font-mono font-semibold"
+                  rightElement={
+                    !editingProduct ? (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const cat = categories.find((c) => c.id === categoryId);
+                          setVariantSku(generateAutoSku(cat?.name));
+                        }}
+                        className="p-1 rounded-lg text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 dark:hover:bg-white/10 transition-colors cursor-pointer"
+                        title={t('regenerateSku')}
+                      >
+                        <RefreshCw className="h-4 w-4" />
+                      </button>
+                    ) : undefined
+                  }
                 />
-                {!editingProduct && (
-                  <button
-                    type="button"
-                    onClick={() => {
-                      const cat = categories.find((c) => c.id === categoryId);
-                      setVariantSku(generateAutoSku(cat?.name));
-                    }}
-                    className="absolute right-2 top-7 p-1.5 rounded-lg text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 dark:hover:bg-white/10 transition-colors cursor-pointer"
-                    title={t('regenerateSku')}
-                  >
-                    <RefreshCw className="h-4 w-4" />
-                  </button>
-                )}
-              </div>
               <Input
                 label={t('sizeLabel')}
                 value={variantSize}
