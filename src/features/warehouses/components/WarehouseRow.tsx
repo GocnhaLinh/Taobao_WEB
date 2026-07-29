@@ -1,9 +1,10 @@
 import React from 'react';
-import { Edit2, Trash2, RotateCcw, Building2, MapPin, ShieldCheck, Clock, AlertTriangle } from 'lucide-react';
+import { Edit2, Trash2, RotateCcw, Building2, MapPin, ShieldCheck } from 'lucide-react';
 import { useTranslation } from '../../../lib/i18n';
 import type { Warehouse } from '../../../types';
 import { getGradientByProvince } from '../../../utils/gradientHelper';
 import { HighlightText } from './highlight';
+import { TrashCountdownBar } from '../../../components/ui/TrashCountdownBar';
 
 interface WarehouseRowProps {
   warehouse: Warehouse;
@@ -14,54 +15,6 @@ interface WarehouseRowProps {
   onRestore?: (warehouse: Warehouse) => void;
   onHardDelete?: (warehouse: Warehouse) => void;
 }
-
-// ─── Countdown Badge with Progress ─────────────────────────────────
-const CountdownBadge: React.FC<{ deletedAt?: string }> = ({ deletedAt }) => {
-  const { t } = useTranslation();
-  if (!deletedAt) return null;
-
-  const deleteDate = new Date(deletedAt).getTime();
-  const now = new Date().getTime();
-  const diffMs = now - deleteDate;
-  const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
-  const remainingDays = Math.max(30 - diffDays, 0);
-  const progress = Math.min((diffDays / 30) * 100, 100);
-
-  let barColor = 'bg-emerald-500';
-  let textColor = 'text-emerald-600 dark:text-emerald-400';
-  let bgColor = 'bg-emerald-500/10 border-emerald-500/20';
-
-  if (remainingDays <= 5) {
-    barColor = 'bg-rose-500';
-    textColor = 'text-rose-600 dark:text-rose-400';
-    bgColor = 'bg-rose-500/15 border-rose-500/30';
-  } else if (remainingDays <= 15) {
-    barColor = 'bg-amber-500';
-    textColor = 'text-amber-600 dark:text-amber-400';
-    bgColor = 'bg-amber-500/15 border-amber-500/30';
-  }
-
-  return (
-    <div className={`px-2.5 py-1 rounded-xl border text-[10px] flex items-center gap-2 ${bgColor} ${textColor}`}>
-      {remainingDays <= 5 ? (
-        <AlertTriangle className="h-3 w-3 shrink-0" />
-      ) : (
-        <Clock className="h-3 w-3 shrink-0" />
-      )}
-      <span className="font-semibold whitespace-nowrap">
-        {remainingDays <= 5
-          ? t('aboutToDelete', { days: remainingDays })
-          : t('autoDeleteInDays', { days: remainingDays })}
-      </span>
-      <div className="h-1.5 w-12 rounded-full bg-slate-200 dark:bg-slate-700 overflow-hidden shrink-0">
-        <div
-          className={`h-full rounded-full transition-all duration-1000 ${barColor}`}
-          style={{ width: `${progress}%` }}
-        />
-      </div>
-    </div>
-  );
-};
 
 export const WarehouseRow: React.FC<WarehouseRowProps> = React.memo(({
   warehouse,
@@ -117,7 +70,13 @@ export const WarehouseRow: React.FC<WarehouseRowProps> = React.memo(({
       {/* Actions & Status Right Side */}
       <div className="flex items-center justify-between sm:justify-end gap-3 shrink-0 pt-2 sm:pt-0 border-t sm:border-t-0 border-slate-200 dark:border-white/10 w-full sm:w-auto">
         {/* Countdown badge if trash */}
-        {isTrashView && <CountdownBadge deletedAt={warehouse.deletedAt} />}
+        {isTrashView && (
+          <TrashCountdownBar
+            deletedAt={warehouse.deletedAt}
+            fallbackDate={(warehouse as any).updatedAt}
+            variant="compact"
+          />
+        )}
 
         {/* Action Buttons */}
         <div className="flex items-center justify-between w-full sm:w-auto sm:gap-1">

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Edit2, Trash2, RotateCcw, Award } from 'lucide-react';
 import { useTranslation } from '../../../lib/i18n';
 import type { Brand } from '../../../types';
+import { TrashCountdownBar } from '../../../components/ui/TrashCountdownBar';
 
 interface BrandCardProps {
   brand: Brand;
@@ -22,41 +23,6 @@ export const BrandCard: React.FC<BrandCardProps> = React.memo(({
 }) => {
   const { t } = useTranslation();
   const [imgError, setImgError] = useState(false);
-
-  // Calculate remaining days until 30-day auto deletion
-  const getRemainingDaysInfo = (deletedAt?: string) => {
-    if (!deletedAt) {
-      return {
-        text: t('autoDeleteDefault'),
-        style: 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20 font-medium',
-      };
-    }
-
-    const deleteDate = new Date(deletedAt).getTime();
-    const now = new Date().getTime();
-    const diffMs = now - deleteDate;
-    const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
-    const remainingDays = Math.max(30 - diffDays, 0);
-
-    if (remainingDays <= 5) {
-      return {
-        text: t('aboutToDelete', { days: remainingDays }),
-        style: 'bg-rose-500/15 text-rose-600 dark:text-rose-400 border-rose-500/30 animate-pulse font-bold',
-      };
-    }
-    if (remainingDays <= 15) {
-      return {
-        text: t('autoDeleteInDays', { days: remainingDays }),
-        style: 'bg-amber-500/15 text-amber-600 dark:text-amber-400 border-amber-500/30 font-semibold',
-      };
-    }
-    return {
-      text: t('autoDeleteInDays', { days: remainingDays }),
-      style: 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20 font-medium',
-    };
-  };
-
-  const remainingInfo = getRemainingDaysInfo(brand.deletedAt);
 
   return (
     <div
@@ -98,8 +64,12 @@ export const BrandCard: React.FC<BrandCardProps> = React.memo(({
 
         {/* Countdown tag if trash */}
         {isTrashView && (
-          <div className={`px-2.5 py-1 rounded-xl border text-[11px] mb-3 w-fit ${remainingInfo.style}`}>
-            {remainingInfo.text}
+          <div className="mb-3">
+            <TrashCountdownBar
+              deletedAt={brand.deletedAt}
+              fallbackDate={(brand as any).updatedAt}
+              variant="card"
+            />
           </div>
         )}
       </div>

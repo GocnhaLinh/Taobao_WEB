@@ -10,13 +10,16 @@ interface WarehousesOverviewGridProps {
 export const WarehousesOverviewGrid: React.FC<WarehousesOverviewGridProps> = ({ warehouses }) => {
   const { t } = useTranslation();
   return (
-    <div className="p-6 bg-white dark:bg-slate-900/50 backdrop-blur-md rounded-2xl border border-slate-200 dark:border-white/10 shadow-sm space-y-4">
-      <div className="flex items-center justify-between">
-        <h3 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
-          <WarehouseIcon className="h-5 w-5 text-emerald-500" />
-          {t('warehouseManagement')} ({warehouses.length} {t('warehouses')})
+    <div className="p-4 sm:p-6 bg-white dark:bg-slate-900/50 backdrop-blur-md rounded-2xl border border-slate-200 dark:border-white/10 shadow-sm space-y-4">
+      <div className="flex items-center justify-between gap-2">
+        <h3 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2 truncate">
+          <WarehouseIcon className="h-5 w-5 text-emerald-500 shrink-0" />
+          <span className="truncate">{t('warehouseManagement')} ({warehouses.length})</span>
         </h3>
-        <Badge variant="success">ACTIVE SYSTEM</Badge>
+        <Badge variant="success" className="shrink-0 whitespace-nowrap">
+          <span className="hidden sm:inline">ACTIVE SYSTEM</span>
+          <span className="sm:hidden">ACTIVE</span>
+        </Badge>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">

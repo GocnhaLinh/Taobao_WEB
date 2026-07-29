@@ -48,7 +48,7 @@ export const ConversationList: React.FC<ConversationListProps> = ({
   waitingCount,
 }) => {
   return (
-    <div className="w-80 border-r border-slate-200 dark:border-white/10 flex flex-col bg-slate-50/50 dark:bg-white/5">
+    <div className={`w-full md:w-80 border-r border-slate-200 dark:border-white/10 flex-col bg-slate-50/50 dark:bg-white/5 shrink-0 ${selectedConv ? 'hidden md:flex' : 'flex'}`}>
       {/* Tabs header */}
       <div className="p-3 border-b border-slate-200 dark:border-white/10 space-y-3">
         <div className="grid grid-cols-2 p-1 bg-slate-200/60 dark:bg-white/10 rounded-xl text-xs font-semibold">
