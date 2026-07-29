@@ -16,8 +16,12 @@ const allowedOrigins = (process.env.CORS_ORIGIN || "http://localhost:5173")
   .split(",")
   .map((o) => o.trim());
 
-// Patterns mở rộng tự động chấp nhận các subdomain preview (Vercel, Railway)
-const allowedOriginPatterns = [/\.vercel\.app$/, /\.railway\.app$/];
+// Patterns mở rộng tự động chấp nhận localhost và subdomain preview (Vercel, Railway)
+const allowedOriginPatterns = [
+  /^http:\/\/localhost:\d+$/,
+  /\.vercel\.app$/,
+  /\.railway\.app$/,
+];
 
 app.use(
   cors({
