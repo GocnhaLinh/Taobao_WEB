@@ -269,7 +269,7 @@ export const CategoriesFeature: React.FC = () => {
     hardDeleteMutation.isPending;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 animate-in fade-in slide-in-from-top-2 duration-500">
       {/* Header section */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
@@ -391,7 +391,7 @@ export const CategoriesFeature: React.FC = () => {
 
         {/* Notice Banner for Recycle Bin */}
         {activeTab === "TRASH" && (
-          <div className="p-4 bg-amber-500/10 border border-amber-500/20 rounded-2xl flex items-center gap-3 text-xs text-amber-800 dark:text-amber-300 font-medium">
+          <div className="p-4 bg-amber-500/10 border border-amber-500/20 rounded-2xl flex items-center gap-3 text-xs text-amber-800 dark:text-amber-300 font-medium animate-in fade-in slide-in-from-top-2 duration-300">
             <Clock className="h-5 w-5 text-amber-500 shrink-0" />
             <span>{t("trashNoticeBanner")}</span>
           </div>
@@ -403,7 +403,7 @@ export const CategoriesFeature: React.FC = () => {
             {t("loadingCategories")}
           </div>
         ) : paginatedCategories.length === 0 ? (
-          <div className="py-16 text-center text-slate-400 text-sm flex flex-col items-center gap-3">
+          <div className="py-16 text-center text-slate-400 text-sm flex flex-col items-center gap-3 animate-in fade-in duration-300">
             <Archive className="h-10 w-10 opacity-30" />
             <span>
               {activeTab === "ACTIVE"
@@ -413,9 +413,9 @@ export const CategoriesFeature: React.FC = () => {
           </div>
         ) : viewMode === "card" ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-            {paginatedCategories.map((cat) => (
+            {paginatedCategories.map((cat, index) => (
+              <div key={cat.id} className="animate-in fade-in slide-in-from-bottom-2 duration-300" style={{ animationDelay: `${index * 60}ms` }}>
               <CategoryCard
-                key={cat.id}
                 category={cat}
                 labelsMap={labelsMap}
                 isTrashView={activeTab === "TRASH"}
@@ -424,13 +424,14 @@ export const CategoriesFeature: React.FC = () => {
                 onRestore={(c) => openConfirmModal(c, "RESTORE")}
                 onHardDelete={(c) => openConfirmModal(c, "HARD_DELETE")}
               />
+            </div>
             ))}
           </div>
         ) : (
           <div className="flex flex-col gap-3">
-            {paginatedCategories.map((cat) => (
+            {paginatedCategories.map((cat, index) => (
+              <div key={cat.id} className="animate-in fade-in slide-in-from-bottom-2 duration-300" style={{ animationDelay: `${index * 60}ms` }}>
               <CategoryRow
-                key={cat.id}
                 category={cat}
                 labelsMap={labelsMap}
                 isTrashView={activeTab === "TRASH"}
@@ -439,13 +440,14 @@ export const CategoriesFeature: React.FC = () => {
                 onRestore={(c) => openConfirmModal(c, "RESTORE")}
                 onHardDelete={(c) => openConfirmModal(c, "HARD_DELETE")}
               />
+            </div>
             ))}
           </div>
         )}
 
         {/* Pagination Controls */}
         {totalPages > 1 && (
-          <div className="pt-4 border-t border-slate-200 dark:border-white/10 flex items-center justify-between">
+          <div className="pt-4 border-t border-slate-200 dark:border-white/10 flex items-center justify-between animate-in fade-in duration-200">
             <span className="text-xs text-slate-500 dark:text-slate-400">
               {t('page')}{" "}
               <strong className="text-slate-900 dark:text-white">

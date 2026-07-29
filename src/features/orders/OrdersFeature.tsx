@@ -62,7 +62,7 @@ export const OrdersFeature: React.FC = () => {
   const completedCount = rawOrders.filter((o) => o.orderStatus === 'COMPLETED').length;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 animate-in fade-in slide-in-from-top-2 duration-500">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
@@ -83,7 +83,7 @@ export const OrdersFeature: React.FC = () => {
 
       {/* Metric Stat Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="p-5 bg-white dark:bg-slate-900/60 backdrop-blur-xl border border-slate-200 dark:border-white/10 rounded-2xl shadow-sm flex items-center gap-4">
+        <div className="p-5 bg-white dark:bg-slate-900/60 backdrop-blur-xl border border-slate-200 dark:border-white/10 rounded-2xl shadow-sm flex items-center gap-4 transition-all duration-300 hover:scale-[1.02] hover:shadow-md">
           <div className="p-3 bg-indigo-500/10 text-indigo-500 rounded-xl border border-indigo-500/20">
             <Package className="h-6 w-6" />
           </div>
@@ -93,7 +93,7 @@ export const OrdersFeature: React.FC = () => {
           </div>
         </div>
 
-        <div className="p-5 bg-white dark:bg-slate-900/60 backdrop-blur-xl border border-slate-200 dark:border-white/10 rounded-2xl shadow-sm flex items-center gap-4">
+        <div className="p-5 bg-white dark:bg-slate-900/60 backdrop-blur-xl border border-slate-200 dark:border-white/10 rounded-2xl shadow-sm flex items-center gap-4 transition-all duration-300 hover:scale-[1.02] hover:shadow-md">
           <div className="p-3 bg-emerald-500/10 text-emerald-500 rounded-xl border border-emerald-500/20">
             <TrendingUp className="h-6 w-6" />
           </div>
@@ -105,7 +105,7 @@ export const OrdersFeature: React.FC = () => {
           </div>
         </div>
 
-        <div className="p-5 bg-white dark:bg-slate-900/60 backdrop-blur-xl border border-slate-200 dark:border-white/10 rounded-2xl shadow-sm flex items-center gap-4">
+        <div className="p-5 bg-white dark:bg-slate-900/60 backdrop-blur-xl border border-slate-200 dark:border-white/10 rounded-2xl shadow-sm flex items-center gap-4 transition-all duration-300 hover:scale-[1.02] hover:shadow-md">
           <div className="p-3 bg-sky-500/10 text-sky-500 rounded-xl border border-sky-500/20">
             <Truck className="h-6 w-6" />
           </div>
@@ -115,7 +115,7 @@ export const OrdersFeature: React.FC = () => {
           </div>
         </div>
 
-        <div className="p-5 bg-white dark:bg-slate-900/60 backdrop-blur-xl border border-slate-200 dark:border-white/10 rounded-2xl shadow-sm flex items-center gap-4">
+        <div className="p-5 bg-white dark:bg-slate-900/60 backdrop-blur-xl border border-slate-200 dark:border-white/10 rounded-2xl shadow-sm flex items-center gap-4 transition-all duration-300 hover:scale-[1.02] hover:shadow-md">
           <div className="p-3 bg-teal-500/10 text-teal-500 rounded-xl border border-teal-500/20">
             <CheckCircle2 className="h-6 w-6" />
           </div>
@@ -184,7 +184,7 @@ export const OrdersFeature: React.FC = () => {
             <p className="font-semibold">Đang tải danh sách đơn hàng từ CSDL...</p>
           </div>
         ) : displayOrders.length === 0 ? (
-          <div className="py-16 text-center space-y-3 text-slate-400">
+          <div className="py-16 text-center space-y-3 text-slate-400 animate-in fade-in duration-300">
             <ShoppingBag className="h-12 w-12 mx-auto stroke-1 text-slate-500" />
             <h4 className="text-slate-700 dark:text-slate-300 font-bold text-base">Không tìm thấy đơn hàng nào</h4>
             <p className="text-xs max-w-sm mx-auto">
@@ -193,12 +193,13 @@ export const OrdersFeature: React.FC = () => {
           </div>
         ) : (
           <div className="space-y-3">
-            {displayOrders.map((ord) => (
+            {displayOrders.map((ord, index) => (
+              <div key={ord.id} className="animate-in fade-in slide-in-from-bottom-2 duration-300" style={{ animationDelay: `${index * 60}ms` }}>
               <OrderRowCard
-                key={ord.id}
                 order={ord}
                 onViewDetails={(o) => setSelectedOrder(o)}
               />
+            </div>
             ))}
           </div>
         )}

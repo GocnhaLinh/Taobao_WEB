@@ -288,7 +288,7 @@ export const ProductsFeature: React.FC = () => {
     activeTab === "ACTIVE" ? isLoadingActive : isLoadingDeleted;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 animate-in fade-in slide-in-from-top-2 duration-500">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
@@ -353,7 +353,7 @@ export const ProductsFeature: React.FC = () => {
 
         {/* Notice Banner for Recycle Bin */}
         {activeTab === "DELETED" && (
-          <div className="p-4 bg-amber-500/10 border border-amber-500/20 rounded-2xl flex items-center gap-3 text-xs text-amber-800 dark:text-amber-300 font-medium">
+          <div className="p-4 bg-amber-500/10 border border-amber-500/20 rounded-2xl flex items-center gap-3 text-xs text-amber-800 dark:text-amber-300 font-medium animate-in fade-in slide-in-from-top-2 duration-300">
             <Clock className="h-5 w-5 text-amber-500 shrink-0" />
             <span>
             {t('productTrashNotice')}
@@ -367,15 +367,15 @@ export const ProductsFeature: React.FC = () => {
             {t('loadingProducts')}
           </div>
         ) : filteredProducts.length === 0 ? (
-          <div className="py-12 text-center text-slate-400 space-y-2">
+          <div className="py-12 text-center text-slate-400 space-y-2 animate-in fade-in duration-300">
             <Package className="h-10 w-10 mx-auto text-slate-300 dark:text-slate-600" />
             <p className="text-sm font-semibold">{t('noProductsFound')}</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 gap-4">
-            {filteredProducts.map((p) => (
+            {filteredProducts.map((p, index) => (
+              <div key={p.id} className="animate-in fade-in slide-in-from-bottom-2 duration-300" style={{ animationDelay: `${index * 60}ms` }}>
               <ProductCard
-                key={p.id}
                 product={p}
                 onEditProduct={handleOpenEditProduct}
                 onDeleteProduct={handleDeleteProduct}
@@ -387,6 +387,7 @@ export const ProductsFeature: React.FC = () => {
                 onRestoreProduct={handleRestoreProduct}
                 onForceDeleteProduct={handleForceDeleteProduct}
               />
+            </div>
             ))}
           </div>
         )}

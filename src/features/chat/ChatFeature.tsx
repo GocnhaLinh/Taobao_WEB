@@ -183,7 +183,7 @@ export const ChatFeature: React.FC = () => {
   const openCount = conversations.filter((c) => c.status === 'OPEN').length;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 animate-in fade-in slide-in-from-top-2 duration-500">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <h2 className="text-2xl font-bold text-slate-900 dark:text-white">{t('chatManagement')}</h2>
@@ -203,7 +203,7 @@ export const ChatFeature: React.FC = () => {
         </div>
       </div>
 
-      <div className="h-[680px] max-h-[80vh] bg-white dark:bg-slate-900/50 backdrop-blur-md rounded-2xl border border-slate-200 dark:border-white/10 shadow-sm flex overflow-hidden">
+      <div className="h-[680px] max-h-[80vh] bg-white dark:bg-slate-900/50 backdrop-blur-md rounded-2xl border border-slate-200 dark:border-white/10 shadow-sm flex overflow-hidden animate-in fade-in slide-in-from-bottom-2 duration-300">
         {/* LEFT SIDEBAR: Conversations List */}
         <ConversationList
           activeTab={activeTab}
@@ -272,13 +272,14 @@ export const ChatFeature: React.FC = () => {
                     <span>Chưa có tin nhắn nào trong cuộc hội thoại này</span>
                   </div>
                 ) : (
-                  messages.map((m) => (
+                  messages.map((m, index) => (
+                    <div key={m.id} className="animate-in fade-in slide-in-from-bottom-2 duration-300" style={{ animationDelay: `${Math.min(index * 40, 300)}ms` }}>
                     <MessageBubble
-                      key={m.id}
                       message={m}
                       userFullName={selectedConv.user.fullName}
                       onRecall={handleRecall}
                     />
+                  </div>
                   ))
                 )}
                 <div ref={messagesEndRef} />
