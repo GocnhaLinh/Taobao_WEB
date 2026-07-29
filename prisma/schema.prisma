@@ -1,0 +1,423 @@
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id                   String                  @id @default(auto()) @map("_id") @db.ObjectId
+  fullName             String                  @map("full_name")
+  email                String                  @unique
+  pass                 String
+  phone                String?
+  role                 String                  @default("USER") // e.g. "USER", "ADMIN"
+  avatar               String?
+  status               String                  @default("ACTIVE") // e.g. "ACTIVE", "INACTIVE", "DELETED"
+  deletedAt            DateTime?               @map("deleted_at")
+  createdAt            DateTime                @default(now()) @map("created_at")
+  addresses            Address[]
+  orders               Order[]
+  reviews              Review[]
+  carts                Cart[]
+  orderItems           OrderItem[]
+  conversationsAsUser  Conversation[]          @relation("UserConversations")
+  conversationsAsAdmin Conversation[]          @relation("AdminConversations")
+  chatMessages         ChatMessage[]
+
+  @@map("users")
+}
+
+model Category {
+  id        String    @id @default(auto()) @map("_id") @db.ObjectId
+  name      String
+  sex       String?   // e.g. "Male", "Female", "Unisex", or custom label code/name
+  slug      String    @unique
+  status    String    @default("ACTIVE") // ACTIVE / DELETED
+  deletedAt DateTime? @map("deleted_at")
+  products  Product[]
+
+  @@map("categories")
+}
+
+model CategoryLabel {
+  id        String    @id @default(auto()) @map("_id") @db.ObjectId
+  name      String    @unique
+  code      String    @unique
+  icon      String?   @default("🏷️")
+  status    String    @default("ACTIVE") // ACTIVE / DELETED
+  deletedAt DateTime? @map("deleted_at")
+  createdAt DateTime  @default(now()) @map("created_at")
+
+  @@map("category_labels")
+}
+
+model Brand {
+  id          String    @id @default(auto()) @map("_id") @db.ObjectId
+  name        String
+  logo        String?
+  description String?
+  status      String    @default("ACTIVE") // ACTIVE / DELETED
+  deletedAt   DateTime? @map("deleted_at")
+  products    Product[]
+
+  @@map("brands")
+}
+
+model Product {
+  id          String           @id @default(auto()) @map("_id") @db.ObjectId
+  categoryId  String           @map("id_category") @db.ObjectId
+  category    Category         @relation(fields: [categoryId], references: [id])
+  brandId     String?          @map("id_brand") @db.ObjectId
+  brand       Brand?           @relation(fields: [brandId], references: [id])
+  productName String           @map("product_name")
+  slug        String           @unique
+  description String?
+  thumbnail   String?
+  status      String           @default("ACTIVE") // ACTIVE / HIDDEN / DELETED
+  deletedAt   DateTime?        @map("deleted_at")
+  createdAt   DateTime         @default(now()) @map("created_at")
+  updatedAt   DateTime         @updatedAt @map("updated_at")
+  images      ProductImage[]
+  variants    ProductVariant[]
+  reviews     Review[]
+
+  @@index([categoryId, status]) // query product theo category + status
+  @@index([brandId, status])    // query product theo brand + status
+  @@index([status, createdAt])  // sort/filter theo status + thời gian
+  @@map("products")
+}
+
+model ProductImage {
+  id        String  @id @default(auto()) @map("_id") @db.ObjectId
+  productId String  @map("id_product") @db.ObjectId
+  product   Product @relation(fields: [productId], references: [id])
+  imageUrl  String  @map("image_url")
+  status    String  @default("ACTIVE") // ACTIVE / DELETED
+
+  @@map("images")
+}
+
+model ProductVariant {
+  id               String      @id @default(auto()) @map("_id") @db.ObjectId
+  productId        String      @map("id_products") @db.ObjectId
+  product          Product     @relation(fields: [productId], references: [id])
+  size             String?
+  sku              String      @unique
+  color            String?
+  price            Float       // Giá bán thị trường Việt (VNĐ)
+  salePrice        Float?      @map("sale_price")
+  originalPriceCNY Float?      @map("original_price_cny") // Giá gốc Tệ (CNY)
+  exchangeRate     Float?      @map("exchange_rate")      // Tỷ giá quy đổi (NDT -> VNĐ)
+  shippingCostVND  Float?      @map("shipping_cost_vnd")  // Phí vận chuyển, ship, kho VNĐ
+  totalCostVND     Float?      @map("total_cost_vnd")     // Tổng chi phí vốn VNĐ
+  profitVND        Float?      @map("profit_vnd")         // Lợi nhuận VNĐ (Giá bán - Tổng vốn)
+  stock            Int         @default(0)
+  image            String?
+  images           String[]    @default([])
+  weight           Float?
+  status           String      @default("ACTIVE") // ACTIVE / HIDDEN / DELETED
+  deletedAt        DateTime?   @map("deleted_at")
+  inventories      Inventory[]
+  cartItems        CartItem[]
+  orderItems       OrderItem[]
+
+  @@index([productId, status]) // query variants của 1 product
+  // sku đã có @unique nên không cần @@index([sku]) riêng
+  @@map("products_variants")
+}
+
+model Warehouse {
+  id                 String      @id @default(auto()) @map("_id") @db.ObjectId
+  code               String      @unique
+  name               String
+  province           String
+  district           String?
+  address            String?
+  supportedDistricts String[]
+  supportedProvinces String[]
+  isDefault          Boolean     @default(false) @map("is_default")
+  status             String      @default("ACTIVE") // ACTIVE, INACTIVE, DELETED
+  deletedAt          DateTime?   @map("deleted_at")
+  createdAt          DateTime    @default(now()) @map("created_at")
+  updatedAt          DateTime    @updatedAt @map("updated_at")
+  inventories        Inventory[]
+
+  @@map("warehouses")
+}
+
+model Inventory {
+  id           String         @id @default(auto()) @map("_id") @db.ObjectId
+  variantId    String         @map("id_variants") @db.ObjectId
+  variant      ProductVariant @relation(fields: [variantId], references: [id])
+  quantity     Int            @default(0)
+  warehouse    String         @map("warehouse") // e.g. "CN", "VN" or code
+  warehouseId  String?        @map("warehouse_id") @db.ObjectId
+  warehouseRef Warehouse?     @relation(fields: [warehouseId], references: [id])
+  status       String         @default("ACTIVE") // ACTIVE / DELETED
+
+  @@map("inventories")
+}
+
+model Review {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  productId String   @map("id_product") @db.ObjectId
+  product   Product  @relation(fields: [productId], references: [id])
+  userId    String   @map("id_user") @db.ObjectId
+  user      User     @relation(fields: [userId], references: [id])
+  rating    Int      @map("ratting") // matched ERD typo
+  comment   String?
+  status    String   @default("ACTIVE") // ACTIVE / DELETED
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@index([productId])
+  @@index([userId])
+  @@map("reviewer")
+}
+
+model Address {
+  id        String    @id @default(auto()) @map("_id") @db.ObjectId
+  userId    String    @map("id_user") @db.ObjectId
+  user      User      @relation(fields: [userId], references: [id])
+  fullName  String    @map("full_name")
+  phone     String
+  province  String
+  district  String
+  ward      String
+  detail    String
+  isDefault Boolean   @default(false) @map("is_default")
+  status    String    @default("ACTIVE") // ACTIVE, DELETED
+  deletedAt DateTime? @map("deleted_at")
+  orders    Order[]
+
+  @@map("addresses")
+}
+
+model Order {
+  id             String                @id @default(auto()) @map("_id") @db.ObjectId
+  userId         String                @map("id_user") @db.ObjectId
+  user           User                  @relation(fields: [userId], references: [id])
+  addressId      String                @map("address_id") @db.ObjectId
+  address        Address               @relation(fields: [addressId], references: [id])
+  totalAmount    Float                 @map("total_amount")
+  shippingFee    Float                 @map("shipping_fee")
+  discountAmount Float                 @map("discount_amount")
+  couponCode     String?               @map("coupon_code")
+  paymentStatus  String                @map("payment_status") // pending/paid/failed/refunded
+  orderStatus    String                @map("order_status") // pending / shipping / completed / CANCELLED / DELETED
+  status         String                @default("ACTIVE") // ACTIVE / DELETED
+  deletedAt      DateTime?             @map("deleted_at")
+  createdAt      DateTime              @default(now()) @map("created_at")
+  updatedAt      DateTime              @updatedAt @map("updated_at")
+  items          OrderItem[]
+  statusHistory  OrderStatusHistory[]
+  priceHistory   OrderPriceHistory[]
+  cancellations  OrderCancellation[]
+  notifications  Notification[]
+  payments       Payment[]
+
+  @@index([userId, status])              // query orders của 1 user
+  @@index([orderStatus, paymentStatus])  // filter orders theo trạng thái
+  @@index([userId, orderStatus])         // filter orders của user theo trạng thái
+  @@index([userId, createdAt])           // sort orders của user theo thời gian
+  @@map("orders")
+}
+
+model OrderItem {
+  id          String         @id @default(auto()) @map("_id") @db.ObjectId
+  userId      String         @map("id_user") @db.ObjectId
+  user        User           @relation(fields: [userId], references: [id])
+  orderId     String         @map("order_id") @db.ObjectId
+  order       Order          @relation(fields: [orderId], references: [id])
+  variantId   String         @map("variant_id") @db.ObjectId
+  variant     ProductVariant @relation(fields: [variantId], references: [id])
+  productName String         @map("product_name")
+  variantName String?        @map("variant_name")
+  quantity    Int
+  price       Float
+  status      String         @default("ACTIVE") // ACTIVE / DELETED
+
+  @@index([orderId])
+  @@index([variantId])
+  @@map("orders_items")
+}
+
+model Cart {
+  id        String     @id @default(auto()) @map("_id") @db.ObjectId
+  userId    String     @map("id_user") @db.ObjectId
+  user      User       @relation(fields: [userId], references: [id])
+  status    String     @default("ACTIVE") // ACTIVE / DELETED
+  items     CartItem[]
+
+  @@map("cart")
+}
+
+model CartItem {
+  id        String         @id @default(auto()) @map("_id") @db.ObjectId
+  cartId    String         @map("id_carts") @db.ObjectId
+  cart      Cart           @relation(fields: [cartId], references: [id])
+  variantId String         @map("id_variant") @db.ObjectId
+  variant   ProductVariant @relation(fields: [variantId], references: [id])
+  quantity  Int            @default(1)
+  status    String         @default("ACTIVE") // ACTIVE / DELETED
+
+  @@index([cartId, status])
+  @@index([variantId])
+  @@map("cart_items")
+}
+
+model Payment {
+  id            String   @id @default(auto()) @map("_id") @db.ObjectId
+  orderId       String   @map("id_oders") @db.ObjectId
+  order         Order    @relation(fields: [orderId], references: [id])
+  method        String   // MoMo/VNPay
+  transactionId String   @map("transaction_id")
+  amount        Float
+  status        String   @map("payment_status")
+  paidAt        DateTime @default(now()) @map("paid_at")
+
+  @@map("payments")
+}
+
+model Coupon {
+  id            String    @id @default(auto()) @map("_id") @db.ObjectId
+  code          String    @unique
+  discountType  String    @map("discount_type") // percent/fixed
+  discountValue Float     @map("discount_value")
+  minOrderValue Float     @map("min_order_value")
+  maxDiscount   Float?    @map("max_discount")
+  usedCount     Int       @default(0) @map("used_count")
+  usageLimit    Int?      @map("usage_limit")
+  expiredAt     DateTime  @map("expired_at")
+  status        String    @default("ACTIVE") // ACTIVE / DELETED
+  deletedAt     DateTime? @map("deleted_at")
+
+  @@index([code, status])
+  @@map("coupons")
+}
+
+model ExchangeRate {
+  id            String   @id @default(auto()) @map("_id") @db.ObjectId
+  rate          Float    // e.g. 3995
+  effectiveFrom DateTime @map("effective_from")
+  createdBy     String   @map("created_by")
+  status        String   @default("ACTIVE") // ACTIVE / DELETED
+  createdAt     DateTime @default(now()) @map("created_at")
+
+  @@map("exchange_rates")
+}
+
+model OrderStatusHistory {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  orderId   String   @map("order_id") @db.ObjectId
+  order     Order    @relation(fields: [orderId], references: [id])
+  status    String
+  note      String?
+  createdAt DateTime @default(now()) @map("created_at")
+  createdBy String   @map("created_by")
+
+  @@map("order_status_history")
+}
+
+model OrderPriceHistory {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  orderId   String   @map("order_id") @db.ObjectId
+  order     Order    @relation(fields: [orderId], references: [id])
+  oldTotal  Float    @map("old_total")
+  newTotal  Float    @map("new_total")
+  reason    String
+  updatedBy String   @map("updated_by")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("order_price_history")
+}
+
+model OrderCancellation {
+  id            String   @id @default(auto()) @map("_id") @db.ObjectId
+  orderId       String   @map("order_id") @db.ObjectId
+  order     Order    @relation(fields: [orderId], references: [id])
+  reason        String
+  productRefund Float    @map("product_refund")
+  shippingLoss  Float    @map("shipping_loss")
+  warehouseLoss Float    @map("warehouse_loss")
+  serviceLoss   Float    @map("service_loss")
+  finalRefund   Float    @map("final_refund")
+  status        String   @default("PENDING") // Pending, Approved, Rejected, Refunded, DELETED
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  @@map("order_cancellations")
+}
+
+model Fee {
+  id                  String   @id @default(auto()) @map("_id") @db.ObjectId
+  exchangeRate        Float    @map("exchange_rate")
+  shippingCnPerKg     Float    @map("shipping_cn_per_kg")
+  shippingVnPerKg     Float    @map("shipping_vn_per_kg")
+  warehouseFreeDays   Int      @map("warehouse_free_days")
+  warehouseFeePerDay  Float    @map("warehouse_fee_per_day")
+  serviceFeePercent   Float    @map("service_fee_percent")
+  depositPercent      Float    @map("deposit_percent")
+  status              String   @default("ACTIVE") // ACTIVE / DELETED
+  updatedAt           DateTime @updatedAt @map("updated_at")
+
+  @@map("fees")
+}
+
+model Notification {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  orderId   String   @map("order_id") @db.ObjectId
+  order     Order    @relation(fields: [orderId], references: [id])
+  title     String
+  message   String
+  type      String
+  status    String   @default("UNREAD") // UNREAD / READ / DELETED
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@index([orderId])
+  @@index([status, createdAt])
+  @@map("notifications")
+}
+
+model Conversation {
+  id               String        @id @default(auto()) @map("_id") @db.ObjectId
+  userId           String        @map("user_id") @db.ObjectId
+  user             User          @relation("UserConversations", fields: [userId], references: [id])
+  adminId          String?       @map("admin_id") @db.ObjectId
+  admin            User?         @relation("AdminConversations", fields: [adminId], references: [id])
+  lastMessage      String?       @map("last_message")
+  lastMessageAt    DateTime      @default(now()) @map("last_message_at")
+  unreadUserCount  Int           @default(0) @map("unread_user_count")
+  unreadAdminCount Int           @default(0) @map("unread_admin_count")
+  status           String        @default("WAITING") // WAITING (chờ tiếp nhận), OPEN (đang hỗ trợ), CLOSED (đã xong), DELETED
+  createdAt        DateTime      @default(now()) @map("created_at")
+  updatedAt        DateTime      @updatedAt @map("updated_at")
+  messages         ChatMessage[]
+
+  @@index([userId, status])
+  @@index([adminId, status])
+  @@index([status, lastMessageAt])
+  @@map("conversations")
+}
+
+model ChatMessage {
+  id             String       @id @default(auto()) @map("_id") @db.ObjectId
+  conversationId String       @map("conversation_id") @db.ObjectId
+  conversation   Conversation @relation(fields: [conversationId], references: [id])
+  senderId       String       @map("sender_id") @db.ObjectId
+  sender         User         @relation(fields: [senderId], references: [id])
+  senderRole     String       @map("sender_role") // "USER" or "ADMIN"
+  content        String
+  imageUrl       String?      @map("image_url")
+  isRead         Boolean      @default(false) @map("is_read")
+  isDeleted      Boolean      @default(false) @map("is_deleted")
+  deletedAt      DateTime?    @map("deleted_at")
+  status         String       @default("ACTIVE") // ACTIVE / DELETED
+  createdAt      DateTime     @default(now()) @map("created_at")
+
+  @@index([conversationId, createdAt])
+  @@index([senderId])
+  @@map("chat_messages")
+}

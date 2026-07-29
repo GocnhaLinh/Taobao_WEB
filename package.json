@@ -1,0 +1,37 @@
+{
+  "name": "taobao-order-backend",
+  "version": "1.0.0",
+  "description": "Backend for Taobao E-commerce ordering system",
+  "main": "dist/index.js",
+  "scripts": {
+    "dev": "nodemon src/index.ts",
+    "build": "prisma generate && tsc",
+    "start": "node dist/index.js",
+    "prisma:generate": "prisma generate",
+    "prisma:db": "prisma db push",
+    "db:seed": "ts-node src/seed.ts"
+  },
+  "dependencies": {
+    "@prisma/client": "^5.14.0",
+    "bcryptjs": "^3.0.3",
+    "cloudinary": "^2.10.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "multer": "^2.2.0",
+    "socket.io": "^4.8.3",
+    "streamifier": "^0.1.1"
+  },
+  "devDependencies": {
+    "@types/bcryptjs": "^2.4.6",
+    "@types/cors": "^2.8.17",
+    "@types/express": "^4.17.21",
+    "@types/multer": "^2.2.0",
+    "@types/node": "^20.12.12",
+    "@types/streamifier": "^0.1.2",
+    "nodemon": "^3.1.0",
+    "prisma": "^5.14.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.4.5"
+  }
+}
