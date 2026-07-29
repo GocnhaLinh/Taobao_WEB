@@ -52,13 +52,16 @@ const topBuyers = [
 
 export const TopBuyersLeaderboard: React.FC = () => {
   return (
-    <div className="p-6 bg-white dark:bg-slate-900/50 backdrop-blur-md rounded-2xl border border-slate-200 dark:border-white/10 shadow-sm space-y-5">
-      <div className="flex items-center justify-between">
-        <h3 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
-          <Award className="h-5 w-5 text-indigo-500" />
-          Top Buyers (VIP)
+    <div className="p-4 sm:p-6 bg-white dark:bg-slate-900/50 backdrop-blur-md rounded-2xl border border-slate-200 dark:border-white/10 shadow-sm space-y-5">
+      <div className="flex items-center justify-between gap-2">
+        <h3 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2 truncate">
+          <Award className="h-5 w-5 text-indigo-500 shrink-0" />
+          <span className="truncate">Top Buyers (VIP)</span>
         </h3>
-        <Badge variant="info">TOP BUYERS</Badge>
+        <Badge variant="info" className="shrink-0 whitespace-nowrap">
+          <span className="hidden sm:inline">TOP BUYERS</span>
+          <span className="sm:hidden">VIP</span>
+        </Badge>
       </div>
 
       <div className="space-y-3">
@@ -75,23 +78,23 @@ export const TopBuyersLeaderboard: React.FC = () => {
           return (
             <div
               key={buyer.id}
-              className="flex items-center justify-between p-3 bg-slate-50 dark:bg-white/5 rounded-2xl border border-slate-200 dark:border-white/10 hover:border-indigo-500/40 transition-all"
+              className="flex items-center justify-between p-2.5 sm:p-3 bg-slate-50 dark:bg-white/5 rounded-2xl border border-slate-200 dark:border-white/10 hover:border-indigo-500/40 transition-all gap-2"
             >
-              <div className="flex items-center gap-3 min-w-0">
+              <div className="flex items-center gap-2.5 sm:gap-3 min-w-0 flex-1">
                 <div className={`w-7 h-7 rounded-xl shrink-0 flex items-center justify-center font-bold text-xs ${rankBadge}`}>
                   {idx === 0 ? '🥇' : idx === 1 ? '🥈' : idx === 2 ? '🥉' : idx + 1}
                 </div>
 
-                <div className="w-10 h-10 rounded-full overflow-hidden shrink-0 border border-slate-200 dark:border-white/10 shadow-sm">
+                <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full overflow-hidden shrink-0 border border-slate-200 dark:border-white/10 shadow-sm">
                   <img src={buyer.avatar} alt={buyer.name} className="w-full h-full object-cover" />
                 </div>
 
-                <div className="min-w-0">
+                <div className="min-w-0 flex-1">
                   <h4 className="font-bold text-slate-900 dark:text-white text-xs truncate flex items-center gap-1.5">
-                    {buyer.name}
+                    <span className="truncate">{buyer.name}</span>
                     <Badge
                       variant={buyer.vipTier === 'DIAMOND' ? 'purple' : buyer.vipTier === 'GOLD' ? 'warning' : 'info'}
-                      className="px-1.5 py-0.5 text-[9px]"
+                      className="px-1.5 py-0.5 text-[9px] shrink-0"
                     >
                       {buyer.vipTier}
                     </Badge>
@@ -107,7 +110,7 @@ export const TopBuyersLeaderboard: React.FC = () => {
                   {buyer.totalSpent.toLocaleString()} ₫
                 </span>
                 <span className="text-[10px] text-indigo-500 font-semibold block">
-                  {buyer.ordersCount} successful orders
+                  {buyer.ordersCount} <span className="hidden sm:inline">đơn hàng</span><span className="sm:hidden">đơn</span>
                 </span>
               </div>
             </div>

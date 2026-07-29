@@ -3,6 +3,7 @@ import { Edit2, Trash2, RotateCcw } from 'lucide-react';
 import type { Category } from '../../../types';
 import { useTranslation } from '../../../lib/i18n';
 import { getGradientClass } from '../../../utils/gradientHelper';
+import { TrashCountdownBar } from '../../../components/ui/TrashCountdownBar';
 
 interface CategoryCardProps {
   category: Category;
@@ -25,45 +26,11 @@ export const CategoryCard: React.FC<CategoryCardProps> = React.memo(({
 }) => {
   const { t } = useTranslation();
 
-  const getRemainingDaysInfo = (deletedAt?: string) => {
-    const deleteDate = deletedAt ? new Date(deletedAt).getTime() : Date.now();
-    const now = Date.now();
-    const diffMs = now - deleteDate;
-    const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
-    const remainingDays = Math.max(30 - diffDays, 0);
-
-    if (!deletedAt) {
-      return {
-        text: t('autoDeleteDefault'),
-        style: 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20 font-medium',
-      };
-    }
-
-    if (remainingDays <= 5) {
-      return {
-        text: t('autoDeleteUrgent').replace('{days}', String(remainingDays)),
-        style: 'bg-rose-500/15 text-rose-600 dark:text-rose-400 border-rose-500/30 animate-pulse font-bold',
-      };
-    }
-    if (remainingDays <= 15) {
-      return {
-        text: t('autoDeleteInDays').replace('{days}', String(remainingDays)),
-        style: 'bg-amber-500/15 text-amber-600 dark:text-amber-400 border-amber-500/30 font-semibold',
-      };
-    }
-    return {
-      text: t('autoDeleteInDays').replace('{days}', String(remainingDays)),
-      style: 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20 font-medium',
-    };
-  };
-
   const getSexDisplay = (sexVal?: string) => {
     if (!sexVal) return null;
     const icon = labelsMap[sexVal];
     return icon ? `${icon} ${sexVal}` : sexVal;
   };
-
-  const remainingInfo = getRemainingDaysInfo(category.deletedAt);
 
   return (
     <div
@@ -91,8 +58,12 @@ export const CategoryCard: React.FC<CategoryCardProps> = React.memo(({
 
         {/* Auto Delete Countdown Tag for Trash Items */}
         {isTrashView && (
-          <div className={`mt-2.5 px-2.5 py-1 rounded-xl border text-[10px] w-fit ${remainingInfo.style}`}>
-            {remainingInfo.text}
+          <div className="mt-3">
+            <TrashCountdownBar
+              deletedAt={category.deletedAt}
+              fallbackDate={(category as any).updatedAt}
+              variant="card"
+            />
           </div>
         )}
       </div>

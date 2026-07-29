@@ -16,6 +16,8 @@ import { Badge } from "../../../components/ui/Badge";
 import { Button } from "../../../components/ui/Button";
 import type { Product, ProductVariant } from "../../../types";
 
+import { TrashCountdownBar } from "../../../components/ui/TrashCountdownBar";
+
 interface ProductCardProps {
   product: Product;
   onEditProduct: (p: Product) => void;
@@ -48,45 +50,11 @@ export const ProductCard: React.FC<ProductCardProps> = React.memo(({
     (v) => v.status !== "DELETED",
   );
 
-  const getRemainingDaysInfo = (deletedAt?: string) => {
-    if (!deletedAt) {
-      return {
-        text: t('autoDeleteDefault'),
-        style: 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20 font-medium',
-      };
-    }
-
-    const deleteDate = new Date(deletedAt).getTime();
-    const now = new Date().getTime();
-    const diffMs = now - deleteDate;
-    const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
-    const remainingDays = Math.max(30 - diffDays, 0);
-
-    if (remainingDays <= 5) {
-      return {
-        text: t('aboutToDelete', { days: remainingDays }),
-        style: 'bg-rose-500/15 text-rose-600 dark:text-rose-400 border-rose-500/30 animate-pulse font-bold',
-      };
-    }
-    if (remainingDays <= 15) {
-      return {
-        text: t('autoDeleteInDays', { days: remainingDays }),
-        style: 'bg-amber-500/15 text-amber-600 dark:text-amber-400 border-amber-500/30 font-semibold',
-      };
-    }
-    return {
-      text: t('autoDeleteInDays', { days: remainingDays }),
-      style: 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20 font-medium',
-    };
-  };
-
-  const remainingInfo = getRemainingDaysInfo(product.deletedAt);
-
   return (
     <div className="p-5 bg-white dark:bg-slate-900/50 backdrop-blur-md border border-slate-200 dark:border-white/10 rounded-3xl shadow-xs hover:border-indigo-500/30 transition-all space-y-4">
       {/* Top Header info */}
       <div className="flex flex-col sm:flex-row gap-4 justify-between items-start">
-        <div className="flex gap-3">
+        <div className="flex gap-3 min-w-0">
           {/* Thumbnail */}
           <div
             onClick={() => onViewDetail?.(product)}
@@ -106,7 +74,7 @@ export const ProductCard: React.FC<ProductCardProps> = React.memo(({
             )}
           </div>
 
-          <div>
+          <div className="min-w-0">
             <div className="flex items-center gap-2 flex-wrap mb-1">
               {product.category && (
                 <Badge variant="info">{product.category.name}</Badge>
@@ -142,10 +110,12 @@ export const ProductCard: React.FC<ProductCardProps> = React.memo(({
 
         {/* Header Actions */}
         {isDeletedTab ? (
-          <div className="flex items-center gap-2 self-end sm:self-start">
-            <div className={`px-2.5 py-1 rounded-xl border text-[11px] ${remainingInfo.style}`}>
-              {remainingInfo.text}
-            </div>
+          <div className="flex items-center gap-2 self-end sm:self-start flex-wrap">
+            <TrashCountdownBar
+              deletedAt={product.deletedAt}
+              fallbackDate={(product as any).updatedAt}
+              variant="compact"
+            />
             <button
               type="button"
               onClick={() => onRestoreProduct?.(product)}

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Send, UserCheck, XCircle, Clock, Volume2, VolumeX, MessageSquare } from 'lucide-react';
+import { Send, UserCheck, XCircle, Clock, Volume2, VolumeX, MessageSquare, ArrowLeft } from 'lucide-react';
 import { useTranslation } from '../../lib/i18n';
 import { useDebounce } from '../../lib/useDebounce';
 import { Button } from '../../components/ui/Button';
@@ -184,13 +184,13 @@ export const ChatFeature: React.FC = () => {
 
   return (
     <div className="space-y-6 animate-in fade-in slide-in-from-top-2 duration-500">
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h2 className="text-2xl font-bold text-slate-900 dark:text-white">{t('chatManagement')}</h2>
           <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">{t('chatDesc')}</p>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 self-start sm:self-auto">
           <Button
             variant="secondary"
             size="sm"
@@ -218,30 +218,40 @@ export const ChatFeature: React.FC = () => {
         />
 
         {/* RIGHT WORKSPACE: Chat Screen */}
-        <div className="flex-1 flex flex-col bg-white dark:bg-slate-900">
+        <div className={`flex-1 flex-col bg-white dark:bg-slate-900 ${selectedConv ? 'flex' : 'hidden md:flex'}`}>
           {selectedConv ? (
             <>
               {/* Header */}
-              <div className="p-4 border-b border-slate-200 dark:border-white/10 flex items-center justify-between bg-slate-50/50 dark:bg-white/5">
-                <div className="flex items-center gap-3">
-                  <div className="h-10 w-10 rounded-full bg-indigo-500/20 text-indigo-600 flex items-center justify-center font-bold">
+              <div className="p-3 sm:p-4 border-b border-slate-200 dark:border-white/10 flex items-center justify-between bg-slate-50/50 dark:bg-white/5 gap-2">
+                <div className="flex items-center gap-2.5 min-w-0">
+                  {/* Mobile Back Button */}
+                  <button
+                    type="button"
+                    onClick={() => setSelectedConv(null)}
+                    className="md:hidden p-1.5 text-slate-500 hover:text-slate-900 dark:hover:text-white rounded-xl hover:bg-slate-200/60 dark:hover:bg-white/10 transition cursor-pointer shrink-0"
+                    title="Quay lại danh sách"
+                  >
+                    <ArrowLeft className="h-5 w-5" />
+                  </button>
+
+                  <div className="h-9 w-9 sm:h-10 sm:w-10 rounded-full bg-indigo-500/20 text-indigo-600 flex items-center justify-center font-bold shrink-0">
                     {selectedConv.user.avatar ? (
                       <img src={selectedConv.user.avatar} alt="avatar" className="h-full w-full rounded-full object-cover" />
                     ) : (
                       selectedConv.user.fullName.charAt(0).toUpperCase()
                     )}
                   </div>
-                  <div>
-                    <h4 className="font-bold text-slate-900 dark:text-white text-sm flex items-center gap-2">
-                      {selectedConv.user.fullName}
-                      <span className="text-[10px] text-slate-400 font-normal">({selectedConv.user.email})</span>
+                  <div className="min-w-0 flex-1">
+                    <h4 className="font-bold text-slate-900 dark:text-white text-xs sm:text-sm flex items-center gap-1.5 truncate">
+                      <span className="truncate">{selectedConv.user.fullName}</span>
+                      <span className="text-[10px] text-slate-400 font-normal hidden sm:inline">({selectedConv.user.email})</span>
                     </h4>
                     <div className="flex items-center gap-2 text-xs">
                       {selectedConv.status === 'WAITING' ? (
-                        <Badge variant="warning" className="text-[10px]">● Tin nhắn chờ (Chưa ai tiếp nhận)</Badge>
+                        <Badge variant="warning" className="text-[10px] truncate">● Tin nhắn chờ</Badge>
                       ) : (
                         <span className="text-[10px] text-emerald-500 font-semibold flex items-center gap-1">
-                          ● Đang trực tuyến
+                          ● Trực tuyến
                         </span>
                       )}
                     </div>

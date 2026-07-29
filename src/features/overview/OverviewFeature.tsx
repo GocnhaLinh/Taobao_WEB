@@ -39,20 +39,20 @@ export const OverviewFeature: React.FC = () => {
   const currentRate = feeConfig?.exchangeRate || 3995;
 
   return (
-    <div className="space-y-8 animate-in fade-in slide-in-from-top-2 duration-500">
+    <div className="space-y-6 sm:space-y-8 animate-in fade-in slide-in-from-top-2 duration-500">
       {/* Page Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
         <div>
-          <h2 className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight flex items-center gap-2">
-            <BarChart3 className="h-6 w-6 text-indigo-500" />
+          <h2 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white tracking-tight flex items-center gap-2">
+            <BarChart3 className="h-6 w-6 text-indigo-500 shrink-0" />
             {t('overviewDashboard')}
           </h2>
-          <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
+          <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">
             {t('overviewDesc')}
           </p>
         </div>
-        <div className="flex items-center gap-2">
-          <Badge variant="info" className="px-3 py-1.5 text-xs font-semibold">
+        <div className="flex items-center gap-2 self-start sm:self-auto">
+          <Badge variant="info" className="px-3 py-1.5 text-xs font-semibold whitespace-nowrap">
             {t('activeRate', { rate: currentRate.toLocaleString() })}
           </Badge>
         </div>

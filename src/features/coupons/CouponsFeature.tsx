@@ -251,8 +251,8 @@ export const CouponsFeature: React.FC = () => {
       </div>
 
       {/* Main Container & Filter Controls */}
-      <div className="p-6 bg-white dark:bg-slate-900/50 backdrop-blur-xl rounded-2xl border border-slate-200 dark:border-white/10 shadow-sm space-y-6">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-slate-200 dark:border-white/10">
+      <div className="p-4 sm:p-6 bg-white dark:bg-slate-900/50 backdrop-blur-xl rounded-2xl border border-slate-200 dark:border-white/10 shadow-sm space-y-6">
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-4 border-b border-slate-200 dark:border-white/10">
           <div>
             <h3 className="text-slate-900 dark:text-white font-bold text-lg flex items-center gap-2">
               {t('voucherList')}
@@ -262,9 +262,9 @@ export const CouponsFeature: React.FC = () => {
             </h3>
           </div>
 
-          <div className="flex flex-wrap items-center gap-3 w-full md:w-auto">
+          <div className="flex flex-col sm:flex-row sm:items-center gap-3 w-full lg:w-auto">
             {/* Search Input */}
-            <div className="relative flex-1 md:w-60">
+            <div className="relative w-full sm:flex-1 lg:w-60">
               <Search className="absolute left-3.5 top-2.5 h-4 w-4 text-slate-400" />
               <input
                 type="text"
@@ -275,32 +275,34 @@ export const CouponsFeature: React.FC = () => {
               />
             </div>
 
-            {/* Status Filter */}
-            <CustomSelect
-              size="sm"
-              className="w-48"
-              value={statusFilter}
-              onChange={setStatusFilter}
-              options={[
-                { value: 'ALL', label: t('allStatuses') },
-                { value: 'ACTIVE', label: t('activeStatus') },
-                { value: 'DISABLED', label: t('disabledStatus') },
-                { value: 'EXPIRED', label: t('expiredStatus') },
-              ]}
-            />
+            <div className="flex items-center gap-3 w-full sm:w-auto">
+              {/* Status Filter */}
+              <CustomSelect
+                size="sm"
+                className="w-full sm:w-44"
+                value={statusFilter}
+                onChange={setStatusFilter}
+                options={[
+                  { value: 'ALL', label: t('allStatuses') },
+                  { value: 'ACTIVE', label: t('activeStatus') },
+                  { value: 'DISABLED', label: t('disabledStatus') },
+                  { value: 'EXPIRED', label: t('expiredStatus') },
+                ]}
+              />
 
-            {/* Type Filter */}
-            <CustomSelect
-              size="sm"
-              className="w-36"
-              value={typeFilter}
-              onChange={setTypeFilter}
-              options={[
-                { value: 'ALL', label: t('allTypes') },
-                { value: 'FIXED', label: t('fixedAmount') },
-                { value: 'PERCENT', label: t('percentDiscount') },
-              ]}
-            />
+              {/* Type Filter */}
+              <CustomSelect
+                size="sm"
+                className="w-full sm:w-36"
+                value={typeFilter}
+                onChange={setTypeFilter}
+                options={[
+                  { value: 'ALL', label: t('allTypes') },
+                  { value: 'FIXED', label: t('fixedAmount') },
+                  { value: 'PERCENT', label: t('percentDiscount') },
+                ]}
+              />
+            </div>
           </div>
         </div>
 

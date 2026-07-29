@@ -22,18 +22,18 @@ export const RevenueChartCard: React.FC = () => {
   const maxChartValue = Math.max(...monthlyRevenueData.map((d) => (activeChartTab === 'revenue' ? d.revenue : d.orders)));
 
   return (
-    <div className="p-6 bg-white dark:bg-slate-900/50 backdrop-blur-md rounded-2xl border border-slate-200 dark:border-white/10 shadow-sm space-y-6">
+    <div className="p-4 sm:p-6 bg-white dark:bg-slate-900/50 backdrop-blur-md rounded-2xl border border-slate-200 dark:border-white/10 shadow-sm space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h3 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
-            <TrendingUp className="h-5 w-5 text-indigo-500" />
+          <h3 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
+            <TrendingUp className="h-5 w-5 text-indigo-500 shrink-0" />
             Revenue & Growth Chart
           </h3>
           <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
             Detailed revenue trends (Million VND) and order volume by month this year.
           </p>
         </div>
-        <div className="flex gap-1.5 p-1 bg-slate-100 dark:bg-white/5 rounded-xl border border-slate-200 dark:border-white/10">
+        <div className="flex gap-1.5 p-1 bg-slate-100 dark:bg-white/5 rounded-xl border border-slate-200 dark:border-white/10 self-start sm:self-auto">
           <button
             type="button"
             onClick={() => setActiveChartTab('revenue')}
@@ -43,7 +43,8 @@ export const RevenueChartCard: React.FC = () => {
                 : 'text-slate-600 dark:text-slate-400 hover:text-slate-900'
             }`}
           >
-            Revenue (Million ₫)
+            <span className="hidden sm:inline">Revenue (Million ₫)</span>
+            <span className="sm:hidden">Doanh thu</span>
           </button>
           <button
             type="button"
@@ -54,14 +55,15 @@ export const RevenueChartCard: React.FC = () => {
                 : 'text-slate-600 dark:text-slate-400 hover:text-slate-900'
             }`}
           >
-            Orders (Units)
+            <span className="hidden sm:inline">Orders (Units)</span>
+            <span className="sm:hidden">Đơn hàng</span>
           </button>
         </div>
       </div>
 
       {/* Visual Bar Chart */}
-      <div className="pt-4 pb-2">
-        <div className="h-56 flex items-end justify-between gap-2 sm:gap-4 px-2 border-b border-slate-200 dark:border-white/10">
+      <div className="pt-4 pb-2 overflow-x-auto no-scrollbar">
+        <div className="h-56 min-w-[500px] sm:min-w-0 flex items-end justify-between gap-2 sm:gap-4 px-2 border-b border-slate-200 dark:border-white/10">
           {monthlyRevenueData.map((item, index) => {
             const val = activeChartTab === 'revenue' ? item.revenue : item.orders;
             const heightPercent = Math.round((val / maxChartValue) * 100);
