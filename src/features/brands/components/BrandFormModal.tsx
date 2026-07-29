@@ -41,17 +41,27 @@ export const BrandFormModal: React.FC<BrandFormModalProps> = ({
   const [isUploading, setIsUploading] = useState(false);
   const [isDeletingLogo, setIsDeletingLogo] = useState(false);
 
+  const resetForm = () => {
+    setName("");
+    setLogo("");
+    setDescription("");
+    setImgError(false);
+    setIsUploading(false);
+    setIsDeletingLogo(false);
+  };
+
   useEffect(() => {
-    if (initialData) {
-      setName(initialData.name || "");
-      setLogo(initialData.logo || "");
-      setDescription(initialData.description || "");
-      setImgError(false);
+    if (isOpen) {
+      if (initialData) {
+        setName(initialData.name || "");
+        setLogo(initialData.logo || "");
+        setDescription(initialData.description || "");
+        setImgError(false);
+      } else {
+        resetForm();
+      }
     } else {
-      setName("");
-      setLogo("");
-      setDescription("");
-      setImgError(false);
+      resetForm();
     }
   }, [initialData, isOpen]);
 
@@ -122,6 +132,7 @@ export const BrandFormModal: React.FC<BrandFormModalProps> = ({
       logo: logo.trim() || undefined,
       description: description.trim() || undefined,
     });
+    resetForm();
   };
 
   const modalTitle = initialData

@@ -28,6 +28,22 @@ export const CreateCouponModal: React.FC<CreateCouponModalProps> = ({
   // BUG CP3 FIX: Thêm field status — trước đây hardcode 'ACTIVE', không tạo được DISABLED
   const [status, setStatus] = useState<'ACTIVE' | 'DISABLED'>('ACTIVE');
 
+  const resetForm = () => {
+    setCode('');
+    setType('FIXED');
+    setValue('');
+    setMinOrder('');
+    setMaxDiscount('');
+    setExpiryDate('');
+    setStatus('ACTIVE');
+  };
+
+  React.useEffect(() => {
+    if (!isOpen) {
+      resetForm();
+    }
+  }, [isOpen]);
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!code || !value || !minOrder) return;
@@ -49,14 +65,7 @@ export const CreateCouponModal: React.FC<CreateCouponModalProps> = ({
     };
 
     onCreate(newCoupon);
-    // Reset form
-    setCode('');
-    setType('FIXED');
-    setValue('');
-    setMinOrder('');
-    setMaxDiscount('');
-    setExpiryDate('');
-    setStatus('ACTIVE');
+    resetForm();
     onClose();
   };
 

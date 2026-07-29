@@ -31,8 +31,18 @@ export const EditCouponModal: React.FC<EditCouponModalProps> = ({
   // Chuyển ISO string → "YYYY-MM-DD" để dùng với input type="date"
   const [expiryDate, setExpiryDate] = useState('');
 
+  const resetForm = () => {
+    setCode('');
+    setType('FIXED');
+    setValue('');
+    setMinOrder('');
+    setMaxDiscount('');
+    setStatus('ACTIVE');
+    setExpiryDate('');
+  };
+
   useEffect(() => {
-    if (coupon) {
+    if (isOpen && coupon) {
       setCode(coupon.code);
       setType(coupon.type);
       setValue(coupon.value.toString());
@@ -43,8 +53,10 @@ export const EditCouponModal: React.FC<EditCouponModalProps> = ({
       setExpiryDate(
         coupon.expiryDate ? new Date(coupon.expiryDate).toISOString().split('T')[0] : '',
       );
+    } else if (!isOpen) {
+      resetForm();
     }
-  }, [coupon]);
+  }, [coupon, isOpen]);
 
   if (!coupon) return null;
 
@@ -65,6 +77,7 @@ export const EditCouponModal: React.FC<EditCouponModalProps> = ({
       expiryDate: expiryDate ? new Date(expiryDate).toISOString() : undefined,
     });
 
+    resetForm();
     onClose();
   };
 

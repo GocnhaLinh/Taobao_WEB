@@ -66,9 +66,31 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({
   const [variantSize, setVariantSize] = useState('');
   const [variantColor, setVariantColor] = useState('');
 
+  const resetForm = () => {
+    const initCatId = categories[0]?.id || '';
+    const initCat = categories.find((c) => c.id === initCatId);
+    setProductName('');
+    setCategoryId(initCatId);
+    setBrandId('');
+    setDescription('');
+    setThumbnail('');
+    setImages([]);
+    setIsUploading(false);
+    setVariantSku(generateAutoSku(initCat?.name));
+    setVariantPrice('');
+    setVariantOriginalPriceCNY('');
+    setVariantWeight('');
+    setVariantStock('10');
+    setVariantSize('');
+    setVariantColor('');
+  };
+
   // Fetch Fee Config on Modal Open
   useEffect(() => {
-    if (!isOpen) return;
+    if (!isOpen) {
+      resetForm();
+      return;
+    }
 
     getFeeConfigApi()
       .then((cfg) => {
@@ -98,21 +120,7 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({
       setVariantSize('');
       setVariantColor('');
     } else {
-      const initCatId = categories[0]?.id || '';
-      const initCat = categories.find((c) => c.id === initCatId);
-      setProductName('');
-      setCategoryId(initCatId);
-      setBrandId('');
-      setDescription('');
-      setThumbnail('');
-      setImages([]);
-      setVariantSku(generateAutoSku(initCat?.name));
-      setVariantPrice('');
-      setVariantOriginalPriceCNY('');
-      setVariantWeight('');
-      setVariantStock('10');
-      setVariantSize('');
-      setVariantColor('');
+      resetForm();
     }
   }, [editingProduct, isOpen, categories, brands]);
 
@@ -218,6 +226,7 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({
           }
         : {}),
     });
+    resetForm();
   };
 
   const categoryOptions = categories.map((c) => ({
