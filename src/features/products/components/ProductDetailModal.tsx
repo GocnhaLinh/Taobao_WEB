@@ -506,36 +506,36 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
             onTouchStart={handleTouchStart}
             onTouchEnd={handleTouchEnd}
           >
-            {/* Left Arrow Button */}
+            {/* Left Arrow Button (Hidden on Mobile, Visible on Desktop) */}
             {allImages.length > 1 && (
               <button
                 type="button"
                 onClick={handlePrevImage}
-                className="absolute left-1.5 sm:left-8 z-30 p-2 sm:p-3.5 bg-black/40 hover:bg-black/70 sm:hover:bg-white/20 text-white/90 hover:text-white rounded-full transition-all cursor-pointer border border-white/10 backdrop-blur-md shadow-xl hover:scale-110 active:scale-90 shrink-0"
+                className="hidden sm:flex absolute left-8 z-30 p-3.5 bg-black/50 hover:bg-white/20 text-white rounded-full transition-all cursor-pointer border border-white/10 backdrop-blur-md shadow-2xl hover:scale-110 active:scale-95 shrink-0 items-center justify-center"
                 title="Ảnh trước (Mũi tên Trái)"
               >
-                <ChevronLeft className="h-5 w-5 sm:h-7 sm:w-7" />
+                <ChevronLeft className="h-7 w-7" />
               </button>
             )}
 
             {/* Centered Image */}
-            <div className="relative max-h-[75vh] sm:max-h-[80vh] max-w-[92vw] sm:max-w-[90vw] flex items-center justify-center">
+            <div className="relative max-h-[75vh] sm:max-h-[80vh] max-w-[95vw] sm:max-w-[90vw] flex items-center justify-center">
               <img
                 src={allImages[lightboxIndex]?.url}
                 alt={allImages[lightboxIndex]?.label || product.productName}
-                className="max-h-[75vh] sm:max-h-[80vh] max-w-[92vw] sm:max-w-[90vw] object-contain rounded-2xl shadow-2xl transition-all duration-300 pointer-events-auto"
+                className="max-h-[75vh] sm:max-h-[80vh] max-w-[95vw] sm:max-w-[90vw] object-contain rounded-2xl shadow-2xl transition-all duration-300 pointer-events-auto"
               />
             </div>
 
-            {/* Right Arrow Button */}
+            {/* Right Arrow Button (Hidden on Mobile, Visible on Desktop) */}
             {allImages.length > 1 && (
               <button
                 type="button"
                 onClick={handleNextImage}
-                className="absolute right-1.5 sm:right-8 z-30 p-2 sm:p-3.5 bg-black/40 hover:bg-black/70 sm:hover:bg-white/20 text-white/90 hover:text-white rounded-full transition-all cursor-pointer border border-white/10 backdrop-blur-md shadow-xl hover:scale-110 active:scale-90 shrink-0"
+                className="hidden sm:flex absolute right-8 z-30 p-3.5 bg-black/50 hover:bg-white/20 text-white rounded-full transition-all cursor-pointer border border-white/10 backdrop-blur-md shadow-2xl hover:scale-110 active:scale-95 shrink-0 items-center justify-center"
                 title="Ảnh tiếp theo (Mũi tên Phải)"
               >
-                <ChevronRight className="h-5 w-5 sm:h-7 sm:w-7" />
+                <ChevronRight className="h-7 w-7" />
               </button>
             )}
           </div>
