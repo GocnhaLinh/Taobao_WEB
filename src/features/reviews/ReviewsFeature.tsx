@@ -25,7 +25,7 @@ export const ReviewsFeature: React.FC = () => {
   }));
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 animate-in fade-in slide-in-from-top-2 duration-500">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h2 className="text-2xl font-black text-slate-900 dark:text-white flex items-center gap-2.5">
@@ -58,7 +58,7 @@ export const ReviewsFeature: React.FC = () => {
             <p className="font-semibold">{t('loadingReviews')}</p>
           </div>
         ) : reviews.length === 0 ? (
-          <div className="py-16 text-center space-y-3 text-slate-400">
+          <div className="py-16 text-center space-y-3 text-slate-400 animate-in fade-in duration-300">
             <Star className="h-12 w-12 mx-auto stroke-1 text-amber-400" />
             <h4 className="text-slate-700 dark:text-slate-300 font-bold text-base">{t('noReviews')}</h4>
             <p className="text-xs max-w-sm mx-auto">
@@ -67,8 +67,10 @@ export const ReviewsFeature: React.FC = () => {
           </div>
         ) : (
           <div className="space-y-3">
-            {reviews.map((rev) => (
-              <ReviewCard key={rev.id} review={rev} />
+            {reviews.map((rev, index) => (
+              <div key={rev.id} className="animate-in fade-in slide-in-from-bottom-2 duration-300" style={{ animationDelay: `${index * 60}ms` }}>
+              <ReviewCard review={rev} />
+            </div>
             ))}
           </div>
         )}

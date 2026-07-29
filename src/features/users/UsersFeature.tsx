@@ -53,7 +53,7 @@ export const UsersFeature: React.FC = () => {
   ).length;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 animate-in fade-in slide-in-from-top-2 duration-500">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
@@ -89,7 +89,7 @@ export const UsersFeature: React.FC = () => {
 
       {/* Metric Stat Summary Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div className="p-5 bg-white dark:bg-slate-900/60 backdrop-blur-xl border border-slate-200 dark:border-white/10 rounded-2xl shadow-sm flex items-center gap-4">
+        <div className="p-5 bg-white dark:bg-slate-900/60 backdrop-blur-xl border border-slate-200 dark:border-white/10 rounded-2xl shadow-sm flex items-center gap-4 transition-all duration-300 hover:scale-[1.02] hover:shadow-md">
           <div className="p-3 bg-indigo-500/10 text-indigo-500 rounded-xl border border-indigo-500/20">
             <Users className="h-6 w-6" />
           </div>
@@ -103,7 +103,7 @@ export const UsersFeature: React.FC = () => {
           </div>
         </div>
 
-        <div className="p-5 bg-white dark:bg-slate-900/60 backdrop-blur-xl border border-slate-200 dark:border-white/10 rounded-2xl shadow-sm flex items-center gap-4">
+        <div className="p-5 bg-white dark:bg-slate-900/60 backdrop-blur-xl border border-slate-200 dark:border-white/10 rounded-2xl shadow-sm flex items-center gap-4 transition-all duration-300 hover:scale-[1.02] hover:shadow-md">
           <div className="p-3 bg-emerald-500/10 text-emerald-500 rounded-xl border border-emerald-500/20">
             <UserCheck className="h-6 w-6" />
           </div>
@@ -117,7 +117,7 @@ export const UsersFeature: React.FC = () => {
           </div>
         </div>
 
-        <div className="p-5 bg-white dark:bg-slate-900/60 backdrop-blur-xl border border-slate-200 dark:border-white/10 rounded-2xl shadow-sm flex items-center gap-4">
+        <div className="p-5 bg-white dark:bg-slate-900/60 backdrop-blur-xl border border-slate-200 dark:border-white/10 rounded-2xl shadow-sm flex items-center gap-4 transition-all duration-300 hover:scale-[1.02] hover:shadow-md">
           <div className="p-3 bg-rose-500/10 text-rose-500 rounded-xl border border-rose-500/20">
             <ShieldAlert className="h-6 w-6" />
           </div>
@@ -178,7 +178,7 @@ export const UsersFeature: React.FC = () => {
             </p>
           </div>
         ) : filteredUsers.length === 0 ? (
-          <div className="py-16 text-center space-y-3 text-slate-400">
+          <div className="py-16 text-center space-y-3 text-slate-400 animate-in fade-in duration-300">
             <Users className="h-12 w-12 mx-auto stroke-1 text-slate-500" />
             <h4 className="text-slate-700 dark:text-slate-300 font-bold text-base">
               {t('noUsersFound')}
@@ -189,8 +189,10 @@ export const UsersFeature: React.FC = () => {
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredUsers.map((usr) => (
-              <UserCard key={usr.id} user={usr} />
+            {filteredUsers.map((usr, index) => (
+              <div key={usr.id} className="animate-in fade-in slide-in-from-bottom-2 duration-300" style={{ animationDelay: `${index * 60}ms` }}>
+              <UserCard user={usr} />
+            </div>
             ))}
           </div>
         )}
