@@ -58,25 +58,43 @@ export const VariantFormModal: React.FC<VariantFormModalProps> = ({
   const [images, setImages] = useState<string[]>([]);
   const [isUploading, setIsUploading] = useState(false);
 
+  const resetForm = () => {
+    setSku(generateAutoSku(categoryName));
+    setSize("");
+    setColor("");
+    setStock("10");
+    setPrice("");
+    setOriginalPriceCNY("");
+    setExchangeRate("");
+    setWeight("");
+    setShippingFeePerKg("");
+    setImage("");
+    setImages([]);
+    setIsUploading(false);
+  };
+
   useEffect(() => {
-    if (isOpen) {
-      getFeeConfigApi()
-        .then((cfg) => {
-          if (cfg) {
-            if (cfg.shippingCnPerKg) {
-              setShippingFeePerKg(cfg.shippingCnPerKg.toString());
-            }
-            if (cfg.exchangeRate) {
-              // Luôn fill tỷ giá hệ thống vào state feeExchangeRate để dùng làm fallback
-              // Nếu là Create mới hoặc Edit biến thể cũ chưa có tỷ giá → auto-fill vào ô input
-              if (!editingVariant || !editingVariant.exchangeRate) {
-                setExchangeRate(cfg.exchangeRate.toString());
-              }
+    if (!isOpen) {
+      resetForm();
+      return;
+    }
+
+    getFeeConfigApi()
+      .then((cfg) => {
+        if (cfg) {
+          if (cfg.shippingCnPerKg) {
+            setShippingFeePerKg(cfg.shippingCnPerKg.toString());
+          }
+          if (cfg.exchangeRate) {
+            // Luôn fill tỷ giá hệ thống vào state feeExchangeRate để dùng làm fallback
+            // Nếu là Create mới hoặc Edit biến thể cũ chưa có tỷ giá → auto-fill vào ô input
+            if (!editingVariant || !editingVariant.exchangeRate) {
+              setExchangeRate(cfg.exchangeRate.toString());
             }
           }
-        })
-        .catch((err) => console.warn("Could not fetch fee config:", err));
-    }
+        }
+      })
+      .catch((err) => console.warn("Could not fetch fee config:", err));
 
     if (editingVariant) {
       setSku(editingVariant.sku || "");
@@ -103,15 +121,7 @@ export const VariantFormModal: React.FC<VariantFormModalProps> = ({
       setImage(editingVariant.image || initialImgs[0] || "");
       setImages(initialImgs);
     } else {
-      setSku(generateAutoSku(categoryName));
-      setSize("");
-      setColor("");
-      setStock("10");
-      setPrice("");
-      setOriginalPriceCNY("");
-      setWeight("");
-      setImage("");
-      setImages([]);
+      resetForm();
     }
   }, [editingVariant, isOpen, categoryName]);
 
@@ -211,6 +221,7 @@ export const VariantFormModal: React.FC<VariantFormModalProps> = ({
       image: image || images[0] || null,
       images: images.length > 0 ? images : (image ? [image] : []),
     });
+    resetForm();
   };
 
   return (

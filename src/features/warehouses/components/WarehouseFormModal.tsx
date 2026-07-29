@@ -46,6 +46,19 @@ export const WarehouseFormModal: React.FC<WarehouseFormModalProps> = ({
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [touched, setTouched] = useState<Record<string, boolean>>({});
 
+  const resetForm = () => {
+    setFixedSuffix(randomDigits());
+    setName('');
+    setProvince('');
+    setDistrict('');
+    setAddress('');
+    setSupportedProvincesText('');
+    setSupportedDistrictsText('');
+    setIsDefault(false);
+    setErrors({});
+    setTouched({});
+  };
+
   // ─── Reset state when modal opens/closes or initialData changes ───
   useEffect(() => {
     if (isOpen) {
@@ -64,17 +77,12 @@ export const WarehouseFormModal: React.FC<WarehouseFormModalProps> = ({
         );
         setIsDefault(Boolean(initialData.isDefault));
       } else {
-        setFixedSuffix(randomDigits());
-        setName('');
-        setProvince('');
-        setDistrict('');
-        setAddress('');
-        setSupportedProvincesText('');
-        setSupportedDistrictsText('');
-        setIsDefault(false);
+        resetForm();
       }
       setErrors({});
       setTouched({});
+    } else {
+      resetForm();
     }
   }, [initialData, isOpen]);
 
@@ -143,6 +151,7 @@ export const WarehouseFormModal: React.FC<WarehouseFormModalProps> = ({
       supportedDistricts: supportedDistricts.length > 0 ? supportedDistricts : undefined,
       isDefault,
     });
+    resetForm();
   };
 
   const modalTitle = initialData ? (

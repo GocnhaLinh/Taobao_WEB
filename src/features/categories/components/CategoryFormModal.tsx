@@ -85,16 +85,33 @@ export const CategoryFormModal: React.FC<CategoryFormModalProps> = ({
     };
   }, [isOpen]);
 
+  const resetForm = () => {
+    setName('');
+    setSlug('');
+    setSex(defaultSex);
+    setIsAddingLabel(false);
+    setNewLabelName('');
+    setNewLabelIcon('🏷️');
+    setShowIconPicker(false);
+    setEditingLabel(null);
+    setEditLabelName('');
+    setEditLabelIcon('');
+    setShowEditIconPicker(false);
+    setDeletingLabel(null);
+  };
+
   // Effect 2: Populate / reset form data khi initialData thay đổi hoặc modal mở lại
   useEffect(() => {
-    if (initialData) {
-      setName(initialData.name);
-      setSlug(initialData.slug);
-      setSex(initialData.sex || 'UNISEX');
+    if (isOpen) {
+      if (initialData) {
+        setName(initialData.name);
+        setSlug(initialData.slug);
+        setSex(initialData.sex || 'UNISEX');
+      } else {
+        resetForm();
+      }
     } else {
-      setName('');
-      setSlug('');
-      setSex(defaultSex);
+      resetForm();
     }
   }, [initialData, defaultSex, isOpen]);
 
@@ -132,6 +149,7 @@ export const CategoryFormModal: React.FC<CategoryFormModalProps> = ({
     e.preventDefault();
     if (!name || !slug) return;
     onSubmit({ name, slug, sex });
+    resetForm();
   };
 
   // === CREATE LABEL ===
