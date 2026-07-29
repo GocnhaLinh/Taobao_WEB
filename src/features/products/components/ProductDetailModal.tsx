@@ -237,16 +237,10 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
               {/* Main Preview Box (Clickable for Fullscreen Lightbox) */}
               <div
                 onClick={openLightbox}
-                className="md:col-span-2 h-[380px] bg-slate-950 border border-slate-200 dark:border-white/10 rounded-3xl overflow-hidden flex items-center justify-center p-2 relative group shadow-lg cursor-pointer select-none"
+                className="md:col-span-2 h-[380px] bg-slate-900 dark:bg-slate-950 border border-slate-200 dark:border-white/10 rounded-3xl overflow-hidden flex items-center justify-center p-2 relative group shadow-lg cursor-pointer select-none"
               >
                 {selectedImage ? (
                   <>
-                    {/* Ambient Blurred Background to eliminate blank white space */}
-                    <div
-                      className="absolute inset-0 bg-cover bg-center blur-2xl opacity-40 scale-125 pointer-events-none transition-all duration-500"
-                      style={{ backgroundImage: `url(${selectedImage})` }}
-                    />
-
                     {/* Corner Main Badge if selected image is Thumbnail */}
                     {selectedImage === product.thumbnail && (
                       <div className="absolute top-3 left-3 z-20 px-2.5 py-1 bg-indigo-600/90 backdrop-blur-md text-white rounded-xl text-[11px] font-bold shadow-md flex items-center gap-1.5 border border-indigo-400/30">
