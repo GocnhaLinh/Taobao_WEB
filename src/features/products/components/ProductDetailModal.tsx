@@ -113,12 +113,19 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [isLightboxOpen, allImages.length]);
 
+  useEffect(() => {
+    if (!isOpen) {
+      setIsLightboxOpen(false);
+    }
+  }, [isOpen]);
+
   if (!product) return null;
 
   const activeVariants = (product.variants || []).filter((v) => v.status !== 'DELETED');
   const totalStock = activeVariants.reduce((sum, v) => sum + (v.stock || 0), 0);
 
   const openLightbox = () => {
+    if (!selectedImage || allImages.length === 0) return;
     const idx = allImages.findIndex((img) => img.url === selectedImage);
     setLightboxIndex(idx >= 0 ? idx : 0);
     setIsLightboxOpen(true);
@@ -137,7 +144,7 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
   return (
     <>
       <Modal
-        isOpen={isOpen && !isLightboxOpen}
+        isOpen={isOpen}
         onClose={onClose}
         title={t('productProfitManagement') || 'Product Details & Variants'}
         maxWidth="5xl"
@@ -443,7 +450,8 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
             </div>
           )}
         </div>
-      </Modal>
+      </div>
+    </Modal>
 
       {/* Facebook-style Full-screen Lightbox Gallery */}
       {isLightboxOpen && allImages.length > 0 && (
