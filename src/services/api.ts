@@ -1,4 +1,4 @@
-import { axiosClient } from "./axiosClient";
+import { api } from "./axiosClient";
 
 export * from "../types";
 export * from "./userService";
@@ -10,6 +10,12 @@ export * from "./warehouseService";
 export * from "./settingsService";
 export * from "./categoryLabelService";
 
-export const fetchHealth = async () => {
-  return axiosClient.get<{ status: string }>("/health");
+export interface HealthResponse {
+  status: string;
+  db?: string;
+  error?: string;
+}
+
+export const fetchHealth = async (): Promise<HealthResponse> => {
+  return api.get<HealthResponse>("/health");
 };
