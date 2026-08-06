@@ -1,16 +1,13 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useMemo, useCallback } from "react";
 import { useTranslation } from "../../../lib/i18n";
 import { Modal } from "../../../components/ui/Modal";
 import { Input } from "../../../components/ui/Input";
 import { Button } from "../../../components/ui/Button";
-import { Badge } from "../../../components/ui/Badge";
 import {
-  Calculator,
-  TrendingUp,
-  Sparkles,
   Upload,
   Trash2,
   RefreshCw,
+  AlertTriangle,
 } from "lucide-react";
 import {
   uploadSingleImageApi,
@@ -20,6 +17,7 @@ import {
 import { getFeeConfigApi } from "../../../services/settingsService";
 import { useNotification } from "../../../lib/notification";
 import { generateAutoSku } from "../../../utils/skuHelper";
+import { VariantProfitCalculator } from "./VariantProfitCalculator";
 import type { ProductVariant } from "../../../types";
 
 interface VariantFormModalProps {
@@ -30,6 +28,8 @@ interface VariantFormModalProps {
   editingVariant?: ProductVariant | null;
   productId: string;
   categoryName?: string;
+  /** Danh sách variants hiện có của product để kiểm tra trùng (size+color) */
+  existingVariants?: ProductVariant[];
 }
 
 export const VariantFormModal: React.FC<VariantFormModalProps> = ({
@@ -40,6 +40,7 @@ export const VariantFormModal: React.FC<VariantFormModalProps> = ({
   editingVariant,
   productId,
   categoryName,
+  existingVariants: existingVariantsProp,
 }) => {
   const { t } = useTranslation();
   const { showNotification } = useNotification();
@@ -50,6 +51,7 @@ export const VariantFormModal: React.FC<VariantFormModalProps> = ({
   const [color, setColor] = useState("");
   const [stock, setStock] = useState("10");
   const [price, setPrice] = useState("");
+
   const [originalPriceCNY, setOriginalPriceCNY] = useState("");
   const [exchangeRate, setExchangeRate] = useState("");
   const [weight, setWeight] = useState("");
@@ -57,6 +59,40 @@ export const VariantFormModal: React.FC<VariantFormModalProps> = ({
   const [image, setImage] = useState("");
   const [images, setImages] = useState<string[]>([]);
   const [isUploading, setIsUploading] = useState(false);
+  const [applyImageToSameColor, setApplyImageToSameColor] = useState(false);
+  const [duplicateComboError, setDuplicateComboError] = useState<string | null>(null);
+
+  // Danh sách variants hiện có để kiểm tra trùng (size+color)
+  const existingVariants: ProductVariant[] = existingVariantsProp || [];
+
+  // Theo dõi unsaved changes để confirm trước khi đóng
+  const hasUnsavedData = useMemo(() =>
+    !editingVariant && (
+      size.trim() || color.trim() || price ||
+      originalPriceCNY || weight || images.length > 0
+    ),
+    [editingVariant, size, color, price, originalPriceCNY, weight, images.length]
+  );
+
+  const handleCloseConfirm = useCallback(() => {
+    if (hasUnsavedData && !window.confirm('Bạn có muốn hủy các thay đổi chưa lưu không?')) return;
+    onClose();
+  }, [hasUnsavedData, onClose]);
+
+  // Kiểm tra trùng realtime khi user nhập size/color
+  useEffect(() => {
+    if (editingVariant || !size || !color || existingVariants.length === 0) {
+      setDuplicateComboError(null);
+      return;
+    }
+    const isDuplicate = existingVariants.some(
+      (v: ProductVariant) =>
+        v.status !== 'DELETED' &&
+        (v.size || null) === (size || null) &&
+        (v.color || null) === (color || null)
+    );
+    setDuplicateComboError(isDuplicate ? `Biến thể (size: "${size}", màu: "${color}") đã tồn tại!` : null);
+  }, [size, color, editingVariant, existingVariants]);
 
   const resetForm = () => {
     setSku(generateAutoSku(categoryName));
@@ -64,6 +100,7 @@ export const VariantFormModal: React.FC<VariantFormModalProps> = ({
     setColor("");
     setStock("10");
     setPrice("");
+
     setOriginalPriceCNY("");
     setExchangeRate("");
     setWeight("");
@@ -71,6 +108,7 @@ export const VariantFormModal: React.FC<VariantFormModalProps> = ({
     setImage("");
     setImages([]);
     setIsUploading(false);
+    setApplyImageToSameColor(false);
   };
 
   useEffect(() => {
@@ -102,6 +140,7 @@ export const VariantFormModal: React.FC<VariantFormModalProps> = ({
       setColor(editingVariant.color || "");
       setStock(editingVariant.stock?.toString() || "0");
       setPrice(editingVariant.price?.toString() || "");
+
       setOriginalPriceCNY(editingVariant.originalPriceCNY?.toString() || "");
       // Nếu biến thể đã có tỷ giá thì dùng, nếu không sẽ được fill bởi getFeeConfigApi() ở trên
       setExchangeRate(editingVariant.exchangeRate?.toString() || "");
@@ -139,7 +178,7 @@ export const VariantFormModal: React.FC<VariantFormModalProps> = ({
           const updated = [...images, res.url];
           setImages(updated);
           if (!image) setImage(res.url);
-          showNotification(t('variantAdded') || 'Variant image uploaded!', "success");
+          showNotification('📸 Ảnh biến thể đã tải lên thành công!', "success");
         }
       } else {
         const resList = await uploadMultipleImagesApi(filesArray);
@@ -149,7 +188,7 @@ export const VariantFormModal: React.FC<VariantFormModalProps> = ({
           setImages(updated);
           if (!image && newUrls[0]) setImage(newUrls[0]);
           showNotification(
-            `${newUrls.length} variant images uploaded!`,
+            `📸 ${newUrls.length} ảnh biến thể đã tải lên!`,
             "success",
           );
         }
@@ -178,13 +217,13 @@ export const VariantFormModal: React.FC<VariantFormModalProps> = ({
     ) {
       try {
         await deleteImageApi(urlToRemove);
-        showNotification(t('variantDeleted') || 'Image deleted!', "success");
+        showNotification('🗑️ Ảnh đã được xóa khỏi Cloudinary!', "success");
       } catch (err) {
         console.warn("Image deletion failed:", err);
-        showNotification("Image removed from list!", "info");
+        showNotification("📋 Ảnh đã xóa khỏi danh sách!", "info");
       }
     } else {
-      showNotification("Image deleted successfully!", "success");
+      showNotification("🗑️ Ảnh đã xóa thành công!", "success");
     }
   };
 
@@ -192,18 +231,17 @@ export const VariantFormModal: React.FC<VariantFormModalProps> = ({
   const cny = parseFloat(originalPriceCNY) || 0;
   const rate = parseFloat(exchangeRate) || 0;
   const kg = parseFloat(weight) || 0;
-  const shipPerKg = parseFloat(shippingFeePerKg) || 0;
-
-  const rawShip = kg * shipPerKg;
-  const shipVND = Math.round(rawShip); // Phí ship = Số kg * Phí ship per kg
-  const totalCostVND = Math.round(cny * rate + rawShip); // Giá gốc về kho = (Giá Tệ * Tỷ giá) + Phí ship
-  const sellingVND = parseFloat(price) || 0;
-  const profitVND = Math.round(sellingVND - totalCostVND);
-  const profitMargin =
-    sellingVND > 0 ? ((profitVND / sellingVND) * 100).toFixed(1) : "0";
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (duplicateComboError) {
+      showNotification(`⚠️ ${duplicateComboError}`, 'error');
+      return;
+    }
+
+    const finalImage = image || images[0] || null;
+    const finalImages = images.length > 0 ? images : (image ? [image] : []);
     onSubmit({
       productId,
       sku,
@@ -211,6 +249,7 @@ export const VariantFormModal: React.FC<VariantFormModalProps> = ({
       color: color || null,
       stock: parseInt(stock, 10) || 0,
       price: parseFloat(price) || 0,
+
       originalPriceCNY: cny > 0 ? cny : null,
       // Gửi undefined thay vì null khi không có tỷ giá → Backend sẽ tự động lấy tỷ giá hệ thống
       exchangeRate: rate > 0 ? rate : undefined,
@@ -218,8 +257,15 @@ export const VariantFormModal: React.FC<VariantFormModalProps> = ({
       // KHÔNG gửi shippingCostVND, totalCostVND, profitVND:
       // Backend tự tính lại từ fee config hệ thống (weight × shippingCnPerKg)
       // → tránh sai lệch khi shippingFeePerKg trên UI bị stale so với DB
-      image: image || images[0] || null,
-      images: images.length > 0 ? images : (image ? [image] : []),
+      image: finalImage,
+      images: finalImages,
+      // Flag để parent tự động áp ảnh cho các biến thể cùng màu
+      ...(applyImageToSameColor && color.trim() ? {
+        applyImageToSameColor: true,
+        bulkColor: color.trim(),
+        bulkImage: finalImage,
+        bulkImages: finalImages,
+      } : {}),
     });
     resetForm();
   };
@@ -227,7 +273,7 @@ export const VariantFormModal: React.FC<VariantFormModalProps> = ({
   return (
     <Modal
       isOpen={isOpen}
-      onClose={onClose}
+      onClose={handleCloseConfirm}
       title={
         editingVariant
           ? (t('editVariant') || 'Edit Variant')
@@ -280,13 +326,19 @@ export const VariantFormModal: React.FC<VariantFormModalProps> = ({
           <Input
             label={t('sizeLabel')}
             value={size}
-            onChange={(e) => setSize(e.target.value)}
+            onChange={(e) => {
+              setSize(e.target.value);
+              setDuplicateComboError(null);
+            }}
             placeholder="S, M, L, XL..."
           />
           <Input
             label={t('colorLabel')}
             value={color}
-            onChange={(e) => setColor(e.target.value)}
+            onChange={(e) => {
+              setColor(e.target.value);
+              setDuplicateComboError(null);
+            }}
             placeholder="Đen, Trắng, Đỏ..."
           />
         </div>
@@ -336,6 +388,21 @@ export const VariantFormModal: React.FC<VariantFormModalProps> = ({
               </div>
             </div>
 
+            {/* Checkbox: Áp ảnh cho tất cả biến thể cùng màu */}
+            {images.length > 0 && color.trim() && (
+              <label className="flex items-center gap-2 px-1 py-1.5 cursor-pointer group">
+                <input
+                  type="checkbox"
+                  checked={applyImageToSameColor}
+                  onChange={(e) => setApplyImageToSameColor(e.target.checked)}
+                  className="w-4 h-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 cursor-pointer"
+                />
+                <span className="text-xs font-medium text-slate-600 dark:text-slate-300 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
+                  🎨 Áp dụng ảnh này cho tất cả biến thể màu <strong className="text-indigo-600 dark:text-indigo-400">"{color}"</strong>
+                </span>
+              </label>
+            )}
+
             {/* Uploaded Variant Images Preview */}
             {images.length > 0 && (
               <div className="grid grid-cols-4 sm:grid-cols-5 gap-2 p-2.5 bg-slate-100/50 dark:bg-slate-800/40 rounded-2xl border border-slate-200 dark:border-white/10">
@@ -375,98 +442,36 @@ export const VariantFormModal: React.FC<VariantFormModalProps> = ({
           </div>
         </div>
 
-        {/* Real-time Taobao Profit & Cost Section */}
-        <div className="p-4 bg-gradient-to-br from-indigo-500/10 via-purple-500/10 to-emerald-500/10 border border-indigo-500/20 rounded-2xl space-y-3">
-          <div className="flex items-center justify-between">
-            <h4 className="text-xs font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-400 flex items-center gap-1.5">
-              <Calculator className="h-4 w-4" />
-              {t('initialVariant') || 'China Import Profit Calculator'}
-            </h4>
-            <Sparkles className="h-4 w-4 text-amber-500 animate-pulse" />
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-            <Input
-              label={t('originCostCNY')}
-              type="number"
-              step="0.01"
-              value={originalPriceCNY}
-              onChange={(e) => setOriginalPriceCNY(e.target.value)}
-              placeholder="E.g. 45 (CNY)"
-            />
-            <Input
-              label={t('exchangeRateLabel')}
-              type="number"
-              value={exchangeRate}
-              onChange={(e) => setExchangeRate(e.target.value)}
-              placeholder="3,500đ"
-              disabled
-            />
-            <Input
-              label={t('weightKg')}
-              type="number"
-              step="0.01"
-              value={weight}
-              onChange={(e) => setWeight(e.target.value)}
-              placeholder="E.g. 0.5 (kg)"
-            />
-            <Input
-              label={t('shippingCnFee')}
-              type="number"
-              value={shippingFeePerKg}
-              onChange={(e) => setShippingFeePerKg(e.target.value)}
-              placeholder="E.g. 28000"
-              disabled
-            />
-          </div>
-
-          {/* Realtime Profit Card Summary */}
-          {cny > 0 && (
-            <div className="p-3.5 bg-white dark:bg-slate-900/80 rounded-xl border border-indigo-500/20 grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
-              <div>
-                <span className="text-slate-500 block text-[11px]">
-                  {t('shippingFeeCalc')}
-                </span>
-                <strong className="text-slate-900 dark:text-white font-bold text-xs">
-                  {shipVND.toLocaleString()} đ ({kg}kg)
-                </strong>
-              </div>
-              <div>
-                <span className="text-slate-500 block text-[11px]">
-                  {t('totalLandingCost')}
-                </span>
-                <strong className="text-indigo-600 dark:text-indigo-400 font-bold text-xs">
-                  {totalCostVND.toLocaleString()} đ
-                </strong>
-              </div>
-              <div>
-                <span className="text-slate-500 block text-[11px]">
-                  {t('estimatedProfit')}
-                </span>
-                <strong
-                  className={`font-bold text-xs ${profitVND >= 0 ? "text-emerald-500" : "text-rose-500"}`}
-                >
-                  {profitVND >= 0 ? "+" : ""}
-                  {profitVND.toLocaleString()} đ
-                </strong>
-              </div>
-              <div className="flex items-center">
-                <Badge
-                  variant={
-                    parseFloat(profitMargin) >= 30
-                      ? "success"
-                      : parseFloat(profitMargin) > 0
-                        ? "info"
-                        : "danger"
-                  }
-                >
-                  <TrendingUp className="h-3 w-3 mr-1" />
-                  {t('profitRate', { margin: profitMargin })}
-                </Badge>
-              </div>
+        {/* Duplicate combo warning */}
+        {duplicateComboError && (
+          <div className="p-3 bg-rose-50 dark:bg-rose-900/20 border border-rose-200 dark:border-rose-700/30 rounded-xl flex items-start gap-2.5 animate-in fade-in slide-in-from-top-2 duration-200">
+            <AlertTriangle className="h-5 w-5 text-rose-500 shrink-0 mt-0.5" />
+            <div>
+              <p className="text-xs font-semibold text-rose-700 dark:text-rose-300">⚠️ Biến thể bị trùng</p>
+              <p className="text-[11px] text-rose-600 dark:text-rose-400 mt-0.5">{duplicateComboError}</p>
             </div>
-          )}
-        </div>
+          </div>
+        )}
+
+        {/* Real-time Taobao Profit & Cost Section */}
+        <VariantProfitCalculator
+          values={{
+            originalPriceCNY,
+            exchangeRate,
+            weight,
+            shippingFeePerKg,
+            price,
+          }}
+          onChange={(field, value) => {
+            switch (field) {
+              case 'originalPriceCNY': setOriginalPriceCNY(value); break;
+              case 'exchangeRate': setExchangeRate(value); break;
+              case 'weight': setWeight(value); break;
+              case 'shippingFeePerKg': setShippingFeePerKg(value); break;
+              case 'price': setPrice(value); break;
+            }
+          }}
+        />
 
         {/* Pricing & Stock */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -475,8 +480,9 @@ export const VariantFormModal: React.FC<VariantFormModalProps> = ({
             type="number"
             value={price}
             onChange={(e) => setPrice(e.target.value)}
-            placeholder="E.g. 250000"
+            placeholder="250000"
             required
+            currency
           />
           <Input
             label={`${t('stock')} *`}

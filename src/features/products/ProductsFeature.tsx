@@ -18,6 +18,9 @@ const VariantFormModal = React.lazy(() =>
 const ProductDetailModal = React.lazy(() =>
   import("./components/ProductDetailModal").then((m) => ({ default: m.ProductDetailModal })),
 );
+const BulkVariantGenerator = React.lazy(() =>
+  import("./components/BulkVariantGenerator").then((m) => ({ default: m.BulkVariantGenerator })),
+);
 import {
   fetchProducts,
   fetchDeletedProducts,
@@ -27,6 +30,9 @@ import {
   createVariantApi,
   updateVariantApi,
   deleteVariantApi,
+  bulkCreateVariantsApi,
+  updateVariantStatusApi,
+  bulkUpdateVariantImagesApi,
 } from "../../services/productService";
 import { fetchCategories } from "../../services/categoryService";
 import { fetchBrands } from "../../services/brandService";
@@ -52,6 +58,11 @@ export const ProductsFeature: React.FC = () => {
     null,
   );
   const [targetProductId, setTargetProductId] = useState("");
+
+  // Bulk Variant state
+  const [isBulkVariantModalOpen, setIsBulkVariantModalOpen] = useState(false);
+  const [bulkVariantProductId, setBulkVariantProductId] = useState("");
+  const [bulkVariantCategoryName, setBulkVariantCategoryName] = useState<string | undefined>();
 
   // Queries
   const {
@@ -157,6 +168,41 @@ export const ProductsFeature: React.FC = () => {
     },
   });
 
+  // Bulk Variant Mutation
+  const bulkCreateVariantMutation = useMutation({
+    mutationFn: bulkCreateVariantsApi,
+    onSuccess: (res) => {
+      refreshAll();
+      showNotification(`Đã tạo ${res.count} biến thể thành công!`, "success");
+      setIsBulkVariantModalOpen(false);
+    },
+    onError: (err: any) => {
+      showNotification(err.message || "Lỗi khi tạo biến thể hàng loạt", "error");
+    },
+  });
+
+  // Inline Update Variant Mutation
+  const inlineUpdateVariantMutation = useMutation({
+    mutationFn: (data: { id: string } & Partial<ProductVariant>) => updateVariantApi(data),
+    onSuccess: () => {
+      refreshAll();
+    },
+    onError: (err: any) => {
+      showNotification(err.message || "Lỗi khi cập nhật biến thể", "error");
+    },
+  });
+
+  // Toggle Variant Status Mutation
+  const toggleVariantStatusMutation = useMutation({
+    mutationFn: ({ id, status }: { id: string; status: string }) => updateVariantStatusApi(id, status),
+    onSuccess: () => {
+      refreshAll();
+    },
+    onError: (err: any) => {
+      showNotification(err.message || "Lỗi khi đổi trạng thái biến thể", "error");
+    },
+  });
+
   const restoreProductMutation = useMutation({
     mutationFn: (id: string) => updateProductApi({ id, status: "ACTIVE" }),
     onSuccess: () => {
@@ -211,13 +257,46 @@ export const ProductsFeature: React.FC = () => {
     setIsVariantModalOpen(true);
   }, []);
 
+  // Bulk Image Update by Color Mutation
+  const bulkUpdateVariantImagesMutation = useMutation({
+    mutationFn: bulkUpdateVariantImagesApi,
+    onSuccess: (res) => {
+      refreshAll();
+      showNotification(res.message, "success");
+    },
+    onError: (err: any) => {
+      showNotification(err.message || "Loi cap nhat anh hang loat", "error");
+    },
+  });
+
   const handleVariantSubmit = useCallback((data: any) => {
+    // Extract bulk image flag before sending to mutation
+    const { applyImageToSameColor, bulkColor, bulkImage, bulkImages, ...variantData } = data;
+
+    const onMutateSuccess = () => {
+      // If user checked "Apply image to all same-color variants"
+      if (applyImageToSameColor && bulkColor) {
+        bulkUpdateVariantImagesMutation.mutate({
+          productId: targetProductId,
+          color: bulkColor,
+          image: bulkImage || undefined,
+          images: bulkImages && bulkImages.length > 0 ? bulkImages : undefined,
+        });
+      }
+    };
+
     if (editingVariant) {
-      updateVariantMutation.mutate({ id: editingVariant.id, ...data });
+      updateVariantMutation.mutate(
+        { id: editingVariant.id, ...variantData },
+        { onSuccess: onMutateSuccess },
+      );
     } else {
-      createVariantMutation.mutate(data);
+      createVariantMutation.mutate(
+        variantData,
+        { onSuccess: onMutateSuccess },
+      );
     }
-  }, [editingVariant, updateVariantMutation, createVariantMutation]);
+  }, [editingVariant, updateVariantMutation, createVariantMutation, targetProductId, bulkUpdateVariantImagesMutation]);
 
   const handleDeleteProduct = useCallback(async (p: Product) => {
     const isConfirmed = await confirm({
@@ -261,6 +340,31 @@ export const ProductsFeature: React.FC = () => {
 
   // Filter products
   const rawList = activeTab === "ACTIVE" ? activeProducts : deletedProducts;
+
+  const handleOpenBulkVariant = useCallback((productId: string) => {
+    const product = rawList.find((p) => p.id === productId);
+    setBulkVariantProductId(productId);
+    setBulkVariantCategoryName(product?.category?.name);
+    setIsBulkVariantModalOpen(true);
+  }, [rawList]);
+
+  const handleBulkVariantSubmit = useCallback((data: any) => {
+    bulkCreateVariantMutation.mutate(data);
+  }, [bulkCreateVariantMutation]);
+
+  const handleInlineUpdateVariant = useCallback((id: string, data: Partial<ProductVariant>) => {
+    // Nếu data chỉ có status → dùng mutation toggle riêng
+    if ('status' in data && Object.keys(data).length === 1) {
+      toggleVariantStatusMutation.mutate({ id, status: data.status! });
+    } else {
+      inlineUpdateVariantMutation.mutate({ id, ...data });
+    }
+  }, [inlineUpdateVariantMutation, toggleVariantStatusMutation]);
+
+  const handleToggleVariant = useCallback((v: ProductVariant) => {
+    const newStatus = v.status === 'ACTIVE' ? 'HIDDEN' : 'ACTIVE';
+    handleInlineUpdateVariant(v.id, { status: newStatus });
+  }, [handleInlineUpdateVariant]);
 
   // Keep detail modal updated when products list changes
   React.useEffect(() => {
@@ -382,6 +486,8 @@ export const ProductsFeature: React.FC = () => {
                 onAddVariant={handleOpenAddVariant}
                 onEditVariant={handleOpenEditVariant}
                 onDeleteVariant={handleDeleteVariant}
+                onToggleVariant={handleToggleVariant}
+                onBulkAddVariant={handleOpenBulkVariant}
                 onViewDetail={(productToView) => setDetailProduct(productToView)}
                 isDeletedTab={activeTab === "DELETED"}
                 onRestoreProduct={handleRestoreProduct}
@@ -402,6 +508,9 @@ export const ProductsFeature: React.FC = () => {
           onEditProduct={handleOpenEditProduct}
           onAddVariant={handleOpenAddVariant}
           onEditVariant={handleOpenEditVariant}
+          onBulkAddVariant={handleOpenBulkVariant}
+          onInlineUpdateVariant={handleInlineUpdateVariant}
+          onToggleVariant={handleToggleVariant}
         />
 
         <ProductFormModal
@@ -426,6 +535,17 @@ export const ProductsFeature: React.FC = () => {
           editingVariant={editingVariant}
           productId={targetProductId}
           categoryName={rawList.find((p) => p.id === targetProductId)?.category?.name}
+          existingVariants={rawList.find((p) => p.id === targetProductId)?.variants}
+        />
+
+        <BulkVariantGenerator
+          isOpen={isBulkVariantModalOpen}
+          onClose={() => setIsBulkVariantModalOpen(false)}
+          onSubmit={handleBulkVariantSubmit}
+          isLoading={bulkCreateVariantMutation.isPending}
+          productId={bulkVariantProductId}
+          categoryName={bulkVariantCategoryName}
+          existingVariants={rawList.find((p) => p.id === bulkVariantProductId)?.variants}
         />
       </React.Suspense>
 

@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useTranslation } from '../../../lib/i18n';
 import { Modal } from '../../../components/ui/Modal';
 import { Badge } from '../../../components/ui/Badge';
 import { Button } from '../../../components/ui/Button';
+import { Input } from '../../../components/ui/Input';
 import {
   Package,
   Tag,
@@ -17,6 +18,12 @@ import {
   ChevronLeft,
   ChevronRight,
   X,
+  Save,
+  Layers,
+  Loader2,
+  Search,
+  Eye,
+  EyeOff,
 } from 'lucide-react';
 import type { Product, ProductVariant } from '../../../types';
 
@@ -27,6 +34,9 @@ interface ProductDetailModalProps {
   onEditProduct?: (p: Product) => void;
   onAddVariant?: (productId: string) => void;
   onEditVariant?: (v: ProductVariant) => void;
+  onBulkAddVariant?: (productId: string) => void;
+  onInlineUpdateVariant?: (id: string, data: Partial<ProductVariant>) => void;
+  onToggleVariant?: (v: ProductVariant) => void;
 }
 
 export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
@@ -36,6 +46,9 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
   onEditProduct,
   onAddVariant,
   onEditVariant,
+  onBulkAddVariant,
+  onInlineUpdateVariant,
+  onToggleVariant,
 }) => {
   const { t } = useTranslation();
   const [selectedImage, setSelectedImage] = useState<string>('');
@@ -95,6 +108,52 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
     }
   }, [allImages]);
 
+  // Inline edit states
+  const [editingPriceId, setEditingPriceId] = useState<string | null>(null);
+  const [editingStockId, setEditingStockId] = useState<string | null>(null);
+  const [editPriceValue, setEditPriceValue] = useState('');
+  const [editStockValue, setEditStockValue] = useState('');
+  /** Track loading state for inline saves per variant */
+  const [savingInlineIds, setSavingInlineIds] = useState<Set<string>>(new Set());
+
+  const handleInlineEditPrice = useCallback((variantId: string, currentPrice: number) => {
+    setEditingPriceId(variantId);
+    setEditPriceValue(currentPrice.toString());
+  }, []);
+
+  const handleInlineEditStock = useCallback((variantId: string, currentStock: number) => {
+    setEditingStockId(variantId);
+    setEditStockValue(currentStock.toString());
+  }, []);
+
+  // Clear saving state when product data refreshes (mutation succeeded)
+  useEffect(() => {
+    if (savingInlineIds.size > 0) {
+      setSavingInlineIds(new Set());
+    }
+  }, [product?.variants?.length]);
+
+  const handleSavePrice = useCallback((variantId: string) => {
+    const newPrice = parseFloat(editPriceValue);
+    if (!isNaN(newPrice) && newPrice >= 0 && onInlineUpdateVariant) {
+      setSavingInlineIds(prev => new Set(prev).add(variantId));
+      onInlineUpdateVariant(variantId, { price: newPrice });
+    }
+    setEditingPriceId(null);
+    setEditPriceValue('');
+  }, [editPriceValue, onInlineUpdateVariant]);
+
+  const handleSaveStock = useCallback((variantId: string) => {
+    const newStock = parseInt(editStockValue, 10);
+    if (!isNaN(newStock) && newStock >= 0 && onInlineUpdateVariant) {
+      setSavingInlineIds(prev => new Set(prev).add(variantId));
+      onInlineUpdateVariant(variantId, { stock: newStock });
+    }
+    setEditingStockId(null);
+    setEditStockValue('');
+  }, [editStockValue, onInlineUpdateVariant]);
+
+  const [variantSearch, setVariantSearch] = useState('');
   const [touchStartX, setTouchStartX] = useState<number | null>(null);
 
   // Keyboard navigation for full-screen Lightbox
@@ -142,10 +201,25 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
     setTouchStartX(null);
   };
 
-  if (!product) return null;
-
-  const activeVariants = (product.variants || []).filter((v) => v.status !== 'DELETED');
+  // Filter variants by search query (MUST be before early return - hooks rule)
+  const variantSearchQuery = variantSearch;
+  const activeVariants = (product?.variants || []).filter((v) => v.status !== 'DELETED');
   const totalStock = activeVariants.reduce((sum, v) => sum + (v.stock || 0), 0);
+
+  const filteredVariants = useMemo(() => {
+    if (!variantSearchQuery.trim()) return activeVariants;
+    const q = variantSearchQuery.toLowerCase();
+    return activeVariants.filter(
+      (v) =>
+        v.sku.toLowerCase().includes(q) ||
+        (v.size || '').toLowerCase().includes(q) ||
+        (v.color || '').toLowerCase().includes(q) ||
+        v.price.toString().includes(q) ||
+        (v.stock || 0).toString().includes(q)
+    );
+  }, [activeVariants, variantSearchQuery]);
+
+  if (!product) return null;
 
   const openLightbox = () => {
     if (!selectedImage || allImages.length === 0) return;
@@ -187,6 +261,20 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
                 >
                   <Edit2 className="h-4 w-4 mr-1.5 text-indigo-500 shrink-0" />
                   {t('edit') || 'Edit'}
+                </Button>
+              )}
+              {onBulkAddVariant && (
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  onClick={() => {
+                    onClose();
+                    onBulkAddVariant(product.id);
+                  }}
+                  className="flex-1 sm:flex-initial text-xs whitespace-nowrap"
+                >
+                  <Layers className="h-4 w-4 mr-1.5 text-purple-500 shrink-0" />
+                  Tạo hàng loạt
                 </Button>
               )}
               {onAddVariant && (
@@ -253,7 +341,7 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
           <div className="space-y-3">
             <h4 className="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 flex items-center gap-2">
               <ImageIcon className="h-4 w-4 text-indigo-500" />
-              {t('productImages')} ({allImages.length})
+              {t('productImagesTitle') || 'Hình ảnh sản phẩm'} ({allImages.length})
             </h4>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -346,23 +434,43 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
 
         {/* Variants Breakdown List */}
         <div className="space-y-3">
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
             <h4 className="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 flex items-center gap-2">
               <Tag className="h-4 w-4 text-indigo-500" />
-              {t('variantsList')} ({activeVariants.length})
+              {t('variantsList')} ({filteredVariants.length}/{activeVariants.length})
             </h4>
-            <span className="text-xs text-slate-500">
-              {t('stock')}: <strong className="text-indigo-600 dark:text-indigo-400 font-bold">{totalStock}</strong>
-            </span>
+            <div className="flex items-center gap-2">
+              <div className="relative w-full sm:w-48">
+                <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400" />
+                <Input
+                  placeholder="Tìm SKU, size, màu..."
+                  value={variantSearch}
+                  onChange={(e) => setVariantSearch(e.target.value)}
+                  className="pl-8 text-xs h-8"
+                />
+                {variantSearch && (
+                  <button
+                    type="button"
+                    onClick={() => setVariantSearch('')}
+                    className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors cursor-pointer"
+                  >
+                    <X className="h-3 w-3" />
+                  </button>
+                )}
+              </div>
+              <span className="text-xs text-slate-500 whitespace-nowrap">
+                {t('stock')}: <strong className="text-indigo-600 dark:text-indigo-400 font-bold">{totalStock}</strong>
+              </span>
+            </div>
           </div>
 
-          {activeVariants.length === 0 ? (
+          {filteredVariants.length === 0 ? (
             <div className="p-6 text-center text-xs text-slate-400 bg-slate-50 dark:bg-white/5 rounded-2xl border border-dashed">
-              {t('noVariants')}
+              {variantSearch ? `Không tìm thấy biến thể phù hợp với "${variantSearch}"` : t('noVariants')}
             </div>
           ) : (
             <div className="space-y-3">
-              {activeVariants.map((v) => {
+              {filteredVariants.map((v) => {
                 const margin =
                   v.price > 0 && v.profitVND !== undefined && v.profitVND !== null
                     ? ((v.profitVND / v.price) * 100).toFixed(1)
@@ -373,42 +481,108 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
                     key={v.id}
                     className="p-4 bg-white dark:bg-slate-900/80 border border-slate-200 dark:border-white/10 rounded-2xl space-y-3 shadow-xs hover:border-indigo-500/30 transition-all"
                   >
-                    {/* Top Row: Variant Info & Price */}
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-100 dark:border-white/5">
-                      <div className="flex items-center gap-3">
-                        {v.image && (
-                          <img
-                            src={v.image}
-                            alt={v.sku}
-                            className="h-10 w-10 rounded-xl object-cover border border-slate-200 dark:border-white/10 shrink-0"
-                          />
-                        )}
-                        <div>
-                          <div className="flex items-center gap-2 flex-wrap">
-                            <Badge variant="neutral" className="font-mono text-xs">
-                              {v.sku}
-                            </Badge>
-                            {v.size && <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">Size: {v.size}</span>}
-                            {v.color && <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">Màu: {v.color}</span>}
-                            <span className="text-xs text-slate-500">Tồn kho: <strong>{v.stock}</strong></span>
-                          </div>
+                    {/* Top Row: Variant Info Header */}
+                    <div className="pb-3 border-b border-slate-100 dark:border-white/5 space-y-2">
+                      {/* Line 1: SKU on left, Status + Sửa Button on right */}
+                      <div className="flex items-center justify-between gap-2">
+                        <div className="flex items-center gap-1.5 min-w-0">
+                          {v.image && (
+                            <img
+                              src={v.image}
+                              alt={v.sku}
+                              className="h-6 w-6 rounded-lg object-cover border border-slate-200 dark:border-white/10 shrink-0"
+                            />
+                          )}
+                          <Badge variant="neutral" className="font-mono text-xs truncate">
+                            {v.sku}
+                          </Badge>
+                        </div>
+
+                        <div className="flex items-center gap-1.5 shrink-0">
+                          {/* Status toggle badge */}
+                          <span
+                            onClick={() => onToggleVariant?.(v)}
+                            className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-bold cursor-pointer transition-all ${
+                              v.status === 'ACTIVE'
+                                ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 hover:bg-amber-100 dark:hover:bg-amber-900/30'
+                                : 'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 hover:bg-emerald-100 dark:hover:bg-emerald-900/30'
+                            }`}
+                            title={v.status === 'ACTIVE' ? 'Nhấn để ẩn biến thể' : 'Nhấn để kích hoạt biến thể'}
+                          >
+                            {v.status === 'ACTIVE' ? (
+                              <><Eye className="h-3 w-3" /> <span className="hidden sm:inline">{t('active')}</span></>
+                            ) : (
+                              <><EyeOff className="h-3 w-3" /> <span className="hidden sm:inline">{t('disabled')}</span></>
+                            )}
+                          </span>
+
+                          {onEditVariant && (
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => {
+                                onClose();
+                                onEditVariant(v);
+                              }}
+                              className="shrink-0 text-xs px-2 py-1 h-auto"
+                            >
+                              <Edit2 className="h-3.5 w-3.5 sm:mr-1 text-indigo-500" />
+                              <span className="hidden sm:inline">{t('edit')}</span>
+                            </Button>
+                          )}
                         </div>
                       </div>
 
-                      {onEditVariant && (
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => {
-                            onClose();
-                            onEditVariant(v);
-                          }}
-                          className="self-end sm:self-auto text-xs"
-                        >
-                          <Edit2 className="h-3.5 w-3.5 mr-1 text-indigo-500" />
-                          {t('edit')}
-                        </Button>
-                      )}
+                      {/* Line 2: Size, Màu, Tồn kho cùng 1 hàng */}
+                      <div className="flex items-center gap-3 text-xs text-slate-700 dark:text-slate-300 flex-wrap">
+                        {v.size && <span>Size: <strong className="font-semibold">{v.size}</strong></span>}
+                        {v.color && <span>Màu: <strong className="font-semibold">{v.color}</strong></span>}
+
+                        {/* Tồn kho Inline Edit */}
+                        {editingStockId === v.id ? (
+                          <span className="inline-flex items-center gap-1">
+                            <input
+                              type="number"
+                              value={editStockValue}
+                              onChange={(e) => setEditStockValue(e.target.value)}
+                              onBlur={() => handleSaveStock(v.id)}
+                              onKeyDown={(e) => {
+                                if (e.key === 'Enter') handleSaveStock(v.id);
+                                if (e.key === 'Escape') setEditingStockId(null);
+                              }}
+                              className="w-16 px-1.5 py-0.5 text-xs font-bold text-center bg-indigo-50 dark:bg-indigo-900/30 border border-indigo-300 dark:border-indigo-700 rounded-md focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                              autoFocus
+                            />
+                            {savingInlineIds.has(v.id) ? (
+                              <Loader2 className="h-3 w-3 animate-spin text-indigo-500" />
+                            ) : (
+                              <button
+                                type="button"
+                                onClick={() => handleSaveStock(v.id)}
+                                className="p-0.5 text-indigo-500 hover:text-indigo-700 transition-colors cursor-pointer"
+                              >
+                                <Save className="h-3 w-3" />
+                              </button>
+                            )}
+                          </span>
+                        ) : (
+                          <span
+                            onClick={() => handleInlineEditStock(v.id, v.stock)}
+                            className="text-xs text-slate-500 cursor-pointer hover:text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 px-1.5 py-0.5 rounded-md transition-all group whitespace-nowrap"
+                            title="Click để sửa tồn kho"
+                          >
+                            {savingInlineIds.has(v.id) ? (
+                              <span className="inline-flex items-center gap-1">
+                                <Loader2 className="h-3 w-3 animate-spin text-indigo-500" />
+                                Đang lưu...
+                              </span>
+                            ) : (
+                              <>Tồn kho: <strong>{v.stock}</strong>
+                              <Edit2 className="h-2.5 w-2.5 ml-0.5 inline opacity-0 group-hover:opacity-100 text-indigo-400" /></>
+                            )}
+                          </span>
+                        )}
+                      </div>
                     </div>
 
                     {/* Financial Metrics Row */}
@@ -438,9 +612,49 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
 
                       <div>
                         <span className="text-slate-400 block text-[10px] uppercase font-semibold">{t('marketPrice')}</span>
-                        <span className="font-bold text-slate-900 dark:text-white">
-                          {v.price.toLocaleString()}đ
-                        </span>
+                        {editingPriceId === v.id ? (
+                          <span className="inline-flex items-center gap-1">
+                            <input
+                              type="number"
+                              value={editPriceValue}
+                              onChange={(e) => setEditPriceValue(e.target.value)}
+                              onBlur={() => handleSavePrice(v.id)}
+                              onKeyDown={(e) => {
+                                if (e.key === 'Enter') handleSavePrice(v.id);
+                                if (e.key === 'Escape') setEditingPriceId(null);
+                              }}
+                              className="w-24 px-1.5 py-0.5 text-xs font-bold text-center bg-indigo-50 dark:bg-indigo-900/30 border border-indigo-300 dark:border-indigo-700 rounded-md focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                              autoFocus
+                            />
+                            {savingInlineIds.has(v.id) ? (
+                              <Loader2 className="h-4 w-4 animate-spin text-indigo-500 shrink-0" />
+                            ) : (
+                              <button
+                                type="button"
+                                onClick={() => handleSavePrice(v.id)}
+                                className="p-0.5 text-indigo-500 hover:text-indigo-700 transition-colors cursor-pointer"
+                              >
+                                <Save className="h-3 w-3" />
+                              </button>
+                            )}
+                          </span>
+                        ) : (
+                          <span
+                            onClick={() => handleInlineEditPrice(v.id, v.price)}
+                            className="font-bold text-slate-900 dark:text-white cursor-pointer hover:text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 px-1.5 py-0.5 rounded-md transition-all group"
+                            title="Click để sửa giá"
+                          >
+                            {savingInlineIds.has(v.id) ? (
+                              <span className="inline-flex items-center gap-1">
+                                <Loader2 className="h-3 w-3 animate-spin text-indigo-500" />
+                                Đang lưu...
+                              </span>
+                            ) : (
+                              <>{v.price.toLocaleString()}đ
+                              <Edit2 className="h-2.5 w-2.5 ml-0.5 inline opacity-0 group-hover:opacity-100 text-indigo-400" /></>
+                            )}
+                          </span>
+                        )}
                       </div>
                     </div>
 
