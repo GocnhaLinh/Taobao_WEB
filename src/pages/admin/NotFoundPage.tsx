@@ -1,8 +1,8 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Home, RefreshCw, Unplug, ZapOff, Sparkles } from 'lucide-react';
-import { useTranslation } from '../lib/i18n';
-import { Button } from '../components/ui/Button';
+import { useTranslation } from '../../lib/i18n';
+import { Button } from '../../components/ui/Button';
 
 export const NotFoundPage: React.FC = () => {
   const { t } = useTranslation();
