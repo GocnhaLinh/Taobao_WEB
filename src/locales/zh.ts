@@ -123,7 +123,7 @@ export const zh = {
   estimatedProfit: "预计利润：",
   profitRate: "利润率：{margin}%",
 
-  // Product notifications
+  logoUploadSuccess: "品牌 Logo 上传成功！",
   productAddedSuccess: "商品添加成功！",
   productAddedFailed: "添加商品失败！",
   productUpdatedSuccess: "更新商品成功！",

@@ -125,7 +125,7 @@ export const vi = {
   estimatedProfit: "Lợi nhuận ước tính:",
   profitRate: "Tỷ suất: {margin}%",
 
-  // Product notifications
+  logoUploadSuccess: "Tải logo thương hiệu thành công!",
   productAddedSuccess: "Thêm sản phẩm thành công!",
   productAddedFailed: "Thêm sản phẩm thất bại!",
   productUpdatedSuccess: "Cập nhật sản phẩm thành công!",

@@ -1,4 +1,4 @@
-import { axiosClient } from './axiosClient';
+import { axiosClient } from '../../../../services/axiosClient';
 import type { Brand } from '../types';
 
 export const fetchBrands = async (): Promise<Brand[]> => {
