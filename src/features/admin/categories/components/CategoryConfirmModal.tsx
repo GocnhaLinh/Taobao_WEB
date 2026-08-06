@@ -1,20 +1,10 @@
 import React from 'react';
 import { AlertTriangle, Archive, RotateCcw } from 'lucide-react';
-import type { Category } from '../../../../types';
 import { useTranslation } from '../../../../lib/i18n';
 import { Modal } from '../../../../components/ui/Modal';
 import { Button } from '../../../../components/ui/Button';
 
-export type ConfirmType = 'SOFT_DELETE' | 'RESTORE' | 'HARD_DELETE';
-
-interface CategoryConfirmModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  onConfirm: () => void;
-  category: Category | null;
-  type: ConfirmType;
-  isLoading?: boolean;
-}
+import type { CategoryConfirmModalProps } from '../types';
 
 export const CategoryConfirmModal: React.FC<CategoryConfirmModalProps> = ({
   isOpen,

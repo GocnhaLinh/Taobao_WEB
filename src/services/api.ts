@@ -2,8 +2,8 @@ import { api } from "./axiosClient";
 
 export * from "../types";
 export * from "./userService";
-export * from "./categoryService";
-export * from "./brandService";
+export * from "../features/admin/categories/api/category.api";
+export * from "../features/admin/brands/api/brand.api";
 export * from "./productService";
 export * from "./chatService";
 export * from "./warehouseService";

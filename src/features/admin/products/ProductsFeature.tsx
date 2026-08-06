@@ -34,8 +34,8 @@ import {
   updateVariantStatusApi,
   bulkUpdateVariantImagesApi,
 } from "../../../services/productService";
-import { fetchCategories } from "../../../services/categoryService";
-import { fetchBrands } from "../../../services/brandService";
+import { fetchCategories } from "../categories/api/category.api";
+import { fetchBrands } from "../brands/api/brand.api";
 import type { Product, ProductVariant } from "../../../types";
 
 export const ProductsFeature: React.FC = () => {

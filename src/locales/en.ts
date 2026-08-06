@@ -125,7 +125,7 @@ export const en = {
   estimatedProfit: "Estimated Profit:",
   profitRate: "Margin: {margin}%",
 
-  // Product notifications
+  logoUploadSuccess: "Brand logo uploaded successfully!",
   productAddedSuccess: "Product added successfully!",
   productAddedFailed: "Failed to add product!",
   productUpdatedSuccess: "Product updated successfully!",

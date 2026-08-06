@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useRef } from "react";
-import type { Brand } from "../../../../types";
 import { useTranslation } from "../../../../lib/i18n";
 import { Modal } from "../../../../components/ui/Modal";
 import { Input } from "../../../../components/ui/Input";
@@ -10,18 +9,7 @@ import {
   deleteImageApi,
 } from "../../../../services/uploadService";
 import { useNotification } from "../../../../lib/notification";
-
-interface BrandFormModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  onSubmit: (data: {
-    name: string;
-    logo?: string;
-    description?: string;
-  }) => void;
-  initialData?: Brand | null;
-  isLoading?: boolean;
-}
+import type { BrandFormModalProps } from "../types";
 
 export const BrandFormModal: React.FC<BrandFormModalProps> = ({
   isOpen,
@@ -83,7 +71,7 @@ export const BrandFormModal: React.FC<BrandFormModalProps> = ({
       if (res && res.url) {
         setLogo(res.url);
         setImgError(false);
-        showNotification(t('brandCreated') || "Logo uploaded successfully!", "success");
+        showNotification(t('logoUploadSuccess') || "Tải logo thương hiệu thành công!", "success");
       }
     } catch (error: any) {
       showNotification(
