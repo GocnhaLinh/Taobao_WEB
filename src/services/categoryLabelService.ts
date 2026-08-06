@@ -17,9 +17,28 @@ export const fetchCategoryLabelsApi = async (): Promise<
 
 export const createCategoryLabelApi = async (data: {
   name: string;
+  code?: string;
   icon?: string;
 }): Promise<CategoryLabelItem> => {
-  return axiosClient.post<any, CategoryLabelItem>("/category-labels", data);
+  const code =
+    data.code?.trim() ||
+    data.name
+      .trim()
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/đ/g, "d")
+      .replace(/Đ/g, "d")
+      .replace(/\s+/g, "_")
+      .replace(/[^a-z0-9_]/g, "")
+      .toUpperCase() ||
+    `LABEL_${Date.now()}`;
+
+  return axiosClient.post<any, CategoryLabelItem>("/category-labels", {
+    name: data.name.trim(),
+    code,
+    icon: data.icon,
+  });
 };
 
 export const updateCategoryLabelApi = async (

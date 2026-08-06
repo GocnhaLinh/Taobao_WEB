@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useRef } from 'react';
-import type { Category } from '../../../../types';
 import { useTranslation } from '../../../../lib/i18n';
 import { Modal } from '../../../../components/ui/Modal';
 import { Input } from '../../../../components/ui/Input';
@@ -16,16 +15,7 @@ import {
 } from '../../../../services/categoryLabelService';
 
 import { EMOJI_PRESETS } from '../../../../utils/iconPresets';
-
-interface CategoryFormModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  onSubmit: (data: { name: string; slug: string; sex: string }) => void;
-  initialData?: Category | null;
-  defaultSex?: string;
-  isLoading?: boolean;
-  onLabelsChanged?: () => void;
-}
+import type { CategoryFormModalProps } from '../types';
 
 export const CategoryFormModal: React.FC<CategoryFormModalProps> = ({
   isOpen,
