@@ -27,8 +27,8 @@ import { uploadSingleImageApi } from '../../../services/uploadService';
 import { useNotification } from '../../../lib/notification';
 
 interface VariantInput {
-  size: string;
-  color: string;
+  size?: string;
+  color?: string;
   sku: string;
   price?: number;
   originalPriceCNY?: number | null;
