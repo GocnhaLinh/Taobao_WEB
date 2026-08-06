@@ -36,3 +36,39 @@ export const updateVariantApi = async (data: { id: string } & Partial<ProductVar
 export const deleteVariantApi = async (id: string): Promise<any> => {
   return axiosClient.delete(`/products/variants/${id}`);
 };
+
+export const updateVariantStatusApi = async (id: string, status: string): Promise<ProductVariant> => {
+  return axiosClient.patch(`/products/variants/${id}/status`, { status });
+};
+
+export const bulkUpdateVariantImagesApi = async (data: {
+  productId: string;
+  color: string;
+  image?: string;
+  images?: string[];
+}): Promise<{ message: string; count: number }> => {
+  return axiosClient.patch('/products/variants/bulk-image', data);
+};
+
+export const bulkCreateVariantsApi = async (data: {
+  productId: string;
+  common?: {
+    price?: number;
+    originalPriceCNY?: number | null;
+    weight?: number | null;
+    stock?: number;
+    image?: string;
+  };
+  variants: Array<{
+    size?: string;
+    color?: string;
+    sku: string;
+    price?: number;
+    originalPriceCNY?: number | null;
+    weight?: number | null;
+    stock?: number;
+    image?: string;
+  }>;
+}): Promise<{ message: string; variants: ProductVariant[]; count: number }> => {
+  return axiosClient.post('/products/variants/bulk', data);
+};

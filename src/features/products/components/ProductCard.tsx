@@ -10,6 +10,8 @@ import {
   Coins,
   Truck,
   RotateCcw,
+  Eye,
+  EyeOff,
 } from "lucide-react";
 import { useTranslation } from "../../../lib/i18n";
 import { Badge } from "../../../components/ui/Badge";
@@ -25,6 +27,8 @@ interface ProductCardProps {
   onAddVariant: (productId: string) => void;
   onEditVariant: (v: ProductVariant) => void;
   onDeleteVariant: (v: ProductVariant) => void;
+  onToggleVariant?: (v: ProductVariant) => void;
+  onBulkAddVariant?: (productId: string) => void;
   onViewDetail?: (p: Product) => void;
   isDeletedTab?: boolean;
   onRestoreProduct?: (p: Product) => void;
@@ -38,6 +42,8 @@ export const ProductCard: React.FC<ProductCardProps> = React.memo(({
   onAddVariant,
   onEditVariant,
   onDeleteVariant,
+  onToggleVariant,
+  onBulkAddVariant,
   onViewDetail,
   isDeletedTab = false,
   onRestoreProduct,
@@ -138,10 +144,11 @@ export const ProductCard: React.FC<ProductCardProps> = React.memo(({
             <Button
               variant={variants.length === 0 ? "primary" : "outline"}
               size="sm"
-              onClick={() => onAddVariant(product.id)}
+              onClick={() => onBulkAddVariant ? onBulkAddVariant(product.id) : onAddVariant(product.id)}
+              title="Tạo hàng loạt biến thể"
             >
               <Plus className="h-3.5 w-3.5 mr-1" />
-              {t('addVariant')}
+              Tạo hàng loạt
             </Button>
             <Button
               variant="ghost"
@@ -210,6 +217,22 @@ export const ProductCard: React.FC<ProductCardProps> = React.memo(({
                     {/* Left: SKU, Attributes */}
                     <div className="space-y-1">
                       <div className="flex items-center gap-2">
+                        {/* Status badge */}
+                        <span
+                          onClick={() => onToggleVariant?.(v)}
+                          className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[10px] font-bold cursor-pointer transition-all ${
+                            v.status === 'ACTIVE'
+                              ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 hover:bg-amber-100 dark:hover:bg-amber-900/30'
+                              : 'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 hover:bg-emerald-100 dark:hover:bg-emerald-900/30'
+                          }`}
+                          title={v.status === 'ACTIVE' ? 'Nhấn để ẩn biến thể' : 'Nhấn để kích hoạt biến thể'}
+                        >
+                          {v.status === 'ACTIVE' ? (
+                            <><Eye className="h-3 w-3" /> <span className="hidden sm:inline">{t('active')}</span></>
+                          ) : (
+                            <><EyeOff className="h-3 w-3" /> <span className="hidden sm:inline">{t('disabled')}</span></>
+                          )}
+                        </span>
                         <Badge
                           variant="neutral"
                           className="font-mono text-[10px]"

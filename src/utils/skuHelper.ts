@@ -33,8 +33,29 @@ export const getCategoryCode = (categoryName?: string): string => {
   return cleanStr.replace(/\s+/g, "").substring(0, 6).toUpperCase();
 };
 
-export const generateAutoSku = (categoryName?: string): string => {
+export const generateAutoSku = (categoryName?: string, size?: string, color?: string): string => {
   const code = getCategoryCode(categoryName);
+  
+  const sizeCode = size
+    ? size.replace(/\s+/g, '').toUpperCase().substring(0, 4)
+    : '';
+  const colorCode = color
+    ? color
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .replace(/đ/g, 'd')
+        .replace(/Đ/g, 'D')
+        .replace(/[^a-zA-Z0-9]/g, '')
+        .toUpperCase()
+        .substring(0, 6)
+    : '';
+  
+  if (sizeCode || colorCode) {
+    const parts = [code, colorCode, sizeCode].filter(Boolean);
+    const randomSuffix = Math.floor(10 + Math.random() * 90);
+    return `SKU-${parts.join('-')}-${randomSuffix}`;
+  }
+  
   const randomDigits = Math.floor(100000 + Math.random() * 900000);
   return `SKU-${code}-${randomDigits}`;
 };
