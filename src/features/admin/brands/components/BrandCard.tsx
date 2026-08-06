@@ -67,7 +67,7 @@ export const BrandCard: React.FC<BrandCardProps> = React.memo(({
           <div className="mb-3">
             <TrashCountdownBar
               deletedAt={brand.deletedAt}
-              fallbackDate={(brand as any).updatedAt}
+              fallbackDate={brand.updatedAt}
               variant="card"
             />
           </div>

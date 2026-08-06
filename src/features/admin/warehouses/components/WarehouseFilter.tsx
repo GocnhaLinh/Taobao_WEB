@@ -1,10 +1,17 @@
 import React from 'react';
-import { Search, Layers, Archive, List, LayoutGrid } from 'lucide-react';
+import { Search, Layers, Archive, List, LayoutGrid, ArrowUpDown } from 'lucide-react';
 import { Input } from '../../../../components/ui/Input';
+import { CustomSelect } from '../../../../components/ui/CustomSelect';
 import { useTranslation } from '../../../../lib/i18n';
-import type { BrandFilterProps } from '../types';
+import type { WarehouseFilterProps, SortField } from '../types';
 
-export const BrandFilter: React.FC<BrandFilterProps> = ({
+const sortOptions = [
+  { value: 'name', label: 'Tên kho' },
+  { value: 'code', label: 'Mã kho' },
+  { value: 'province', label: 'Tỉnh / Thành' },
+];
+
+export const WarehouseFilter: React.FC<WarehouseFilterProps> = ({
   activeTab,
   onTabChange,
   activeCount,
@@ -13,12 +20,16 @@ export const BrandFilter: React.FC<BrandFilterProps> = ({
   onSearchChange,
   viewMode,
   onViewModeChange,
+  sortField,
+  onSortFieldChange,
+  sortAsc,
+  onSortAscToggle,
 }) => {
   const { t } = useTranslation();
 
   return (
     <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pb-4 border-b border-slate-200 dark:border-white/10">
-      {/* Pill Switcher */}
+      {/* Tab Switcher Pills */}
       <div className="flex items-center p-1 bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl w-full sm:w-auto">
         <button
           type="button"
@@ -28,10 +39,10 @@ export const BrandFilter: React.FC<BrandFilterProps> = ({
               ? 'bg-white dark:bg-indigo-600 text-indigo-600 dark:text-white shadow-md'
               : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
           }`}
-          title={t('brandActiveTab')}
+          title={t('warehouseActiveTab')}
         >
           <Layers className="h-4 w-4" />
-          <span className="hidden lg:inline">{t('brandActiveTab')}</span>
+          <span className="hidden lg:inline">{t('warehouseActiveTab')}</span>
           <span className="px-2 py-0.5 rounded-full text-[10px] bg-slate-200 dark:bg-white/20 text-slate-700 dark:text-white font-mono">
             {activeCount}
           </span>
@@ -45,10 +56,10 @@ export const BrandFilter: React.FC<BrandFilterProps> = ({
               ? 'bg-rose-500 text-white shadow-md'
               : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
           }`}
-          title={t('brandTrashTab')}
+          title={t('warehouseTrashTab')}
         >
           <Archive className="h-4 w-4" />
-          <span className="hidden lg:inline">{t('brandTrashTab')}</span>
+          <span className="hidden lg:inline">{t('warehouseTrashTab')}</span>
           {trashCount > 0 && (
             <span className="px-2 py-0.5 rounded-full text-[10px] bg-white text-rose-600 font-extrabold animate-pulse">
               {trashCount}
@@ -57,20 +68,39 @@ export const BrandFilter: React.FC<BrandFilterProps> = ({
         </button>
       </div>
 
-      {/* Search Box & View Mode Toggle */}
-      <div className="flex items-center gap-3 w-full sm:w-auto">
-        {/* Search Box */}
-        <div className="relative w-full sm:w-64">
+      {/* Right side: Search, Sort & View Mode */}
+      <div className="flex flex-wrap items-center gap-3 w-full sm:w-auto">
+        {/* Search Input */}
+        <div className="relative flex-1 sm:w-64">
           <Search className="absolute left-3.5 top-3 h-4 w-4 text-slate-400" />
           <Input
-            placeholder={t('searchBrandPlaceholder')}
+            placeholder={t('searchWarehousePlaceholder')}
             value={searchQuery}
             onChange={(e) => onSearchChange(e.target.value)}
             className="pl-10 text-xs bg-slate-50 dark:bg-slate-800/80"
           />
         </div>
 
-        {/* View Mode Switcher (Row vs Card) */}
+        {/* Sort Selector */}
+        <div className="flex items-center gap-1.5 p-1 bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl shrink-0">
+          <CustomSelect
+            value={sortField}
+            onChange={(val) => onSortFieldChange(val as SortField)}
+            options={sortOptions}
+            size="sm"
+            className="w-36"
+          />
+          <button
+            type="button"
+            onClick={onSortAscToggle}
+            className="p-2 rounded-xl text-slate-500 hover:text-indigo-600 hover:bg-white dark:hover:bg-indigo-600/30 transition-all cursor-pointer shrink-0"
+            title={sortAsc ? 'Tăng dần (A-Z)' : 'Giảm dần (Z-A)'}
+          >
+            <ArrowUpDown className={`h-3.5 w-3.5 transition-transform ${sortAsc ? '' : 'rotate-180'}`} />
+          </button>
+        </div>
+
+        {/* View Mode Switcher */}
         <div className="flex items-center p-1 bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl shrink-0">
           <button
             type="button"

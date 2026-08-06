@@ -65,7 +65,7 @@ export const BrandRow: React.FC<BrandRowProps> = React.memo(({
         {isTrashView && (
           <TrashCountdownBar
             deletedAt={brand.deletedAt}
-            fallbackDate={(brand as any).updatedAt}
+            fallbackDate={brand.updatedAt}
             variant="compact"
           />
         )}
