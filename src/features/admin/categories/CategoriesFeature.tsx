@@ -14,7 +14,7 @@ import {
 } from "lucide-react";
 import { useTranslation } from "../../../lib/i18n";
 import { useNotification } from "../../../lib/notification";
-import { useDebounce } from "../../../lib/useDebounce";
+import { useDebounce } from "../../../hooks/useDebounce";
 import {
   fetchCategories,
   fetchDeletedCategories,
