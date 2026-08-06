@@ -86,6 +86,7 @@ export interface Product {
   brand?: Brand;
   status: string;
   deletedAt?: string;
+  updatedAt?: string;
   images?: { id?: string; imageUrl: string }[];
   variants?: ProductVariant[];
   soldCount?: number;
