@@ -5,6 +5,7 @@ export interface Brand {
   description?: string;
   status: string;
   deletedAt?: string;
+  updatedAt?: string;
 }
 
 export type ConfirmType = 'SOFT_DELETE' | 'RESTORE' | 'HARD_DELETE';

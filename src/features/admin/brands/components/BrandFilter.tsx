@@ -77,26 +77,26 @@ export const BrandFilter: React.FC<BrandFilterProps> = ({
             onClick={() => onViewModeChange('row')}
             className={`p-2 rounded-xl transition-all duration-200 flex items-center justify-center gap-1.5 cursor-pointer text-xs font-semibold ${
               viewMode === 'row'
-                ? 'bg-white dark:bg-indigo-600 text-indigo-600 dark:text-white shadow-sm'
+                ? 'bg-white dark:bg-indigo-600 text-indigo-600 dark:text-white shadow-xs'
                 : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
             }`}
-            title="Hàng ngang"
+            title={t('rowView')}
           >
             <List className="h-4 w-4" />
-            <span className="hidden md:inline">Hàng ngang</span>
+            <span className="hidden md:inline">{t('rowView')}</span>
           </button>
           <button
             type="button"
             onClick={() => onViewModeChange('card')}
             className={`p-2 rounded-xl transition-all duration-200 flex items-center justify-center gap-1.5 cursor-pointer text-xs font-semibold ${
               viewMode === 'card'
-                ? 'bg-white dark:bg-indigo-600 text-indigo-600 dark:text-white shadow-sm'
+                ? 'bg-white dark:bg-indigo-600 text-indigo-600 dark:text-white shadow-xs'
                 : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
             }`}
-            title="Dạng thẻ (Card)"
+            title={t('cardView')}
           >
             <LayoutGrid className="h-4 w-4" />
-            <span className="hidden md:inline">Thẻ</span>
+            <span className="hidden md:inline">{t('cardView')}</span>
           </button>
         </div>
       </div>

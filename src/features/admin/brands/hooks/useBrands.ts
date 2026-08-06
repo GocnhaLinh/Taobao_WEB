@@ -90,7 +90,7 @@ export function useBrands() {
       showNotification(t("brandCreated"), "success");
       setIsFormModalOpen(false);
     },
-    onError: (error: any) => {
+    onError: (error: Error) => {
       showNotification(error.message || "Failed to add brand", "error");
     },
   });
@@ -103,7 +103,7 @@ export function useBrands() {
       setIsFormModalOpen(false);
       setEditingBrand(null);
     },
-    onError: (error: any) => {
+    onError: (error: Error) => {
       showNotification(error.message || "Failed to update brand", "error");
     },
   });
@@ -115,7 +115,7 @@ export function useBrands() {
       showNotification(t("brandDeleted"), "info");
       setConfirmModalState((prev) => ({ ...prev, isOpen: false }));
     },
-    onError: (error: any) => {
+    onError: (error: Error) => {
       showNotification(error.message || "Failed to delete brand", "error");
     },
   });
@@ -127,7 +127,7 @@ export function useBrands() {
       showNotification(t("brandRestored"), "success");
       setConfirmModalState((prev) => ({ ...prev, isOpen: false }));
     },
-    onError: (error: any) => {
+    onError: (error: Error) => {
       showNotification(error.message || "Failed to restore brand", "error");
     },
   });
@@ -139,7 +139,7 @@ export function useBrands() {
       showNotification(t("brandForceDeleted"), "success");
       setConfirmModalState((prev) => ({ ...prev, isOpen: false }));
     },
-    onError: (error: any) => {
+    onError: (error: Error) => {
       showNotification(
         error.message || "Failed to permanently delete brand",
         "error",

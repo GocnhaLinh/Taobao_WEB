@@ -63,8 +63,9 @@ export function useBrandForm({ isOpen, initialData, onSubmit }: UseBrandFormOpti
         setImgError(false);
         showNotification(t('logoUploadSuccess') || 'Tải logo thương hiệu thành công!', 'success');
       }
-    } catch (error: any) {
-      showNotification(error.message || 'Logo upload failed, please try again.', 'error');
+    } catch (error: unknown) {
+      const err = error as Error;
+      showNotification(err.message || 'Logo upload failed, please try again.', 'error');
     } finally {
       setIsUploading(false);
       if (fileInputRef.current) {

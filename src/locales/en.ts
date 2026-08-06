@@ -218,6 +218,7 @@ export const en = {
   brandNamePlaceholder: "E.g. Louis Vuitton, Nike, Gucci...",
   brandLogo: "Brand Logo",
   uploadBrandImage: "Upload file",
+  uploadBrandImageHint: "Click 'Upload file' to select a logo image from your device, or paste a URL directly.",
   brandLogoReady: "Logo ready",
   brandLogoInvalid: "Invalid image",
   brandDescription: "Brand Description",

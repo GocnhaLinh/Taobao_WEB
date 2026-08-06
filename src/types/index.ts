@@ -24,6 +24,7 @@ export interface Brand {
   description?: string;
   status: string;
   deletedAt?: string;
+  updatedAt?: string;
 }
 
 export interface Warehouse {
@@ -38,6 +39,7 @@ export interface Warehouse {
   isDefault: boolean;
   status: string;
   deletedAt?: string;
+  updatedAt?: string;
 }
 
 export interface Address {

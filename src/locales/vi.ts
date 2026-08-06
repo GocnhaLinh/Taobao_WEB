@@ -219,6 +219,7 @@ export const vi = {
   brandNamePlaceholder: "Ví dụ: Louis Vuitton, Nike, Gucci...",
   brandLogo: "Logo thương hiệu",
   uploadBrandImage: "Tải tệp từ máy",
+  uploadBrandImageHint: "Bấm 'Tải tệp từ máy' để chọn logo từ thiết bị, hoặc dán URL trực tiếp.",
   brandLogoReady: "Logo đã sẵn sàng",
   brandLogoInvalid: "Ảnh không hợp lệ",
   brandDescription: "Mô tả thương hiệu",

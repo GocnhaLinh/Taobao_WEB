@@ -4,9 +4,9 @@ export * from "../types";
 export * from "./userService";
 export * from "../features/admin/categories/api/category.api";
 export * from "../features/admin/brands/api/brand.api";
+export * from "../features/admin/warehouses/api/warehouse.api";
 export * from "./productService";
 export * from "./chatService";
-export * from "./warehouseService";
 export * from "./settingsService";
 export * from "./categoryLabelService";
 

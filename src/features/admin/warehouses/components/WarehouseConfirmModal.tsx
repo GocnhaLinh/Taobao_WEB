@@ -1,20 +1,9 @@
 import React from 'react';
-import type { Warehouse } from '../../../../types';
 import { useTranslation } from '../../../../lib/i18n';
 import { Modal } from '../../../../components/ui/Modal';
 import { Button } from '../../../../components/ui/Button';
 import { AlertTriangle, RotateCcw, Trash2, Building2, MapPin, ShieldCheck } from 'lucide-react';
-
-export type ConfirmType = 'SOFT_DELETE' | 'RESTORE' | 'HARD_DELETE';
-
-interface WarehouseConfirmModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  onConfirm: () => void;
-  warehouse?: Warehouse | null;
-  type: ConfirmType;
-  isLoading?: boolean;
-}
+import type { WarehouseConfirmModalProps } from '../types';
 
 export const WarehouseConfirmModal: React.FC<WarehouseConfirmModalProps> = ({
   isOpen,

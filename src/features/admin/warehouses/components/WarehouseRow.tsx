@@ -1,20 +1,11 @@
 import React from 'react';
 import { Edit2, Trash2, RotateCcw, Building2, MapPin, ShieldCheck } from 'lucide-react';
 import { useTranslation } from '../../../../lib/i18n';
-import type { Warehouse } from '../../../../types';
 import { getGradientByProvince } from '../../../../utils/gradientHelper';
 import { HighlightText } from './highlight';
 import { TrashCountdownBar } from '../../../../components/ui/TrashCountdownBar';
 
-interface WarehouseRowProps {
-  warehouse: Warehouse;
-  isTrashView?: boolean;
-  searchQuery?: string;
-  onEdit?: (warehouse: Warehouse) => void;
-  onSoftDelete?: (warehouse: Warehouse) => void;
-  onRestore?: (warehouse: Warehouse) => void;
-  onHardDelete?: (warehouse: Warehouse) => void;
-}
+import type { WarehouseRowProps } from '../types';
 
 export const WarehouseRow: React.FC<WarehouseRowProps> = React.memo(({
   warehouse,
@@ -73,7 +64,7 @@ export const WarehouseRow: React.FC<WarehouseRowProps> = React.memo(({
         {isTrashView && (
           <TrashCountdownBar
             deletedAt={warehouse.deletedAt}
-            fallbackDate={(warehouse as any).updatedAt}
+            fallbackDate={warehouse.updatedAt}
             variant="compact"
           />
         )}

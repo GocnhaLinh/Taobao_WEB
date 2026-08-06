@@ -9,6 +9,7 @@ import {
   deleteImageApi,
 } from "../../../../services/uploadService";
 import { useNotification } from "../../../../lib/notification";
+import { useAutoDeleteUnsavedImage } from "../../../../hooks/useAutoDeleteUnsavedImage";
 import type { BrandFormModalProps } from "../types";
 
 export const BrandFormModal: React.FC<BrandFormModalProps> = ({
@@ -21,6 +22,13 @@ export const BrandFormModal: React.FC<BrandFormModalProps> = ({
   const { t } = useTranslation();
   const { showNotification } = useNotification();
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const {
+    trackUploadedUrl,
+    untrackUrl,
+    commitUploadedImages,
+    cleanupUnsavedImages,
+  } = useAutoDeleteUnsavedImage();
 
   const [name, setName] = useState("");
   const [logo, setLogo] = useState("");
@@ -38,8 +46,14 @@ export const BrandFormModal: React.FC<BrandFormModalProps> = ({
     setIsDeletingLogo(false);
   };
 
+  const handleClose = () => {
+    cleanupUnsavedImages();
+    onClose();
+  };
+
   useEffect(() => {
     if (isOpen) {
+      commitUploadedImages();
       if (initialData) {
         setName(initialData.name || "");
         setLogo(initialData.logo || "");
@@ -49,6 +63,7 @@ export const BrandFormModal: React.FC<BrandFormModalProps> = ({
         resetForm();
       }
     } else {
+      cleanupUnsavedImages();
       resetForm();
     }
   }, [initialData, isOpen]);
@@ -70,12 +85,14 @@ export const BrandFormModal: React.FC<BrandFormModalProps> = ({
       const res = await uploadSingleImageApi(file);
       if (res && res.url) {
         setLogo(res.url);
+        trackUploadedUrl(res.url);
         setImgError(false);
         showNotification(t('logoUploadSuccess') || "Tải logo thương hiệu thành công!", "success");
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const err = error as Error;
       showNotification(
-        error.message || "Logo upload failed, please try again.",
+        err.message || "Logo upload failed, please try again.",
         "error",
       );
     } finally {
@@ -90,6 +107,7 @@ export const BrandFormModal: React.FC<BrandFormModalProps> = ({
     if (!logo) return;
 
     const logoToDelete = logo;
+    untrackUrl(logoToDelete);
     setLogo("");
     setImgError(false);
 
@@ -102,7 +120,7 @@ export const BrandFormModal: React.FC<BrandFormModalProps> = ({
         setIsDeletingLogo(true);
         await deleteImageApi(logoToDelete);
         showNotification("Logo removed successfully!", "success");
-      } catch (err: any) {
+      } catch (err: unknown) {
         console.warn("Failed to delete image from server:", err);
       } finally {
         setIsDeletingLogo(false);
@@ -115,10 +133,11 @@ export const BrandFormModal: React.FC<BrandFormModalProps> = ({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!name.trim()) return;
+    commitUploadedImages();
     onSubmit({
       name: name.trim(),
-      logo: logo.trim() || undefined,
-      description: description.trim() || undefined,
+      logo: logo.trim(),
+      description: description.trim(),
     });
     resetForm();
   };
@@ -130,13 +149,13 @@ export const BrandFormModal: React.FC<BrandFormModalProps> = ({
   return (
     <Modal
       isOpen={isOpen}
-      onClose={onClose}
+      onClose={handleClose}
       title={modalTitle}
       footer={
         <>
           <Button
             variant="secondary"
-            onClick={onClose}
+            onClick={handleClose}
             disabled={isUploading || isDeletingLogo}
           >
             {t('cancel')}
@@ -197,7 +216,7 @@ export const BrandFormModal: React.FC<BrandFormModalProps> = ({
 
               <div className="flex-1 min-w-0">
                 <Input
-                  placeholder="Or paste logo URL (https://...)"
+                  placeholder={t('orPasteImageUrl')}
                   value={logo}
                   onChange={(e) => {
                     setLogo(e.target.value);
@@ -239,14 +258,14 @@ export const BrandFormModal: React.FC<BrandFormModalProps> = ({
                   onClick={handleRemoveLogo}
                   disabled={isDeletingLogo}
                   className="p-1.5 text-slate-400 hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/40 rounded-xl transition-all cursor-pointer disabled:opacity-50"
-                  title={t('deleteImage') || "Remove logo from server"}
+                  title={t('deleteImage')}
                 >
                   <X className="h-4 w-4" />
                 </button>
               </div>
             ) : (
               <p className="text-[11px] text-slate-400">
-                Click <strong>"Upload file"</strong> to select a logo image from your device, or paste a URL directly.
+                {t('uploadBrandImageHint')}
               </p>
             )}
           </div>
@@ -260,7 +279,7 @@ export const BrandFormModal: React.FC<BrandFormModalProps> = ({
           <textarea
             value={description}
             onChange={(e) => setDescription(e.target.value)}
-            placeholder="Enter a short description about the brand's origin and products..."
+            placeholder={t('descriptionPlaceholder')}
             rows={3}
             className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-white/10 rounded-xl text-xs text-slate-900 dark:text-white placeholder-slate-400 focus:outline-hidden focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition-all resize-none"
           />
