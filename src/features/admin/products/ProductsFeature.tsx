@@ -5,8 +5,8 @@ import { useTranslation } from "../../../lib/i18n";
 import { Button } from "../../../components/ui/Button";
 import { Input } from "../../../components/ui/Input";
 import { useNotification } from "../../../lib/notification";
-import { useConfirm } from "../../../lib/useConfirm";
-import { useDebounce } from "../../../lib/useDebounce";
+import { useConfirm } from "../../../hooks/useConfirm";
+import { useDebounce } from "../../../hooks/useDebounce";
 import { ProductCard } from "./components/ProductCard";
 
 const ProductFormModal = React.lazy(() =>

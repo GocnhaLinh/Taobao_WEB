@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Send, UserCheck, XCircle, Clock, Volume2, VolumeX, MessageSquare, ArrowLeft } from 'lucide-react';
 import { useTranslation } from '../../../lib/i18n';
-import { useDebounce } from '../../../lib/useDebounce';
+import { useDebounce } from '../../../hooks/useDebounce';
 import { Button } from '../../../components/ui/Button';
 import { Input } from '../../../components/ui/Input';
 import { Badge } from '../../../components/ui/Badge';

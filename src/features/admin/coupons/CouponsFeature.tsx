@@ -2,8 +2,8 @@ import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from '../../../lib/i18n';
 import { useNotification } from '../../../lib/notification';
-import { useConfirm } from '../../../lib/useConfirm';
-import { useDebounce } from '../../../lib/useDebounce';
+import { useConfirm } from '../../../hooks/useConfirm';
+import { useDebounce } from '../../../hooks/useDebounce';
 import { Button } from '../../../components/ui/Button';
 import { CouponCard, type CouponItem } from './components/CouponCard';
 

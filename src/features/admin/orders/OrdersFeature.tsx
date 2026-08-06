@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from '../../../lib/i18n';
-import { useDebounce } from '../../../lib/useDebounce';
+import { useDebounce } from '../../../hooks/useDebounce';
 import { getOrdersApi, type Order } from '../../../services/orderService';
 import {
   RefreshCw,
