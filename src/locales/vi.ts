@@ -443,6 +443,8 @@ export const vi = {
   anonymousUser: "Khách hàng",
   noComment: "Không có bình luận",
   taobaoProduct: "Sản phẩm Taobao",
+  searchReviewPlaceholder: "Tìm kiếm đánh giá...",
+  allRatings: "Tất cả sao",
 
   // Chat Page
   chatManagement: "Hệ thống Chat CSKH",
