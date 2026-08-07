@@ -26,7 +26,7 @@ export const BrandCard: React.FC<BrandCardProps> = React.memo(({
 
   return (
     <div
-      className={`p-5 rounded-2xl border transition-all duration-300 shadow-sm flex flex-col justify-between group ${
+      className={`p-3.5 sm:p-5 rounded-2xl border transition-all duration-300 shadow-sm flex flex-col justify-between group ${
         isTrashView
           ? 'bg-rose-500/5 border-rose-500/20 hover:border-rose-500/40'
           : 'bg-slate-50 dark:bg-white/5 border-slate-200 dark:border-white/10 hover:border-indigo-500/40 hover:-translate-y-1'

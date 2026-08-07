@@ -57,14 +57,14 @@ export const ProductCard: React.FC<ProductCardProps> = React.memo(({
   );
 
   return (
-    <div className="p-5 bg-white dark:bg-slate-900/50 backdrop-blur-md border border-slate-200 dark:border-white/10 rounded-3xl shadow-xs hover:border-indigo-500/30 transition-all space-y-4">
+    <div className="p-3.5 sm:p-5 bg-white dark:bg-slate-900/50 backdrop-blur-md border border-slate-200 dark:border-white/10 rounded-2xl sm:rounded-3xl shadow-xs hover:border-indigo-500/30 transition-all space-y-3.5 sm:space-y-4">
       {/* Top Header info */}
-      <div className="flex flex-col sm:flex-row gap-4 justify-between items-start">
-        <div className="flex gap-3 min-w-0">
+      <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-between items-start">
+        <div className="flex gap-2.5 sm:gap-3 min-w-0">
           {/* Thumbnail */}
           <div
             onClick={() => onViewDetail?.(product)}
-            className="h-16 w-16 rounded-2xl overflow-hidden bg-slate-100 dark:bg-white/5 shrink-0 border border-slate-200 dark:border-white/10 cursor-pointer group/thumb relative"
+            className="h-14 w-14 sm:h-16 sm:w-16 rounded-xl sm:rounded-2xl overflow-hidden bg-slate-100 dark:bg-white/5 shrink-0 border border-slate-200 dark:border-white/10 cursor-pointer group/thumb relative"
             title={t('clickToViewDetail')}
           >
             {product.thumbnail ? (
@@ -75,13 +75,13 @@ export const ProductCard: React.FC<ProductCardProps> = React.memo(({
               />
             ) : (
               <div className="h-full w-full flex items-center justify-center text-slate-400">
-                <Package className="h-8 w-8" />
+                <Package className="h-6 w-6 sm:h-8 sm:w-8" />
               </div>
             )}
           </div>
 
           <div className="min-w-0">
-            <div className="flex items-center gap-2 flex-wrap mb-1">
+            <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap mb-0.5 sm:mb-1">
               {product.category && (
                 <Badge variant="info">{product.category.name}</Badge>
               )}
@@ -103,12 +103,12 @@ export const ProductCard: React.FC<ProductCardProps> = React.memo(({
             </div>
             <h3
               onClick={() => onViewDetail?.(product)}
-              className="font-bold text-slate-900 dark:text-white text-base mt-1 line-clamp-1 cursor-pointer hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"
+              className="font-bold text-slate-900 dark:text-white text-sm sm:text-base mt-0.5 line-clamp-1 cursor-pointer hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"
               title={t('clickToViewDetail')}
             >
               {product.productName}
             </h3>
-            <p className="text-xs text-slate-500 dark:text-slate-400 font-mono">
+            <p className="text-[11px] sm:text-xs text-slate-500 dark:text-slate-400 font-mono truncate">
               /{product.slug}
             </p>
           </div>
@@ -116,10 +116,10 @@ export const ProductCard: React.FC<ProductCardProps> = React.memo(({
 
         {/* Header Actions */}
         {isDeletedTab ? (
-          <div className="flex items-center gap-2 self-end sm:self-start flex-wrap">
+          <div className="flex items-center gap-2 self-start flex-wrap">
             <TrashCountdownBar
               deletedAt={product.deletedAt}
-              fallbackDate={(product as any).updatedAt}
+              fallbackDate={product.updatedAt}
               variant="compact"
             />
             <button
@@ -140,27 +140,32 @@ export const ProductCard: React.FC<ProductCardProps> = React.memo(({
             </button>
           </div>
         ) : (
-          <div className="flex items-center gap-1.5 self-end sm:self-start">
+          <div className="flex items-center gap-1 sm:gap-1.5 self-start flex-wrap w-full sm:w-auto justify-end">
             <Button
               variant={variants.length === 0 ? "primary" : "outline"}
               size="sm"
               onClick={() => onBulkAddVariant ? onBulkAddVariant(product.id) : onAddVariant(product.id)}
               title="Tạo hàng loạt biến thể"
+              className="text-xs px-2.5 sm:px-3"
             >
-              <Plus className="h-3.5 w-3.5 mr-1" />
-              Tạo hàng loạt
+              <Plus className="h-3.5 w-3.5 sm:mr-1" />
+              <span className="hidden sm:inline">Tạo hàng loạt</span>
             </Button>
             <Button
-              variant="ghost"
+              variant="outline"
               size="sm"
               onClick={() => onEditProduct(product)}
+              title={t('edit')}
+              className="px-2.5 sm:px-3"
             >
               <Edit2 className="h-3.5 w-3.5 text-indigo-500" />
             </Button>
             <Button
-              variant="ghost"
+              variant="outline"
               size="sm"
               onClick={() => onDeleteProduct(product)}
+              title={t('softDelete')}
+              className="px-2.5 sm:px-3"
             >
               <Trash2 className="h-3.5 w-3.5 text-rose-500" />
             </Button>
@@ -212,12 +217,18 @@ export const ProductCard: React.FC<ProductCardProps> = React.memo(({
                 return (
                   <div
                     key={v.id}
-                    className="p-3.5 bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl flex flex-col md:flex-row md:items-center justify-between gap-3 hover:border-indigo-500/30 transition-all"
+                    className="p-2.5 sm:p-3.5 bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-xl sm:rounded-2xl flex flex-col md:flex-row md:items-center justify-between gap-2.5 sm:gap-3 hover:border-indigo-500/30 transition-all"
                   >
-                    {/* Left: SKU, Attributes */}
-                    <div className="space-y-1">
-                      <div className="flex items-center gap-2">
-                        {/* Status badge */}
+                    {/* Left: SKU & Attributes */}
+                    <div className="space-y-1.5 min-w-0 flex-1">
+                      {/* Row 1: SKU Badge on Left, Status Eye Icon on Far Right */}
+                      <div className="flex items-center justify-between gap-2 w-full">
+                        <Badge
+                          variant="neutral"
+                          className="font-mono text-[10px] tracking-wide"
+                        >
+                          {v.sku}
+                        </Badge>
                         <span
                           onClick={() => onToggleVariant?.(v)}
                           className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[10px] font-bold cursor-pointer transition-all ${
@@ -233,26 +244,25 @@ export const ProductCard: React.FC<ProductCardProps> = React.memo(({
                             <><EyeOff className="h-3 w-3" /> <span className="hidden sm:inline">{t('disabled')}</span></>
                           )}
                         </span>
-                        <Badge
-                          variant="neutral"
-                          className="font-mono text-[10px]"
-                        >
-                          {v.sku}
-                        </Badge>
+                      </div>
+
+                      {/* Row 2: Size, Color, Stock (Centered & Justified Space-Between) */}
+                      <div className="flex items-center justify-between gap-2 text-xs font-semibold text-slate-700 dark:text-slate-300 w-full pt-0.5">
                         {v.size && (
-                          <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">
-                            {t('size')}: {v.size}
+                          <span>
+                            {t('size')}: <strong className="text-slate-900 dark:text-white">{v.size}</strong>
                           </span>
                         )}
                         {v.color && (
-                          <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">
-                            {t('color')}: {v.color}
+                          <span>
+                            {t('color')}: <strong className="text-slate-900 dark:text-white">{v.color}</strong>
                           </span>
                         )}
-                        <span className="text-xs text-slate-500 dark:text-slate-400 ml-2">
-                          {t('stock')}: <strong>{v.stock}</strong>
+                        <span className="text-slate-500 dark:text-slate-400">
+                          {t('stock')}: <strong className="text-slate-900 dark:text-white">{v.stock}</strong>
                         </span>
                       </div>
+                    </div>
 
                       {/* Cost & Profit Info */}
                       <div className="flex items-center gap-3 text-xs text-slate-600 dark:text-slate-300 flex-wrap pt-1">
@@ -274,7 +284,6 @@ export const ProductCard: React.FC<ProductCardProps> = React.memo(({
                           </span>
                         )}
                       </div>
-                    </div>
 
                     {/* Right: Selling Price, Profit Margin & Actions */}
                     <div className="flex items-center justify-between md:justify-end gap-3 shrink-0 pt-2 md:pt-0 border-t md:border-t-0 border-slate-200 dark:border-white/5">
@@ -310,7 +319,7 @@ export const ProductCard: React.FC<ProductCardProps> = React.memo(({
                         )}
                       </div>
 
-                      {/* Variant Buttons */}
+                      {/* Variant Action Buttons */}
                       <div className="flex items-center gap-1 shrink-0">
                         <Button
                           variant="ghost"

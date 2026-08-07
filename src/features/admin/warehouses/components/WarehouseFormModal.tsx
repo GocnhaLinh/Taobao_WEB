@@ -345,23 +345,36 @@ export const WarehouseFormModal: React.FC<WarehouseFormModalProps> = ({
           )}
         </div>
 
-        {/* Default Checkbox */}
-        <div className="flex items-center gap-2 pt-1 p-3 rounded-xl bg-amber-500/5 border border-amber-500/15">
-          <input
-            type="checkbox"
-            id="isDefault"
-            checked={isDefault}
-            onChange={(e) => setIsDefault(e.target.checked)}
-            className="h-4 w-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 cursor-pointer"
-          />
-          <label
-            htmlFor="isDefault"
-            className="text-xs font-bold text-slate-800 dark:text-slate-200 cursor-pointer flex items-center gap-1.5"
-          >
-            <Star className="h-3.5 w-3.5 text-amber-500" />
+        {/* Default Star Toggle Button */}
+        <button
+          type="button"
+          onClick={() => setIsDefault((prev) => !prev)}
+          className={`w-full p-3 rounded-2xl border transition-all duration-300 flex items-center gap-3 cursor-pointer select-none ${
+            isDefault
+              ? 'bg-amber-500/10 border-amber-500/40 text-amber-600 dark:text-amber-400 shadow-md shadow-amber-500/10'
+              : 'bg-slate-50 dark:bg-white/5 border-slate-200 dark:border-white/10 text-slate-600 dark:text-slate-400 hover:border-amber-500/30'
+          }`}
+        >
+          <div className={`p-2 rounded-xl transition-all duration-300 ${
+            isDefault ? 'bg-amber-500/20 scale-110' : 'bg-slate-200/50 dark:bg-white/10'
+          }`}>
+            <Star
+              className={`h-5 w-5 transition-all duration-300 ${
+                isDefault
+                  ? 'fill-amber-400 text-amber-400 drop-shadow-sm scale-110'
+                  : 'text-slate-400 dark:text-slate-500 fill-transparent'
+              }`}
+            />
+          </div>
+          <span className="text-xs font-bold text-left leading-tight">
             {t("warehouseSetDefault")}
-          </label>
-        </div>
+          </span>
+          {isDefault && (
+            <span className="ml-auto px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-amber-500/20 text-amber-600 dark:text-amber-300 border border-amber-500/30 shrink-0">
+              ✓ {t("warehouseDefaultBadge") || 'MẶC ĐỊNH'}
+            </span>
+          )}
+        </button>
       </form>
     </Modal>
   );

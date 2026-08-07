@@ -49,7 +49,7 @@ export const Modal: React.FC<ModalProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-2.5 sm:p-4">
       {/* Backdrop */}
       <div
         className="fixed inset-0 bg-slate-950/70 backdrop-blur-md transition-opacity"
@@ -57,9 +57,9 @@ export const Modal: React.FC<ModalProps> = ({
       />
 
       {/* Modal Dialog */}
-      <div className={`relative w-full ${maxWidthMap[maxWidth] || 'max-w-2xl'} bg-white dark:bg-slate-900 border border-slate-200 dark:border-white/10 rounded-3xl shadow-2xl overflow-hidden z-10 animate-in fade-in zoom-in-95 duration-200`}>
+      <div className={`relative w-full ${maxWidthMap[maxWidth] || 'max-w-2xl'} bg-white dark:bg-slate-900 border border-slate-200 dark:border-white/10 rounded-2xl sm:rounded-3xl shadow-2xl overflow-hidden z-10 animate-in fade-in zoom-in-95 duration-200`}>
         {/* Header */}
-        <div className="flex items-center justify-between px-4 sm:px-6 py-3.5 sm:py-4 border-b border-slate-200 dark:border-white/10">
+        <div className="flex items-center justify-between px-3.5 sm:px-6 py-3 sm:py-4 border-b border-slate-200 dark:border-white/10">
           <h3 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white pr-2 leading-snug">{title}</h3>
           <button
             onClick={onClose}
@@ -70,13 +70,13 @@ export const Modal: React.FC<ModalProps> = ({
         </div>
 
         {/* Content */}
-        <div className="p-4 sm:p-6 text-slate-700 dark:text-slate-300 text-sm max-h-[75vh] overflow-y-auto no-scrollbar">
+        <div className="p-3.5 sm:p-6 text-slate-700 dark:text-slate-300 text-sm max-h-[78vh] sm:max-h-[75vh] overflow-y-auto no-scrollbar">
           {children}
         </div>
 
         {/* Footer */}
         {footer && (
-          <div className="flex items-center justify-end gap-3 px-4 sm:px-6 py-3 sm:py-4 bg-slate-50 dark:bg-white/5 border-t border-slate-200 dark:border-white/10">
+          <div className="flex flex-wrap items-center justify-end gap-2 sm:gap-3 px-3.5 sm:px-6 py-3 sm:py-4 bg-slate-50 dark:bg-white/5 border-t border-slate-200 dark:border-white/10">
             {footer}
           </div>
         )}

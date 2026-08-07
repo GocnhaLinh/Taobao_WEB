@@ -688,18 +688,18 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
       {isLightboxOpen && allImages.length > 0 && (
         <div className="fixed inset-0 z-[9999] bg-black/95 backdrop-blur-2xl flex flex-col justify-between select-none animate-in fade-in zoom-in-95 duration-200">
           {/* Top Bar Header */}
-          <div className="flex items-center justify-between px-6 py-4 bg-gradient-to-b from-black/80 to-transparent z-30">
-            <div className="flex items-center gap-3">
-              <span className="px-3 py-1 bg-white/10 text-white rounded-full text-xs font-mono font-bold tracking-wide border border-white/10">
+          <div className="flex items-center justify-between gap-2 px-3.5 sm:px-6 py-3 bg-gradient-to-b from-black/90 to-transparent z-30 w-full">
+            <div className="flex items-center gap-2 min-w-0 flex-1">
+              <span className="px-2.5 py-1 bg-white/10 text-white rounded-full text-xs font-mono font-bold tracking-wide border border-white/10 shrink-0">
                 {lightboxIndex + 1} / {allImages.length}
               </span>
               {allImages[lightboxIndex]?.url === product.thumbnail && (
-                <div className="px-2.5 py-0.5 bg-indigo-600 text-white rounded-full text-xs font-bold flex items-center gap-1">
+                <div className="px-2 py-0.5 bg-indigo-600 text-white rounded-full text-[11px] font-bold flex items-center gap-1 shrink-0">
                   <Star className="h-3 w-3 fill-amber-300 text-amber-300" />
-                  {t('mainImage') || 'Chính'}
+                  <span className="hidden sm:inline">{t('mainImage') || 'Chính'}</span>
                 </div>
               )}
-              <span className="text-xs font-medium text-slate-300 truncate max-w-xs sm:max-w-md">
+              <span className="text-xs font-medium text-slate-300 truncate min-w-0 flex-1">
                 {allImages[lightboxIndex]?.label}
               </span>
             </div>
@@ -707,10 +707,10 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
             <button
               type="button"
               onClick={() => setIsLightboxOpen(false)}
-              className="p-2.5 text-slate-300 hover:text-white bg-white/10 hover:bg-white/20 rounded-full transition-all cursor-pointer border border-white/10 shadow-lg"
+              className="p-2 sm:p-2.5 text-slate-300 hover:text-white bg-white/10 hover:bg-white/20 rounded-full transition-all cursor-pointer border border-white/10 shadow-lg shrink-0"
               title="Đóng (Esc)"
             >
-              <X className="h-5 w-5" />
+              <X className="h-4 w-4 sm:h-5 sm:w-5" />
             </button>
           </div>
 

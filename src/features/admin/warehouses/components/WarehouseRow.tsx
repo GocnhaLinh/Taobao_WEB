@@ -59,7 +59,7 @@ export const WarehouseRow: React.FC<WarehouseRowProps> = React.memo(({
       </div>
 
       {/* Actions & Status Right Side */}
-      <div className="flex items-center justify-between sm:justify-end gap-3 shrink-0 pt-2 sm:pt-0 border-t sm:border-t-0 border-slate-200 dark:border-white/10 w-full sm:w-auto">
+      <div className="flex items-center justify-end gap-3 shrink-0 pt-2 sm:pt-0 border-t sm:border-t-0 border-slate-200 dark:border-white/10 w-full sm:w-auto">
         {/* Countdown badge if trash */}
         {isTrashView && (
           <TrashCountdownBar
@@ -70,7 +70,7 @@ export const WarehouseRow: React.FC<WarehouseRowProps> = React.memo(({
         )}
 
         {/* Action Buttons */}
-        <div className="flex items-center justify-between w-full sm:w-auto sm:gap-1">
+        <div className="flex items-center gap-1 shrink-0 ml-auto sm:ml-0">
           {!isTrashView ? (
             <>
               <button
