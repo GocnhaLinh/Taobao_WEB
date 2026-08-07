@@ -20,7 +20,7 @@ export interface LoadingStateProps {
 
 export function resolveLoadingVariant(
   explicitVariant?: "dark" | "pink",
-  currentTheme?: string,
+  currentTheme?: string
 ): "dark" | "pink" {
   if (explicitVariant) return explicitVariant;
 
@@ -44,7 +44,7 @@ export function resolveLoadingVariant(
 }
 
 /* ========================================================================
-   1. BOLD FUTURISTIC DARK LOADER (Mạnh mẽ, Tech Cyberpunk)
+   1. BOLD FUTURISTIC DARK LOADER (Mạnh mẽ, Tech Cyberpunk - Seamless Icon)
    ======================================================================== */
 export const DarkLoader: React.FC<Omit<LoadingStateProps, "variant">> = ({
   text,
@@ -71,10 +71,10 @@ export const DarkLoader: React.FC<Omit<LoadingStateProps, "variant">> = ({
   };
 
   const iconSizes = {
-    sm: "w-4 h-4 text-cyan-400",
-    md: "w-6 h-6 text-cyan-400",
-    lg: "w-9 h-9 text-cyan-400",
-    full: "w-11 h-11 text-cyan-400",
+    sm: "w-5 h-5",
+    md: "w-7 h-7",
+    lg: "w-9 h-9",
+    full: "w-11 h-11",
   };
 
   if (iconOnly) {
@@ -103,14 +103,14 @@ export const DarkLoader: React.FC<Omit<LoadingStateProps, "variant">> = ({
         </div>
       )}
 
-      {/* Cybernetic Multi-Ring Reactor Core */}
+      {/* Clean Smooth Rotating Gradient Ring Core */}
       <div
         className={`relative flex items-center justify-center shrink-0 ${spinnerSizes[size]}`}
       >
-        {/* Neon Halo Glow */}
+        {/* Ambient Halo Glow */}
         <div className="absolute inset-0 rounded-full bg-gradient-to-tr from-indigo-500 via-purple-500 to-cyan-400 blur-xl opacity-60 animate-pulse" />
 
-        {/* Outer Fast Segmented Tech Dashed Ring */}
+        {/* Smooth Spinning Gradient Arc */}
         <svg
           className="w-full h-full animate-[spin_2s_linear_infinite]"
           viewBox="0 0 60 60"
@@ -122,7 +122,7 @@ export const DarkLoader: React.FC<Omit<LoadingStateProps, "variant">> = ({
               <stop offset="100%" stopColor="#00f2fe" />
             </linearGradient>
           </defs>
-          {/* Base track */}
+          {/* Subtle track */}
           <circle
             cx="30"
             cy="30"
@@ -132,7 +132,7 @@ export const DarkLoader: React.FC<Omit<LoadingStateProps, "variant">> = ({
             strokeWidth="2.5"
             className="text-slate-800 dark:text-white/10"
           />
-          {/* Active tech dashes */}
+          {/* Smooth gradient spinner arc */}
           <circle
             cx="30"
             cy="30"
@@ -141,18 +141,15 @@ export const DarkLoader: React.FC<Omit<LoadingStateProps, "variant">> = ({
             stroke={`url(#${gradientId})`}
             strokeWidth="3.5"
             strokeLinecap="round"
-            strokeDasharray="40 10 20 10"
+            strokeDasharray="90 110"
           />
         </svg>
 
-        {/* Inner Counter-Rotating Precision Ring */}
-        <div className="absolute inset-2 rounded-full border-2 border-dashed border-cyan-400/40 animate-[spin_4s_linear_infinite_reverse]" />
-
-        {/* Center Glowing Tech Core with Sparkles Icon */}
-        <div className="absolute inset-3 rounded-2xl bg-slate-950/90 border border-cyan-500/40 shadow-inner flex items-center justify-center overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-tr from-indigo-500/20 to-cyan-500/20 animate-pulse" />
+        {/* Center Seamless Floating Icon (Pure Icon Glow - No Frame/Box/Border) */}
+        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+          <div className="absolute w-8 h-8 rounded-full bg-cyan-400/20 blur-md animate-pulse" />
           <Sparkles
-            className={`relative z-10 animate-pulse ${iconSizes[size]}`}
+            className={`relative z-10 text-cyan-400 animate-pulse drop-shadow-[0_0_12px_rgba(6,182,212,0.9)] ${iconSizes[size]}`}
           />
         </div>
       </div>
@@ -178,7 +175,7 @@ export const DarkLoader: React.FC<Omit<LoadingStateProps, "variant">> = ({
 };
 
 /* ========================================================================
-   2. SUPER CUTE FEMININE PINK LOADER (Siêu Dễ Thương cho Con Gái 🌸💖)
+   2. SUPER CUTE FEMININE PINK LOADER (Siêu Dễ Thương cho Con Gái 🌸💖 - Seamless Icon)
    ======================================================================== */
 export const PinkLoader: React.FC<Omit<LoadingStateProps, "variant">> = ({
   text,
@@ -235,7 +232,7 @@ export const PinkLoader: React.FC<Omit<LoadingStateProps, "variant">> = ({
         </div>
       )}
 
-      {/* Cute Floating Ring & Heart Emblem Core */}
+      {/* Clean Smooth Floating Ring Core */}
       <div
         className={`relative flex items-center justify-center shrink-0 ${spinnerSizes[size]}`}
       >
@@ -277,20 +274,17 @@ export const PinkLoader: React.FC<Omit<LoadingStateProps, "variant">> = ({
           />
         </svg>
 
-        {/* Inner Dotted Sakura Orbit Ring (Reverse) */}
-        <div className="absolute inset-1.5 rounded-full border-2 border-dotted border-pink-300/80 dark:border-pink-400/40 animate-[spin_6s_linear_infinite_reverse]" />
-
         {/* Orbiting Cute Stars ✨ */}
         <div className="absolute inset-0 animate-[spin_4s_linear_infinite]">
           <Sparkles className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1 w-3.5 h-3.5 text-pink-400 drop-shadow animate-pulse" />
           <span className="absolute bottom-0 right-1/4 w-2 h-2 rounded-full bg-rose-400 shadow-sm shadow-rose-300 animate-ping" />
         </div>
 
-        {/* Center Cute Bouncing Heart Badge */}
-        <div className="absolute inset-3 rounded-2xl bg-gradient-to-tr from-pink-500 via-rose-400 to-fuchsia-500 shadow-lg shadow-pink-500/30 border border-white/50 flex items-center justify-center overflow-hidden">
-          <div className="absolute inset-0 bg-white/20 animate-pulse" />
+        {/* Center Seamless Floating Heart (Pure Heart Glow - No Frame/Box/Border) */}
+        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+          <div className="absolute w-8 h-8 rounded-full bg-pink-500/25 blur-md animate-pulse" />
           <Heart
-            className={`relative z-10 text-white fill-white animate-bounce drop-shadow ${iconSizes[size]}`}
+            className={`relative z-10 text-rose-500 fill-rose-400 animate-bounce drop-shadow-[0_0_10px_rgba(244,63,94,0.6)] ${iconSizes[size]}`}
           />
         </div>
       </div>
