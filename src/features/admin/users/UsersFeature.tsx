@@ -1,203 +1,224 @@
 import React, { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "../../../lib/i18n";
+import { useManualRefresh } from "../../../hooks/useManualRefresh";
 import { Button } from "../../../components/ui/Button";
-import { fetchUsers } from "../../../services/userService";
-import { UserCard, type UserItem } from "./components/UserCard";
-import { CustomSelect } from "../../../components/ui/CustomSelect";
-import {
-  Users,
-  Search,
-  RefreshCw,
-  UserCheck,
-  ShieldAlert,
-  UserPlus,
-} from "lucide-react";
+import { Pagination } from "../../../components/ui/Pagination";
+import { ConfirmModal } from "../../../components/ui/ConfirmModal";
+import { LoadingState } from "../../../components/common/LoadingState";
+import { Users, RefreshCw, UserPlus } from "lucide-react";
+import { useUsers } from "./hooks/useUsers";
+import { UserStatCards } from "./components/UserStatCards";
+import { UserFilter } from "./components/UserFilter";
+import { UserRowCard } from "./components/UserRowCard";
+import { UserFormModal } from "./components/UserFormModal";
+import { UserDetailModal } from "./components/UserDetailModal";
+import { deleteUserApi, restoreUserApi } from "./api/user.api";
+import type { UserItem } from "./types";
 
 export const UsersFeature: React.FC = () => {
   const { t } = useTranslation();
-  const [searchTerm, setSearchTerm] = useState("");
-  const [roleFilter, setRoleFilter] = useState("ALL");
 
   const {
-    data: apiUsers,
+    activeTab,
+    setActiveTab,
+    activeCount,
+    trashCount,
+    searchTerm,
+    setSearchTerm,
+    roleFilter,
+    setRoleFilter,
+    statusFilter,
+    setStatusFilter,
+    currentPage,
+    setCurrentPage,
+    pageSize,
+    setPageSize,
+    totalPages,
+    totalUsersCount,
+    paginatedUsers,
+    metrics,
     isLoading,
     refetch,
-  } = useQuery({
-    queryKey: ["users"],
-    queryFn: fetchUsers,
-    retry: 1,
-  });
+    selectedUser,
+    editingUser,
+    isFormModalOpen,
+    setIsFormModalOpen,
+    isDetailModalOpen,
+    setIsDetailModalOpen,
+    handleOpenCreate,
+    handleOpenEdit,
+    handleOpenDetail,
+  } = useUsers();
 
-  const displayList: UserItem[] = (apiUsers || []) as UserItem[];
+  const { isRefreshing, handleRefresh: handleManualRefresh } = useManualRefresh(refetch);
 
-  const filteredUsers = displayList.filter((usr) => {
-    const name = usr.fullName || usr.name || "";
-    const email = usr.email || "";
-    const phone = usr.phone || "";
+  const [deletingUser, setDeletingUser] = useState<UserItem | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
-    const matchesSearch =
-      name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      phone.includes(searchTerm);
+  const handleDeleteConfirm = async () => {
+    if (!deletingUser) return;
+    try {
+      setIsDeleting(true);
+      await deleteUserApi(deletingUser.id);
+      refetch();
+    } catch (err: unknown) {
+      const error = err as Error;
+      console.error("Lỗi khi xóa người dùng:", error.message || err);
+    } finally {
+      setIsDeleting(false);
+      setDeletingUser(null);
+    }
+  };
 
-    const matchesRole = roleFilter === "ALL" || usr.role === roleFilter;
-
-    return matchesSearch && matchesRole;
-  });
-
-  const totalUsers = displayList.length;
-  const adminCount = displayList.filter((u) => u.role === "ADMIN").length;
-  const customerCount = displayList.filter(
-    (u) => u.role === "USER" || u.role === "CUSTOMER",
-  ).length;
+  const handleRestore = async (user: UserItem) => {
+    try {
+      await restoreUserApi(user.id);
+      refetch();
+    } catch (err: unknown) {
+      console.error('Lỗi khi khôi phục người dùng:', err);
+    }
+  };
 
   return (
-    <div className="space-y-6 animate-in fade-in slide-in-from-top-2 duration-500">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h2 className="text-2xl font-black tracking-tight text-slate-900 dark:text-white flex items-center gap-2.5">
-            <Users className="h-7 w-7 text-indigo-500" />
-            {t("userManagement")}
+    <div className="space-y-4 sm:space-y-6 animate-in fade-in slide-in-from-top-2 duration-500 min-w-0 max-w-full">
+      {/* Page Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
+        <div className="min-w-0 flex-1">
+          <h2 className="text-xl sm:text-2xl font-black tracking-tight text-slate-900 dark:text-white flex items-center gap-2.5">
+            <Users className="h-6 w-6 sm:h-7 sm:w-7 text-indigo-500 shrink-0" />
+            <span className="truncate">
+              {t("userManagement") || "Quản Lý Tài Khoản Người Dùng"}
+            </span>
           </h2>
-          <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
-            {t("userDesc")}
+          <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1 line-clamp-2 sm:line-clamp-none">
+            {t("userDesc") ||
+              "Quản lý tài khoản khách hàng, quản trị viên, phân quyền và trạng thái hệ thống."}
           </p>
         </div>
 
-        <div className="flex items-center gap-3">
-          <button
-            onClick={() => refetch()}
-            className="inline-flex items-center gap-2 px-4 py-2 bg-white dark:bg-slate-900/80 border border-slate-200 dark:border-white/10 text-slate-700 dark:text-slate-200 rounded-xl hover:bg-slate-100 dark:hover:bg-white/10 transition cursor-pointer text-sm font-semibold shadow-sm"
+        <div className="flex items-center gap-2 sm:gap-3 shrink-0 self-start sm:self-auto">
+          <Button
+            variant="secondary"
+            size="sm"
+            onClick={handleManualRefresh}
+            disabled={isLoading || isRefreshing}
+            className="font-semibold text-xs sm:text-sm"
           >
             <RefreshCw
-              className={`h-4 w-4 text-indigo-500 ${isLoading ? "animate-spin" : ""}`}
+              className={`h-4 w-4 text-indigo-500 mr-1.5 ${isLoading || isRefreshing ? "animate-spin" : ""}`}
             />
-            {t('refresh')}
-          </button>
+            {t("refresh") || "Làm mới"}
+          </Button>
 
           <Button
             variant="primary"
-            className="gap-2 shadow-lg shadow-indigo-500/25"
+            size="sm"
+            onClick={handleOpenCreate}
+            className="gap-1.5 shadow-lg shadow-indigo-500/25 font-bold text-xs sm:text-sm"
           >
             <UserPlus className="h-4 w-4" />
-            {t('addNewAccount')}
+            {t("addNewAccount") || "Tạo tài khoản mới"}
           </Button>
         </div>
       </div>
 
       {/* Metric Stat Summary Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div className="p-5 bg-white dark:bg-slate-900/60 backdrop-blur-xl border border-slate-200 dark:border-white/10 rounded-2xl shadow-sm flex items-center gap-4 transition-all duration-300 hover:scale-[1.02] hover:shadow-md">
-          <div className="p-3 bg-indigo-500/10 text-indigo-500 rounded-xl border border-indigo-500/20">
-            <Users className="h-6 w-6" />
-          </div>
-          <div>
-            <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
-              {t('totalUsers')}
-            </p>
-            <h4 className="text-2xl font-black text-slate-900 dark:text-white mt-0.5">
-              {totalUsers}
-            </h4>
-          </div>
-        </div>
+      <UserStatCards metrics={metrics} />
 
-        <div className="p-5 bg-white dark:bg-slate-900/60 backdrop-blur-xl border border-slate-200 dark:border-white/10 rounded-2xl shadow-sm flex items-center gap-4 transition-all duration-300 hover:scale-[1.02] hover:shadow-md">
-          <div className="p-3 bg-emerald-500/10 text-emerald-500 rounded-xl border border-emerald-500/20">
-            <UserCheck className="h-6 w-6" />
-          </div>
-          <div>
-            <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
-              {t('customers')}
-            </p>
-            <h4 className="text-2xl font-black text-slate-900 dark:text-white mt-0.5">
-              {customerCount}
-            </h4>
-          </div>
-        </div>
+      {/* Main Content Card Container */}
+      <div className="p-4 sm:p-6 bg-white dark:bg-slate-900/50 backdrop-blur-xl rounded-2xl border border-slate-200 dark:border-white/10 shadow-sm space-y-4 sm:space-y-6 min-w-0">
+        {/* Header Filter Row with Pill Tab Switcher [Tài khoản] / [Thùng rác] */}
+        <UserFilter
+          activeTab={activeTab}
+          onTabChange={setActiveTab}
+          activeCount={activeCount}
+          trashCount={trashCount}
+          searchTerm={searchTerm}
+          onSearchChange={setSearchTerm}
+          roleFilter={roleFilter}
+          onRoleChange={setRoleFilter}
+          statusFilter={statusFilter}
+          onStatusChange={setStatusFilter}
+          totalCount={totalUsersCount}
+        />
 
-        <div className="p-5 bg-white dark:bg-slate-900/60 backdrop-blur-xl border border-slate-200 dark:border-white/10 rounded-2xl shadow-sm flex items-center gap-4 transition-all duration-300 hover:scale-[1.02] hover:shadow-md">
-          <div className="p-3 bg-rose-500/10 text-rose-500 rounded-xl border border-rose-500/20">
-            <ShieldAlert className="h-6 w-6" />
-          </div>
-          <div>
-            <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
-              {t('admins')}
-            </p>
-            <h4 className="text-2xl font-black text-slate-900 dark:text-white mt-0.5">
-              {adminCount}
-            </h4>
-          </div>
-        </div>
-      </div>
-
-      {/* Main Content Card */}
-      <div className="p-6 bg-white dark:bg-slate-900/50 backdrop-blur-xl rounded-2xl border border-slate-200 dark:border-white/10 shadow-sm space-y-6">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-slate-200 dark:border-white/10">
-          <h3 className="text-slate-900 dark:text-white font-bold text-lg flex items-center gap-2">
-            {t('userListTitle')}
-            <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-indigo-500/10 text-indigo-500 border border-indigo-500/20">
-              {t('userListCount', { count: filteredUsers.length })}
-            </span>
-          </h3>
-
-          <div className="flex flex-wrap items-center gap-3 w-full md:w-auto">
-            {/* Search Input */}
-            <div className="relative flex-1 md:w-64">
-              <Search className="absolute left-3.5 top-2.5 h-4 w-4 text-slate-400" />
-              <input
-                type="text"
-                placeholder={t('searchUserPlaceholder')}
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-9 pr-4 py-1.5 text-xs font-medium rounded-xl bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 text-slate-900 dark:text-white focus:outline-none focus:border-indigo-500 transition-all"
-              />
-            </div>
-
-            {/* Role Filter */}
-            <CustomSelect
-              size="sm"
-              className="w-36"
-              value={roleFilter}
-              onChange={setRoleFilter}
-              options={[
-                { value: "ALL", label: t('allRoles') },
-                { value: "USER", label: t('userRole') },
-                { value: "ADMIN", label: t('adminRoleLabel') },
-              ]}
-            />
-          </div>
-        </div>
-
-        {isLoading ? (
-          <div className="py-16 text-center text-slate-500 dark:text-slate-400 text-sm space-y-2">
-            <RefreshCw className="h-7 w-7 animate-spin mx-auto text-indigo-500" />
-            <p className="font-semibold">
-              {t('loadingUsers')}
-            </p>
-          </div>
-        ) : filteredUsers.length === 0 ? (
+        {/* User Card Grid / States */}
+        {isLoading || isRefreshing ? (
+          <LoadingState text={t("loadingUsers") || "Đang tải danh sách tài khoản..."} />
+        ) : paginatedUsers.length === 0 ? (
           <div className="py-16 text-center space-y-3 text-slate-400 animate-in fade-in duration-300">
             <Users className="h-12 w-12 mx-auto stroke-1 text-slate-500" />
             <h4 className="text-slate-700 dark:text-slate-300 font-bold text-base">
-              {t('noUsersFound')}
+              {t("noUsersFound") || "Không tìm thấy tài khoản nào"}
             </h4>
             <p className="text-xs max-w-sm mx-auto">
-              {t('noUsersHint')}
+              {t("noUsersHint") ||
+                "Thử thay đổi từ khóa tìm kiếm hoặc cài đặt bộ lọc."}
             </p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredUsers.map((usr, index) => (
-              <div key={usr.id} className="animate-in fade-in slide-in-from-bottom-2 duration-300" style={{ animationDelay: `${index * 60}ms` }}>
-              <UserCard user={usr} />
-            </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3.5 sm:gap-4">
+            {paginatedUsers.map((usr, index) => (
+              <div
+                key={usr.id}
+                className="animate-in fade-in slide-in-from-bottom-2 duration-300"
+                style={{ animationDelay: `${index * 40}ms` }}
+              >
+                <UserRowCard
+                  user={usr}
+                  onSelect={handleOpenDetail}
+                  onEdit={handleOpenEdit}
+                  onDelete={(u) => setDeletingUser(u)}
+                  onRestore={handleRestore}
+                />
+              </div>
             ))}
           </div>
         )}
+
+        {/* Universal Pagination */}
+        {totalUsersCount > 0 && (
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            pageSize={pageSize}
+            totalItems={totalUsersCount}
+            onPageChange={setCurrentPage}
+            onPageSizeChange={setPageSize}
+            itemLabel={t("userAccountLabel") || "tài khoản"}
+          />
+        )}
       </div>
+
+      {/* Modals */}
+      <UserFormModal
+        isOpen={isFormModalOpen}
+        onClose={() => setIsFormModalOpen(false)}
+        editingUser={editingUser}
+        onSuccess={refetch}
+      />
+
+      <UserDetailModal
+        isOpen={isDetailModalOpen}
+        onClose={() => setIsDetailModalOpen(false)}
+        user={selectedUser}
+      />
+
+      <ConfirmModal
+        isOpen={!!deletingUser}
+        onClose={() => setDeletingUser(null)}
+        onConfirm={handleDeleteConfirm}
+        title={t("deleteUserTitle") || "Xóa tài khoản người dùng"}
+        description={
+          t("deleteUserDesc", {
+            name: deletingUser?.fullName || deletingUser?.email || "",
+          }) ||
+          `Bạn có chắc chắn muốn xóa tài khoản ${deletingUser?.fullName || deletingUser?.email}?`
+        }
+        confirmText={t("delete") || "Xóa"}
+        cancelText={t("cancel") || "Hủy"}
+        isLoading={isDeleting}
+      />
     </div>
   );
 };
-

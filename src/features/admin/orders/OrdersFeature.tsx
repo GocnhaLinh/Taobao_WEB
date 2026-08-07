@@ -1,5 +1,6 @@
 import React, { useCallback } from 'react';
 import { useTranslation } from '../../../lib/i18n';
+import { useManualRefresh } from '../../../hooks/useManualRefresh';
 import { RefreshCw, ShoppingBag } from 'lucide-react';
 import { useOrders } from './hooks/useOrders';
 import { OrderStatCards } from './components/OrderStatCards';
@@ -8,6 +9,7 @@ import { OrderRowCard } from './components/OrderRowCard';
 import { OrderDetailModal } from './components/OrderDetailModal';
 import { Pagination } from '../../../components/ui/Pagination';
 import { Button } from '../../../components/ui/Button';
+import { LoadingState } from '../../../components/common/LoadingState';
 import type { Order } from './types';
 
 export const OrdersFeature: React.FC = () => {
@@ -34,6 +36,8 @@ export const OrdersFeature: React.FC = () => {
     refetch,
   } = useOrders();
 
+  const { isRefreshing, handleRefresh: handleManualRefresh } = useManualRefresh(refetch);
+
   const handleSelectOrder = useCallback(
     (order: Order) => {
       setSelectedOrder(order);
@@ -46,9 +50,9 @@ export const OrdersFeature: React.FC = () => {
   }, [setSelectedOrder]);
 
   const handleRefreshModal = useCallback(() => {
-    refetch();
+    handleManualRefresh();
     setSelectedOrder(null);
-  }, [refetch, setSelectedOrder]);
+  }, [handleManualRefresh, setSelectedOrder]);
 
   return (
     <div className="space-y-4 sm:space-y-6 animate-in fade-in slide-in-from-top-2 duration-500 min-w-0 max-w-full">
@@ -66,10 +70,11 @@ export const OrdersFeature: React.FC = () => {
         <Button
           variant="secondary"
           size="sm"
-          onClick={() => refetch()}
+          onClick={handleManualRefresh}
+          disabled={isLoading || isRefreshing}
           className="self-start sm:self-auto shrink-0 font-semibold"
         >
-          <RefreshCw className={`h-4 w-4 text-indigo-500 mr-1.5 ${isLoading ? 'animate-spin' : ''}`} />
+          <RefreshCw className={`h-4 w-4 text-indigo-500 mr-1.5 ${isLoading || isRefreshing ? 'animate-spin' : ''}`} />
           {t('refresh')}
         </Button>
       </div>
@@ -97,11 +102,8 @@ export const OrdersFeature: React.FC = () => {
         </div>
 
         {/* Orders List */}
-        {isLoading ? (
-          <div className="py-16 text-center text-slate-500 dark:text-slate-400 text-sm space-y-2">
-            <RefreshCw className="h-7 w-7 animate-spin mx-auto text-indigo-500" />
-            <p className="font-semibold">{t('loadingOrders')}</p>
-          </div>
+        {isLoading || isRefreshing ? (
+          <LoadingState text={t('loadingOrders')} />
         ) : displayOrders.length === 0 ? (
           <div className="py-16 text-center space-y-3 text-slate-400 animate-in fade-in duration-300">
             <ShoppingBag className="h-12 w-12 mx-auto stroke-1 text-slate-500" />

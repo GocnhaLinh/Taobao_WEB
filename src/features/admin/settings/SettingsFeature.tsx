@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Sliders, Save, RefreshCw } from 'lucide-react';
 import { useTranslation } from '../../../lib/i18n';
+import { useManualRefresh } from '../../../hooks/useManualRefresh';
 import { useNotification } from '../../../lib/notification';
 import { Button } from '../../../components/ui/Button';
 import { ThemeSettingCard } from './components/ThemeSettingCard';
@@ -31,6 +32,8 @@ export const SettingsFeature: React.FC = () => {
     staleTime: 0,
     refetchOnMount: 'always',
   });
+
+  const { isRefreshing, handleRefresh: handleManualRefresh } = useManualRefresh(refetch);
 
   useEffect(() => {
     if (feeConfig) {
@@ -116,11 +119,11 @@ export const SettingsFeature: React.FC = () => {
           <Button
             variant="outline"
             size="sm"
-            onClick={() => refetch()}
-            disabled={isLoading}
+            onClick={handleManualRefresh}
+            disabled={isLoading || isRefreshing}
             className="flex-1 sm:flex-initial items-center justify-center gap-1.5"
           >
-            <RefreshCw className={`h-4 w-4 shrink-0 ${isLoading ? 'animate-spin' : ''}`} />
+            <RefreshCw className={`h-4 w-4 shrink-0 ${isLoading || isRefreshing ? 'animate-spin' : ''}`} />
             {t('refresh')}
           </Button>
           <Button

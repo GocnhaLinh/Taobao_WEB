@@ -1,8 +1,10 @@
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from '../../../lib/i18n';
+import { useManualRefresh } from '../../../hooks/useManualRefresh';
 import { fetchReviewsApi } from '../../../services/reviewService';
 import { ReviewCard, type ReviewItem } from './components/ReviewCard';
+import { LoadingState } from '../../../components/common/LoadingState';
 import { Star, MessageSquare, RefreshCw } from 'lucide-react';
 
 export const ReviewsFeature: React.FC = () => {
@@ -13,6 +15,8 @@ export const ReviewsFeature: React.FC = () => {
     queryFn: () => fetchReviewsApi(),
     retry: 1,
   });
+
+  const { isRefreshing, handleRefresh: handleManualRefresh } = useManualRefresh(refetch);
 
   const rawReviews = data?.reviews || [];
 
@@ -36,10 +40,11 @@ export const ReviewsFeature: React.FC = () => {
         </div>
 
         <button
-          onClick={() => refetch()}
-          className="inline-flex items-center gap-2 px-4 py-2 bg-white dark:bg-slate-900/80 border border-slate-200 dark:border-white/10 text-slate-700 dark:text-slate-200 rounded-xl hover:bg-slate-100 dark:hover:bg-white/10 transition cursor-pointer text-sm font-semibold shadow-sm self-start sm:self-auto"
+          onClick={handleManualRefresh}
+          disabled={isLoading || isRefreshing}
+          className="inline-flex items-center gap-2 px-4 py-2 bg-white dark:bg-slate-900/80 border border-slate-200 dark:border-white/10 text-slate-700 dark:text-slate-200 rounded-xl hover:bg-slate-100 dark:hover:bg-white/10 transition cursor-pointer text-sm font-semibold shadow-sm self-start sm:self-auto disabled:opacity-50"
         >
-          <RefreshCw className={`h-4 w-4 text-indigo-500 ${isLoading ? 'animate-spin' : ''}`} />
+          <RefreshCw className={`h-4 w-4 text-indigo-500 ${isLoading || isRefreshing ? 'animate-spin' : ''}`} />
           {t('refresh')}
         </button>
       </div>
@@ -52,11 +57,8 @@ export const ReviewsFeature: React.FC = () => {
           </span>
         </h3>
 
-        {isLoading ? (
-          <div className="py-16 text-center text-slate-500 dark:text-slate-400 text-sm space-y-2">
-            <RefreshCw className="h-7 w-7 animate-spin mx-auto text-indigo-500" />
-            <p className="font-semibold">{t('loadingReviews')}</p>
-          </div>
+        {isLoading || isRefreshing ? (
+          <LoadingState text={t('loadingReviews')} />
         ) : reviews.length === 0 ? (
           <div className="py-16 text-center space-y-3 text-slate-400 animate-in fade-in duration-300">
             <Star className="h-12 w-12 mx-auto stroke-1 text-amber-400" />

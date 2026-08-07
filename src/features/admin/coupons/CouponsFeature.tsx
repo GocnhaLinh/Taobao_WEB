@@ -5,6 +5,7 @@ import { useNotification } from '../../../lib/notification';
 import { useConfirm } from '../../../hooks/useConfirm';
 import { useDebounce } from '../../../hooks/useDebounce';
 import { Button } from '../../../components/ui/Button';
+import { LoadingState } from '../../../components/common/LoadingState';
 import { CouponCard, type CouponItem } from './components/CouponCard';
 
 const CreateCouponModal = React.lazy(() =>
@@ -308,10 +309,7 @@ export const CouponsFeature: React.FC = () => {
 
         {/* Coupons Cards Grid */}
         {isLoading ? (
-          <div className="py-16 text-center text-slate-500 dark:text-slate-400 text-sm space-y-2">
-            <RefreshCw className="h-7 w-7 animate-spin mx-auto text-indigo-500" />
-            <p className="font-semibold">{t('loadingCoupons')}</p>
-          </div>
+          <LoadingState text={t('loadingCoupons')} />
         ) : filteredCoupons.length === 0 ? (
           <div className="py-16 text-center space-y-3 animate-in fade-in duration-300">
             <Ticket className="h-12 w-12 text-slate-400 dark:text-slate-600 mx-auto stroke-1" />

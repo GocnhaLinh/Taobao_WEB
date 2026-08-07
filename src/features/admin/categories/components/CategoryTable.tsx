@@ -1,6 +1,7 @@
 import React from "react";
 import { Archive, ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "../../../../components/ui/Button";
+import { LoadingState } from "../../../../components/common/LoadingState";
 import { useTranslation } from "../../../../lib/i18n";
 import type { CategoryTableProps } from "../types";
 import { CategoryItem } from "./CategoryItem";
@@ -23,11 +24,7 @@ export const CategoryTable: React.FC<CategoryTableProps> = ({
   const isTrashView = activeTab === "TRASH";
 
   if (isLoading) {
-    return (
-      <div className="py-16 text-center text-slate-500 dark:text-slate-400 animate-pulse">
-        {t("loadingCategories")}
-      </div>
-    );
+    return <LoadingState text={t("loadingCategories")} />;
   }
 
   if (categories.length === 0) {
