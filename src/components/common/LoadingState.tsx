@@ -18,6 +18,25 @@ export interface LoadingStateProps {
   className?: string;
 }
 
+export function resolveLoadingVariant(explicitVariant?: 'dark' | 'pink', currentTheme?: string): 'dark' | 'pink' {
+  if (explicitVariant) return explicitVariant;
+  
+  if (currentTheme === 'light') return 'pink';
+  if (currentTheme === 'dark') return 'dark';
+
+  if (typeof document !== 'undefined') {
+    if (document.documentElement.classList.contains('light') || document.documentElement.classList.contains('pink')) {
+      return 'pink';
+    }
+  }
+  if (typeof localStorage !== 'undefined') {
+    const saved = localStorage.getItem('app_theme');
+    if (saved === 'light') return 'pink';
+  }
+
+  return 'dark';
+}
+
 /* ========================================================================
    1. BOLD FUTURISTIC DARK LOADER (Mạnh mẽ, Tech Cyberpunk)
    ======================================================================== */
@@ -104,10 +123,10 @@ export const DarkLoader: React.FC<Omit<LoadingStateProps, 'variant'>> = ({
         {/* Inner Counter-Rotating Precision Ring */}
         <div className="absolute inset-2 rounded-full border-2 border-dashed border-cyan-400/40 animate-[spin_4s_linear_infinite_reverse]" />
 
-        {/* Center Glowing Tech Core with Zap Icon */}
+        {/* Center Glowing Tech Core with Sparkles Icon */}
         <div className="absolute inset-3 rounded-2xl bg-slate-950/90 border border-cyan-500/40 shadow-inner flex items-center justify-center overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-tr from-indigo-500/20 to-cyan-500/20 animate-pulse" />
-          <Zap className={`relative z-10 animate-pulse ${iconSizes[size]}`} />
+          <Sparkles className={`relative z-10 animate-pulse ${iconSizes[size]}`} />
         </div>
       </div>
 
@@ -262,17 +281,15 @@ export const LoadingState: React.FC<LoadingStateProps> = ({
   variant,
   ...props
 }) => {
-  let activeTheme = 'dark';
+  let activeTheme: string | undefined = undefined;
   try {
     const { theme } = useTheme();
     activeTheme = theme;
   } catch (e) {
     // Fallback if rendered outside ThemeProvider
-    activeTheme = 'dark';
   }
 
-  // Determine active variant: explicit prop > theme auto-detect ('light' mode -> 'pink', 'dark' mode -> 'dark')
-  const activeVariant = variant || (activeTheme === 'light' ? 'pink' : 'dark');
+  const activeVariant = resolveLoadingVariant(variant, activeTheme);
 
   if (activeVariant === 'pink') {
     return <PinkLoader {...props} />;
