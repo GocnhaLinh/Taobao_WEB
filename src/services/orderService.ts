@@ -10,6 +10,15 @@ export interface OrderItem {
   price: number;
 }
 
+export interface OrderStatusHistory {
+  id: string;
+  orderId: string;
+  status: string;
+  note?: string | null;
+  createdBy: string;
+  createdAt: string;
+}
+
 export interface Order {
   id: string;
   userId: string;
@@ -19,10 +28,15 @@ export interface Order {
   discountAmount: number;
   couponCode?: string | null;
   paymentStatus: string;
+  depositAmount?: number;
+  depositPercentage?: number;
   orderStatus: string;
+  taobaoOrderId?: string | null;
+  trackingCode?: string | null;
   createdAt: string;
   updatedAt?: string;
   items: OrderItem[];
+  statusHistory?: OrderStatusHistory[];
   user?: {
     id: string;
     fullName: string;
@@ -59,8 +73,14 @@ export const getUserOrdersApi = async (userId: string): Promise<Order[]> => {
   return axiosClient.get<any, Order[]>(`/orders/user/${userId}`);
 };
 
-export const updateOrderStatusApi = async (id: string, status: string, note?: string): Promise<Order> => {
-  return axiosClient.put<any, Order>(`/orders/${id}/status`, { status, note });
+export const updateOrderStatusApi = async (
+  id: string,
+  status: string,
+  note?: string,
+  taobaoOrderId?: string,
+  trackingCode?: string
+): Promise<Order> => {
+  return axiosClient.put<any, Order>(`/orders/${id}/status`, { status, note, taobaoOrderId, trackingCode });
 };
 
 export const cancelOrderApi = async (id: string, reason: string): Promise<any> => {
