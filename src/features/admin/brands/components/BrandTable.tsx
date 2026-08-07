@@ -1,6 +1,7 @@
 import React from "react";
 import { Archive, ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "../../../../components/ui/Button";
+import { LoadingState } from "../../../../components/common/LoadingState";
 import { useTranslation } from "../../../../lib/i18n";
 import type { BrandTableProps } from "../types";
 import { BrandItem } from "./BrandItem";
@@ -22,11 +23,7 @@ export const BrandTable: React.FC<BrandTableProps> = ({
   const isTrashView = activeTab === "TRASH";
 
   if (isLoading) {
-    return (
-      <div className="py-16 text-center text-slate-500 dark:text-slate-400 animate-pulse">
-        {t("loadingBrands")}
-      </div>
-    );
+    return <LoadingState text={t("loadingBrands")} />;
   }
 
   if (brands.length === 0) {

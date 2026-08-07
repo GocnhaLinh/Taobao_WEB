@@ -3,6 +3,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Package, Plus, Search, RefreshCw, Clock, Archive } from "lucide-react";
 import { useTranslation } from "../../../lib/i18n";
 import { Button } from "../../../components/ui/Button";
+import { LoadingState } from "../../../components/common/LoadingState";
 import { Input } from "../../../components/ui/Input";
 import { useNotification } from "../../../lib/notification";
 import { useConfirm } from "../../../hooks/useConfirm";
@@ -467,9 +468,7 @@ export const ProductsFeature: React.FC = () => {
 
         {/* Product Cards List */}
         {isLoadingCurrent ? (
-          <div className="py-12 text-center text-slate-500 animate-pulse">
-            {t('loadingProducts')}
-          </div>
+          <LoadingState text={t('loadingProducts')} />
         ) : filteredProducts.length === 0 ? (
           <div className="py-12 text-center text-slate-400 space-y-2 animate-in fade-in duration-300">
             <Package className="h-10 w-10 mx-auto text-slate-300 dark:text-slate-600" />

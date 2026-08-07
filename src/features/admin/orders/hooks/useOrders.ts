@@ -22,7 +22,7 @@ export const useOrders = (): UseOrdersReturn => {
     setCurrentPage(1);
   }, [debouncedSearch, statusFilter, paymentFilter, pageSize]);
 
-  const { data, isLoading, isRefetching, refetch } = useQuery({
+  const { data, isLoading, refetch } = useQuery({
     queryKey: ['orders', debouncedSearch, statusFilter],
     queryFn: () =>
       getOrdersApi({
@@ -73,7 +73,7 @@ export const useOrders = (): UseOrdersReturn => {
     totalPages,
     totalOrdersCount,
     metrics,
-    isLoading: isLoading || isRefetching,
+    isLoading,
     refetch,
   };
 };

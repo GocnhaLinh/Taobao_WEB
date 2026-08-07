@@ -1,13 +1,17 @@
 import { api } from "./axiosClient";
 
 export * from "../types";
-export * from "./userService";
 export * from "../features/admin/categories/api/category.api";
 export * from "../features/admin/brands/api/brand.api";
 export * from "../features/admin/warehouses/api/warehouse.api";
+export * from "../features/admin/orders/api/order.api";
+export * from "../features/admin/users/api/user.api";
 export * from "./productService";
 export * from "./chatService";
 export * from "./settingsService";
+export * from "./couponService";
+export * from "./reviewService";
+export * from "./uploadService";
 export * from "./categoryLabelService";
 
 export interface HealthResponse {

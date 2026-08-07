@@ -7,12 +7,13 @@ export type Language = 'en' | 'vi' | 'zh';
 
 const translations = { en, vi, zh };
 
-type TranslationKey = keyof typeof en;
+export type TranslationKey = keyof typeof en;
+export type TranslateFn = (key: TranslationKey, params?: Record<string, string | number>) => string;
 
 interface LanguageContextType {
   language: Language;
   setLanguage: (lang: Language) => void;
-  t: (key: TranslationKey, params?: Record<string, string | number>) => string;
+  t: TranslateFn;
 }
 
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);

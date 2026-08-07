@@ -1,20 +1,29 @@
 import React from 'react';
-import { Loader2 } from 'lucide-react';
+import { LoadingState } from './LoadingState';
 import { useTranslation } from '../../lib/i18n';
 
-export const PageLoader: React.FC = () => {
+interface PageLoaderProps {
+  variant?: 'dark' | 'pink';
+}
+
+export const PageLoader: React.FC<PageLoaderProps> = ({ variant = 'dark' }) => {
   const { t } = useTranslation();
 
+  const isPink = variant === 'pink';
+
   return (
-    <div className="flex flex-col items-center justify-center min-h-[60vh] p-8 space-y-4 animate-in fade-in duration-200">
-      <div className="relative">
-        <div className="h-16 w-16 rounded-2xl bg-gradient-to-tr from-indigo-500 to-purple-600 animate-pulse flex items-center justify-center shadow-lg shadow-indigo-500/20">
-          <Loader2 className="h-8 w-8 text-white animate-spin" />
-        </div>
-      </div>
-      <div className="text-center space-y-1">
-        <h4 className="text-slate-900 dark:text-white font-bold text-sm">{t('loadingData')}</h4>
-        <p className="text-xs text-slate-500 dark:text-slate-400">{t('preparingPage')}</p>
+    <div className="min-h-[80vh] flex flex-col items-center justify-center p-6 animate-in fade-in duration-300">
+      <div className={`w-full max-w-sm p-8 rounded-3xl backdrop-blur-2xl border shadow-2xl flex flex-col items-center justify-center text-center ${
+        isPink
+          ? 'bg-gradient-to-br from-pink-950/50 via-rose-950/40 to-slate-950/60 border-pink-500/30 shadow-pink-500/10'
+          : 'bg-white/80 dark:bg-slate-900/60 border-slate-200/80 dark:border-white/10 shadow-indigo-500/5'
+      }`}>
+        <LoadingState
+          size="lg"
+          variant={variant}
+          text={t('loadingData')}
+          subtext={t('preparingPage')}
+        />
       </div>
     </div>
   );
