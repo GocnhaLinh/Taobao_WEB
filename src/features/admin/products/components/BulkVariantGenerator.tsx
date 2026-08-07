@@ -22,7 +22,7 @@ import {
   AlertTriangle,
 } from 'lucide-react';
 import { generateAutoSku } from '../../../../utils/skuHelper';
-import { getFeeConfigApi } from '../../../../services/settingsService';
+import { getFeeConfigApi } from '../../settings/api/settings.api';
 import { uploadSingleImageApi } from '../../../../services/uploadService';
 import { useNotification } from '../../../../lib/notification';
 

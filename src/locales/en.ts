@@ -439,6 +439,8 @@ export const en = {
   anonymousUser: "Customer",
   noComment: "No comment",
   taobaoProduct: "Taobao Product",
+  searchReviewPlaceholder: "Search reviews...",
+  allRatings: "All Stars",
 
   // Chat Page
   chatManagement: "Customer Support Chat",

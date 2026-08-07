@@ -425,8 +425,10 @@ export const zh = {
   noReviews: "数据库中暂无评价",
   noReviewsHint: "来自客户的商品评价将在提交新评价后显示在此处。",
   anonymousUser: "客户",
-  noComment: "暂无评论",
+  noComment: "无评论",
   taobaoProduct: "淘宝商品",
+  searchReviewPlaceholder: "搜索评价...",
+  allRatings: "所有星级",
 
   // Chat Page
   chatManagement: "客服在线沟通",

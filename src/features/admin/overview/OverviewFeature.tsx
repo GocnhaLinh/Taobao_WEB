@@ -3,7 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { BarChart3 } from 'lucide-react';
 import { useTranslation } from '../../../lib/i18n';
 import { fetchCategories, fetchWarehouses, fetchProducts } from '../../../services/api';
-import { getFeeConfigApi } from '../../../services/settingsService';
+import { getFeeConfigApi } from '../settings/api/settings.api';
 import { Badge } from '../../../components/ui/Badge';
 import { OverviewMetricsGrid } from './components/OverviewMetricsGrid';
 import { RevenueChartCard } from './components/RevenueChartCard';

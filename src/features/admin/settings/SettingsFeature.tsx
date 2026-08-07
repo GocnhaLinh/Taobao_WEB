@@ -1,20 +1,28 @@
 import React, { useState, useEffect } from 'react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Sliders, Save, RefreshCw } from 'lucide-react';
 import { useTranslation } from '../../../lib/i18n';
-import { useManualRefresh } from '../../../hooks/useManualRefresh';
 import { useNotification } from '../../../lib/notification';
 import { Button } from '../../../components/ui/Button';
 import { ThemeSettingCard } from './components/ThemeSettingCard';
 import { ExchangeRateCard } from './components/ExchangeRateCard';
 import { ShippingFeeCard } from './components/ShippingFeeCard';
 import { ServiceWarehouseFeeCard } from './components/ServiceWarehouseFeeCard';
-import { getFeeConfigApi, saveFeeConfigApi } from '../../../services/settingsService';
+import { useSettings } from './hooks/useSettings';
+import { saveFeeConfigApi } from './api/settings.api';
 
 export const SettingsFeature: React.FC = () => {
   const { t } = useTranslation();
   const { showNotification } = useNotification();
   const queryClient = useQueryClient();
+
+  const {
+    config: feeConfig,
+    isLoading,
+    isRefreshing,
+    handleRefresh,
+    refetch,
+  } = useSettings();
 
   // Keep input fields as strings to prevent "0" prefixing bug when clearing values
   const [exchangeRate, setExchangeRate] = useState<string>('');
@@ -25,34 +33,28 @@ export const SettingsFeature: React.FC = () => {
   const [serviceFeePercent, setServiceFeePercent] = useState<string>('');
   const [depositPercent, setDepositPercent] = useState<string>('');
 
-  const { data: feeConfig, isLoading, refetch } = useQuery({
-    queryKey: ['feeConfig'],
-    queryFn: getFeeConfigApi,
-    retry: 1,
-    staleTime: 0,
-    refetchOnMount: 'always',
-  });
-
-  const { isRefreshing, handleRefresh: handleManualRefresh } = useManualRefresh(refetch);
-
   useEffect(() => {
-    if (feeConfig) {
-      if (feeConfig.exchangeRate !== undefined) setExchangeRate(feeConfig.exchangeRate.toString());
-      if (feeConfig.shippingCnPerKg !== undefined) setShippingCnPerKg(feeConfig.shippingCnPerKg.toString());
-      if (feeConfig.shippingVnPerKg !== undefined) setShippingVnPerKg(feeConfig.shippingVnPerKg.toString());
-      if (feeConfig.warehouseFreeDays !== undefined) setWarehouseFreeDays(feeConfig.warehouseFreeDays.toString());
-      if (feeConfig.warehouseFeePerDay !== undefined) setWarehouseFeePerDay(feeConfig.warehouseFeePerDay.toString());
-      if (feeConfig.serviceFeePercent !== undefined) setServiceFeePercent(feeConfig.serviceFeePercent.toString());
-      if (feeConfig.depositPercent !== undefined) setDepositPercent(feeConfig.depositPercent.toString());
-    }
+    if (!feeConfig) return;
+    const fields: [keyof typeof feeConfig, (val: string) => void][] = [
+      ['exchangeRate', setExchangeRate],
+      ['shippingCnPerKg', setShippingCnPerKg],
+      ['shippingVnPerKg', setShippingVnPerKg],
+      ['warehouseFreeDays', setWarehouseFreeDays],
+      ['warehouseFeePerDay', setWarehouseFeePerDay],
+      ['serviceFeePercent', setServiceFeePercent],
+      ['depositPercent', setDepositPercent],
+    ];
+
+    fields.forEach(([key, setter]) => {
+      const val = feeConfig[key];
+      if (val !== undefined && val !== null) setter(String(val));
+    });
   }, [feeConfig]);
 
   const saveMutation = useMutation({
     mutationFn: saveFeeConfigApi,
     onSuccess: () => {
-      // Chỉ invalidateQueries — không dùng setQueryData + invalidate cùng lúc
-      // vì invalidate sẽ refetch đè lên data vừa set (request dư thừa)
-      queryClient.invalidateQueries({ queryKey: ['feeConfig'] });
+      queryClient.invalidateQueries({ queryKey: ['settings-fees'] });
       queryClient.invalidateQueries({ queryKey: ['products'] });
       showNotification(t('configSaved'), 'success');
     },
@@ -62,7 +64,6 @@ export const SettingsFeature: React.FC = () => {
   });
 
   const handleSubmit = () => {
-
     const exRate = parseFloat(exchangeRate);
     if (isNaN(exRate) || exRate <= 0) {
       showNotification(t('exchangeRateError'), 'warning');
@@ -71,8 +72,6 @@ export const SettingsFeature: React.FC = () => {
 
     const shipCn = parseFloat(shippingCnPerKg);
     const shipVn = parseFloat(shippingVnPerKg);
-    // Validate số nguyên: parseInt('7.5') = 7 → pass validate isNaN/< 0 sai
-    // Dùng Number() rồi kiểm tra !Number.isInteger() để reject số thập phân
     const whDaysRaw = Number(warehouseFreeDays);
     const whDays = Number.isInteger(whDaysRaw) && whDaysRaw >= 0 ? whDaysRaw : NaN;
     const whFee = parseFloat(warehouseFeePerDay);
@@ -119,11 +118,11 @@ export const SettingsFeature: React.FC = () => {
           <Button
             variant="outline"
             size="sm"
-            onClick={handleManualRefresh}
+            onClick={handleRefresh}
             disabled={isLoading || isRefreshing}
             className="flex-1 sm:flex-initial items-center justify-center gap-1.5"
           >
-            <RefreshCw className={`h-4 w-4 shrink-0 ${isLoading || isRefreshing ? 'animate-spin' : ''}`} />
+            <RefreshCw className={`h-4 w-4 shrink-0 ${isRefreshing ? 'animate-spin' : ''}`} />
             {t('refresh')}
           </Button>
           <Button
@@ -184,4 +183,3 @@ export const SettingsFeature: React.FC = () => {
     </div>
   );
 };
-

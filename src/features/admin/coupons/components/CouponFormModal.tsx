@@ -4,31 +4,33 @@ import { Modal } from '../../../../components/ui/Modal';
 import { Button } from '../../../../components/ui/Button';
 import { Input } from '../../../../components/ui/Input';
 import { CustomSelect } from '../../../../components/ui/CustomSelect';
-import { Edit3, Save } from 'lucide-react';
+import { Ticket, Edit3, Plus, Save } from 'lucide-react';
 import type { CouponItem } from './CouponCard';
 
-interface EditCouponModalProps {
-  coupon: CouponItem | null;
+interface CouponFormModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onUpdate: (id: string, data: Partial<CouponItem>) => void;
+  onSubmit: (data: Partial<CouponItem>) => void;
+  editingCoupon?: CouponItem | null;
+  isLoading?: boolean;
 }
 
-export const EditCouponModal: React.FC<EditCouponModalProps> = ({
-  coupon,
+export const CouponFormModal: React.FC<CouponFormModalProps> = ({
   isOpen,
   onClose,
-  onUpdate,
+  onSubmit,
+  editingCoupon,
+  isLoading,
 }) => {
   const { t } = useTranslation();
+  const isEditMode = Boolean(editingCoupon);
+
   const [code, setCode] = useState('');
   const [type, setType] = useState('FIXED');
   const [value, setValue] = useState('');
   const [minOrder, setMinOrder] = useState('');
   const [maxDiscount, setMaxDiscount] = useState('');
   const [status, setStatus] = useState('ACTIVE');
-  // BUG CP1 FIX: expiryDate có state nhưng trước đây thiếu input field trong form
-  // Chuyển ISO string → "YYYY-MM-DD" để dùng với input type="date"
   const [expiryDate, setExpiryDate] = useState('');
 
   const resetForm = () => {
@@ -42,51 +44,58 @@ export const EditCouponModal: React.FC<EditCouponModalProps> = ({
   };
 
   useEffect(() => {
-    if (isOpen && coupon) {
-      setCode(coupon.code);
-      setType(coupon.type);
-      setValue(coupon.value.toString());
-      setMinOrder(coupon.minOrder.toString());
-      setMaxDiscount(coupon.maxDiscount ? coupon.maxDiscount.toString() : '');
-      setStatus(coupon.status);
-      // Chuyển ISO string → YYYY-MM-DD để hiển thị đúng trong input[type=date]
+    if (isOpen && editingCoupon) {
+      setCode(editingCoupon.code);
+      setType(editingCoupon.type);
+      setValue(editingCoupon.value.toString());
+      setMinOrder(editingCoupon.minOrder.toString());
+      setMaxDiscount(editingCoupon.maxDiscount ? editingCoupon.maxDiscount.toString() : '');
+      setStatus(editingCoupon.status);
       setExpiryDate(
-        coupon.expiryDate ? new Date(coupon.expiryDate).toISOString().split('T')[0] : '',
+        editingCoupon.expiryDate ? new Date(editingCoupon.expiryDate).toISOString().split('T')[0] : ''
       );
     } else if (!isOpen) {
       resetForm();
     }
-  }, [coupon, isOpen]);
-
-  if (!coupon) return null;
+  }, [isOpen, editingCoupon]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!code || !value || !minOrder) return;
 
-    onUpdate(coupon.id, {
+    onSubmit({
+      ...(editingCoupon ? { id: editingCoupon.id } : {}),
       code: code.toUpperCase().trim(),
       type,
       value: Number(value),
       minOrder: Number(minOrder),
-      // BUG CP2 FIX: maxDiscount luôn được gửi (không chỉ khi PERCENT)
-      // Nếu type=FIXED → clear về undefined vì không áp dụng
       maxDiscount: type === 'PERCENT' && maxDiscount ? Number(maxDiscount) : undefined,
       status,
-      // BUG CP1 FIX: expiryDate được gửi lên, tránh backend set null khi thiếu
-      expiryDate: expiryDate ? new Date(expiryDate).toISOString() : undefined,
+      expiryDate: expiryDate
+        ? new Date(expiryDate).toISOString()
+        : isEditMode
+        ? undefined
+        : new Date(Date.now() + 90 * 86400000).toISOString(),
     });
 
     resetForm();
     onClose();
   };
 
+  const modalTitle = isEditMode
+    ? `${t('editCoupon')} #${editingCoupon?.code}`
+    : t('createCoupon');
+
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title={`${t('editCoupon')} #${coupon.code}`}>
+    <Modal isOpen={isOpen} onClose={onClose} title={modalTitle}>
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="flex items-center gap-3 p-3 bg-indigo-500/10 border border-indigo-500/20 rounded-xl text-indigo-600 dark:text-indigo-400 text-xs font-medium">
-          <Edit3 className="h-5 w-5 shrink-0 text-indigo-500" />
-          {t('couponNoteEdit')}
+          {isEditMode ? (
+            <Edit3 className="h-5 w-5 shrink-0 text-indigo-500" />
+          ) : (
+            <Ticket className="h-5 w-5 shrink-0 text-indigo-500" />
+          )}
+          {isEditMode ? t('couponNoteEdit') : t('couponNoteCreate')}
         </div>
 
         <Input
@@ -113,6 +122,7 @@ export const EditCouponModal: React.FC<EditCouponModalProps> = ({
           <Input
             label={type === 'FIXED' ? t('discountAmount') : t('discountPercent')}
             type="number"
+            placeholder={type === 'FIXED' ? '50000' : '15'}
             value={value}
             onChange={(e) => setValue(e.target.value)}
             required
@@ -123,6 +133,7 @@ export const EditCouponModal: React.FC<EditCouponModalProps> = ({
           <Input
             label={t('minOrderValue')}
             type="number"
+            placeholder="500000"
             value={minOrder}
             onChange={(e) => setMinOrder(e.target.value)}
             required
@@ -136,14 +147,12 @@ export const EditCouponModal: React.FC<EditCouponModalProps> = ({
               options={[
                 { value: 'ACTIVE', label: t('activeStatus') },
                 { value: 'DISABLED', label: t('disabledStatus') },
-                { value: 'EXPIRED', label: t('expiredStatus') },
+                ...(isEditMode ? [{ value: 'EXPIRED', label: t('expiredStatus') }] : []),
               ]}
             />
           </div>
         </div>
 
-        {/* BUG CP2 FIX: Luôn hiển thị maxDiscount — disabled + hint khi type=FIXED
-            Trước đây chỉ show khi type=PERCENT → mất giá trị khi toggle PERCENT↔FIXED */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
             <Input
@@ -162,27 +171,33 @@ export const EditCouponModal: React.FC<EditCouponModalProps> = ({
             )}
           </div>
 
-          {/* BUG CP1 FIX: Thêm input expiryDate vào form — trước đây có state nhưng không có field */}
           <Input
             label={t('expiryDate')}
             type="date"
             value={expiryDate}
             onChange={(e) => setExpiryDate(e.target.value)}
-            required
           />
         </div>
 
         <div className="flex items-center justify-end gap-3 pt-4 border-t border-slate-200 dark:border-white/10">
-          <Button variant="ghost" type="button" onClick={onClose}>
+          <Button variant="ghost" type="button" onClick={onClose} disabled={isLoading}>
             {t('cancel')}
           </Button>
-          <Button variant="primary" type="submit" className="gap-2">
-            <Save className="h-4 w-4" />
-            {t('editVoucher')}
+          <Button variant="primary" type="submit" disabled={isLoading} className="gap-2">
+            {isEditMode ? (
+              <>
+                <Save className="h-4 w-4" />
+                {t('editVoucher')}
+              </>
+            ) : (
+              <>
+                <Plus className="h-4 w-4" />
+                {t('createVoucher')}
+              </>
+            )}
           </Button>
         </div>
       </form>
     </Modal>
   );
 };
-

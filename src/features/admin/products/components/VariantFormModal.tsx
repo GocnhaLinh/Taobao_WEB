@@ -14,7 +14,7 @@ import {
   uploadMultipleImagesApi,
   deleteImageApi,
 } from "../../../../services/uploadService";
-import { getFeeConfigApi } from "../../../../services/settingsService";
+import { getFeeConfigApi } from "../../settings/api/settings.api";
 import { useNotification } from "../../../../lib/notification";
 import { generateAutoSku } from "../../../../utils/skuHelper";
 import { VariantProfitCalculator } from "./VariantProfitCalculator";
