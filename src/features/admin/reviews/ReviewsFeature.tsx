@@ -1,24 +1,30 @@
 import React from 'react';
-import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from '../../../lib/i18n';
-import { useManualRefresh } from '../../../hooks/useManualRefresh';
-import { fetchReviewsApi } from '../../../services/reviewService';
+import { useReviews } from './hooks/useReviews';
 import { ReviewCard, type ReviewItem } from './components/ReviewCard';
+import { ReviewFilter } from './components/ReviewFilter';
 import { LoadingState } from '../../../components/common/LoadingState';
+import { Pagination } from '../../../components/ui/Pagination';
 import { Star, MessageSquare, RefreshCw } from 'lucide-react';
 
 export const ReviewsFeature: React.FC = () => {
   const { t } = useTranslation();
-
-  const { data, isLoading, refetch } = useQuery({
-    queryKey: ['reviews'],
-    queryFn: () => fetchReviewsApi(),
-    retry: 1,
-  });
-
-  const { isRefreshing, handleRefresh: handleManualRefresh } = useManualRefresh(refetch);
-
-  const rawReviews = data?.reviews || [];
+  const {
+    reviews: rawReviews,
+    isLoading,
+    isRefreshing,
+    handleRefresh,
+    searchTerm,
+    setSearchTerm,
+    ratingFilter,
+    setRatingFilter,
+    currentPage,
+    setCurrentPage,
+    pageSize,
+    setPageSize,
+    totalPages,
+    totalItems,
+  } = useReviews();
 
   const reviews: ReviewItem[] = rawReviews.map((r) => ({
     id: r.id,
@@ -27,6 +33,11 @@ export const ReviewsFeature: React.FC = () => {
     comment: r.comment || t('noComment'),
     product: r.product?.productName || r.productId || t('taobaoProduct'),
   }));
+
+  const paginatedReviews = reviews.slice(
+    (currentPage - 1) * pageSize,
+    currentPage * pageSize
+  );
 
   return (
     <div className="space-y-6 animate-in fade-in slide-in-from-top-2 duration-500">
@@ -40,22 +51,24 @@ export const ReviewsFeature: React.FC = () => {
         </div>
 
         <button
-          onClick={handleManualRefresh}
+          onClick={handleRefresh}
           disabled={isLoading || isRefreshing}
           className="inline-flex items-center gap-2 px-4 py-2 bg-white dark:bg-slate-900/80 border border-slate-200 dark:border-white/10 text-slate-700 dark:text-slate-200 rounded-xl hover:bg-slate-100 dark:hover:bg-white/10 transition cursor-pointer text-sm font-semibold shadow-sm self-start sm:self-auto disabled:opacity-50"
         >
-          <RefreshCw className={`h-4 w-4 text-indigo-500 ${isLoading || isRefreshing ? 'animate-spin' : ''}`} />
+          <RefreshCw className={`h-4 w-4 text-indigo-500 ${isRefreshing ? 'animate-spin' : ''}`} />
           {t('refresh')}
         </button>
       </div>
 
-      <div className="p-6 bg-white dark:bg-slate-900/50 backdrop-blur-xl rounded-2xl border border-slate-200 dark:border-white/10 shadow-sm space-y-4">
-        <h3 className="text-slate-900 dark:text-white font-bold text-lg flex items-center gap-2">
-          {t('reviewListTitle')}
-          <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-indigo-500/10 text-indigo-500 border border-indigo-500/20">
-            {t('reviewCount', { count: reviews.length })}
-          </span>
-        </h3>
+      <div className="p-6 bg-white dark:bg-slate-900/50 backdrop-blur-xl rounded-2xl border border-slate-200 dark:border-white/10 shadow-sm space-y-6">
+        {/* Reusable Review Filter Component */}
+        <ReviewFilter
+          searchTerm={searchTerm}
+          setSearchTerm={setSearchTerm}
+          ratingFilter={ratingFilter}
+          setRatingFilter={setRatingFilter}
+          totalCount={reviews.length}
+        />
 
         {isLoading || isRefreshing ? (
           <LoadingState text={t('loadingReviews')} />
@@ -68,16 +81,31 @@ export const ReviewsFeature: React.FC = () => {
             </p>
           </div>
         ) : (
-          <div className="space-y-3">
-            {reviews.map((rev, index) => (
-              <div key={rev.id} className="animate-in fade-in slide-in-from-bottom-2 duration-300" style={{ animationDelay: `${index * 60}ms` }}>
-              <ReviewCard review={rev} />
+          <div className="space-y-6">
+            <div className="space-y-3">
+              {paginatedReviews.map((rev, index) => (
+                <div key={rev.id} className="animate-in fade-in slide-in-from-bottom-2 duration-300" style={{ animationDelay: `${index * 60}ms` }}>
+                  <ReviewCard review={rev} />
+                </div>
+              ))}
             </div>
-            ))}
+
+            {/* Pagination Controls */}
+            {totalItems > 0 && (
+              <div className="pt-4 border-t border-slate-200 dark:border-white/10">
+                <Pagination
+                  currentPage={currentPage}
+                  totalPages={totalPages}
+                  onPageChange={setCurrentPage}
+                  pageSize={pageSize}
+                  onPageSizeChange={setPageSize}
+                  totalItems={totalItems}
+                />
+              </div>
+            )}
           </div>
         )}
       </div>
     </div>
   );
 };
-
