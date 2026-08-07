@@ -107,9 +107,9 @@ export const WarehouseFormModal: React.FC<WarehouseFormModalProps> = ({
 
   const validate = (): boolean => {
     const newErrors: Record<string, string> = {};
-    if (!code.trim()) newErrors.code = t("requiredField") || "Required";
-    if (!name.trim()) newErrors.name = t("requiredField") || "Required";
-    if (!province.trim()) newErrors.province = t("requiredField") || "Required";
+    if (!code.trim()) newErrors.code = "Vui lòng nhập mã kho";
+    if (!name.trim()) newErrors.name = "Vui lòng nhập tên kho";
+    if (!province.trim()) newErrors.province = "Vui lòng nhập Tỉnh/Thành phố";
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -120,19 +120,19 @@ export const WarehouseFormModal: React.FC<WarehouseFormModalProps> = ({
     if (field === "code" && !code.trim()) {
       setErrors((prev) => ({
         ...prev,
-        code: t("requiredField") || "Required",
+        code: "Vui lòng nhập mã kho",
       }));
     }
     if (field === "name" && !name.trim()) {
       setErrors((prev) => ({
         ...prev,
-        name: t("requiredField") || "Required",
+        name: "Vui lòng nhập tên kho",
       }));
     }
     if (field === "province" && !province.trim()) {
       setErrors((prev) => ({
         ...prev,
-        province: t("requiredField") || "Required",
+        province: "Vui lòng nhập Tỉnh/Thành phố",
       }));
     }
   };
