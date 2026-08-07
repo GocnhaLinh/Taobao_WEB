@@ -19,6 +19,7 @@ interface CustomSelectProps {
   className?: string;
   size?: 'sm' | 'md';
   disabled?: boolean;
+  dropUp?: boolean;
 }
 
 export const CustomSelect: React.FC<CustomSelectProps> = ({
@@ -30,6 +31,7 @@ export const CustomSelect: React.FC<CustomSelectProps> = ({
   className = '',
   size = 'md',
   disabled = false,
+  dropUp = false,
 }) => {
   const { t } = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
@@ -51,6 +53,8 @@ export const CustomSelect: React.FC<CustomSelectProps> = ({
     size === 'sm'
       ? 'px-3 py-1.5 text-xs rounded-xl'
       : 'px-4 py-2.5 text-sm rounded-2xl';
+
+  const positionClasses = dropUp ? 'bottom-full mb-2' : 'top-full mt-2';
 
   return (
     <div className={`relative space-y-1.5 ${className}`} ref={selectRef}>
@@ -78,14 +82,22 @@ export const CustomSelect: React.FC<CustomSelectProps> = ({
           </span>
           <ChevronDown
             className={`h-3.5 w-3.5 text-slate-400 transition-transform duration-200 shrink-0 ml-1.5 ${
-              isOpen ? 'rotate-180 text-indigo-500' : ''
+              isOpen
+                ? dropUp
+                  ? 'rotate-0 text-indigo-500'
+                  : 'rotate-180 text-indigo-500'
+                : dropUp
+                ? 'rotate-180'
+                : ''
             }`}
           />
         </button>
 
         {/* Soft Rounded Custom Dropdown Popover */}
         {isOpen && !disabled && (
-          <div className="absolute right-0 left-0 mt-2 py-1.5 bg-white/95 dark:bg-slate-900/95 border border-pink-200/80 dark:border-white/15 rounded-2xl shadow-2xl backdrop-blur-xl z-50 overflow-hidden animate-in fade-in zoom-in-95 duration-150 min-w-[160px] max-h-60 overflow-y-auto no-scrollbar">
+          <div
+            className={`absolute right-0 left-0 ${positionClasses} py-1.5 bg-white/95 dark:bg-slate-900/95 border border-slate-200 dark:border-white/15 rounded-2xl shadow-2xl backdrop-blur-xl z-50 overflow-hidden animate-in fade-in zoom-in-95 duration-150 min-w-[130px] max-h-60 overflow-y-auto no-scrollbar`}
+          >
             {options.map((opt) => {
               const isSelected = opt.value === value;
               const hasActions = opt.onDelete || opt.onEdit;
@@ -97,7 +109,7 @@ export const CustomSelect: React.FC<CustomSelectProps> = ({
                     onChange(opt.value);
                     setIsOpen(false);
                   }}
-                  className={`group w-full flex items-center justify-between px-3.5 py-2.5 text-xs font-medium transition-colors cursor-pointer text-left ${
+                  className={`group w-full flex items-center justify-between px-3.5 py-2 text-xs font-medium transition-colors cursor-pointer text-left ${
                     isSelected
                       ? 'bg-indigo-50 dark:bg-indigo-500/20 text-indigo-600 dark:text-indigo-400 font-bold'
                       : 'text-slate-700 dark:text-slate-300 hover:bg-indigo-50/60 dark:hover:bg-white/10'

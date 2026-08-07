@@ -59,11 +59,14 @@ export const Modal: React.FC<ModalProps> = ({
       {/* Modal Dialog */}
       <div className={`relative w-full ${maxWidthMap[maxWidth] || 'max-w-2xl'} bg-white dark:bg-slate-900 border border-slate-200 dark:border-white/10 rounded-2xl sm:rounded-3xl shadow-2xl overflow-hidden z-10 animate-in fade-in zoom-in-95 duration-200`}>
         {/* Header */}
-        <div className="flex items-center justify-between px-3.5 sm:px-6 py-3 sm:py-4 border-b border-slate-200 dark:border-white/10">
-          <h3 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white pr-2 leading-snug">{title}</h3>
+        <div className="flex items-center justify-between px-3.5 sm:px-6 py-3 sm:py-4 border-b border-slate-200 dark:border-white/10 gap-3 min-w-0">
+          <div className="text-base sm:text-lg font-bold text-slate-900 dark:text-white leading-snug truncate min-w-0 flex-1">
+            {title}
+          </div>
           <button
             onClick={onClose}
-            className="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/10 transition-colors cursor-pointer shrink-0"
+            className="p-1.5 rounded-xl text-slate-400 hover:text-slate-600 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/10 transition-colors cursor-pointer shrink-0"
+            aria-label="Close modal"
           >
             <X className="h-5 w-5" />
           </button>
