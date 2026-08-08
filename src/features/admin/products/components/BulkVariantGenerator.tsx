@@ -313,23 +313,23 @@ export const BulkVariantGenerator: React.FC<BulkVariantGeneratorProps> = ({
     for (const v of generatedVariants) {
       const comboKey = `${v.size || ''}|${v.color || ''}`;
       if (existingCombos.has(comboKey)) {
-        errors.push(`(Size: "${v.size || 'N/A'}", Màu: "${v.color || 'N/A'}") đã tồn tại!`);
+        errors.push(t('variantDuplicateExist', { size: v.size || 'N/A', color: v.color || 'N/A' }));
       }
       if (seen.has(comboKey) && v.size && v.color) {
-        errors.push(`(Size: "${v.size}", Màu: "${v.color}") bị trùng trong danh sách!`);
+        errors.push(t('variantDuplicateInList', { size: v.size, color: v.color }));
       }
       seen.add(comboKey);
     }
     setDuplicateErrors(errors);
     return errors.length === 0;
-  }, [generatedVariants, existingCombos]);
+  }, [generatedVariants, existingCombos, t]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (generatedVariants.length === 0) return;
 
     if (!checkDuplicates()) {
-      showNotification('⚠️ Có biến thể bị trùng! Vui lòng kiểm tra lại.', 'error');
+      showNotification(t('duplicateVariantErrorNotice'), 'error');
       return;
     }
 

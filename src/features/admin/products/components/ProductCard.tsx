@@ -145,11 +145,11 @@ export const ProductCard: React.FC<ProductCardProps> = React.memo(({
               variant={variants.length === 0 ? "primary" : "outline"}
               size="sm"
               onClick={() => onBulkAddVariant ? onBulkAddVariant(product.id) : onAddVariant(product.id)}
-              title="Tạo hàng loạt biến thể"
+              title={t('bulkCreateVariantsTitle')}
               className="text-xs px-2.5 sm:px-3"
             >
               <Plus className="h-3.5 w-3.5 sm:mr-1" />
-              <span className="hidden sm:inline">Tạo hàng loạt</span>
+              <span className="hidden sm:inline">{t('bulkCreateVariants')}</span>
             </Button>
             <Button
               variant="outline"
@@ -217,86 +217,87 @@ export const ProductCard: React.FC<ProductCardProps> = React.memo(({
                 return (
                   <div
                     key={v.id}
-                    className="p-2.5 sm:p-3.5 bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-xl sm:rounded-2xl flex flex-col md:flex-row md:items-center justify-between gap-2.5 sm:gap-3 hover:border-indigo-500/30 transition-all"
+                    className="p-3 bg-slate-50 dark:bg-white/5 border border-slate-200/80 dark:border-white/10 rounded-2xl flex flex-col lg:flex-row lg:items-center justify-between gap-3 hover:border-indigo-500/30 transition-all"
                   >
-                    {/* Left: SKU & Attributes */}
-                    <div className="space-y-1.5 min-w-0 flex-1">
-                      {/* Row 1: SKU Badge on Left, Status Eye Icon on Far Right */}
-                      <div className="flex items-center justify-between gap-2 w-full">
-                        <Badge
-                          variant="neutral"
-                          className="font-mono text-[10px] tracking-wide"
-                        >
-                          {v.sku}
-                        </Badge>
-                        <span
-                          onClick={() => onToggleVariant?.(v)}
-                          className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[10px] font-bold cursor-pointer transition-all ${
-                            v.status === 'ACTIVE'
-                              ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 hover:bg-amber-100 dark:hover:bg-amber-900/30'
-                              : 'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 hover:bg-emerald-100 dark:hover:bg-emerald-900/30'
-                          }`}
-                          title={v.status === 'ACTIVE' ? 'Nhấn để ẩn biến thể' : 'Nhấn để kích hoạt biến thể'}
-                        >
-                          {v.status === 'ACTIVE' ? (
-                            <><Eye className="h-3 w-3" /> <span className="hidden sm:inline">{t('active')}</span></>
-                          ) : (
-                            <><EyeOff className="h-3 w-3" /> <span className="hidden sm:inline">{t('disabled')}</span></>
-                          )}
-                        </span>
-                      </div>
+                    {/* Left: SKU, Status, Size, Color, Stock */}
+                    <div className="flex flex-wrap items-center gap-2.5 min-w-0">
+                      <Badge
+                        variant="neutral"
+                        className="font-mono text-xs tracking-wide shrink-0"
+                      >
+                        {v.sku}
+                      </Badge>
+                      <span
+                        onClick={() => onToggleVariant?.(v)}
+                        className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold cursor-pointer transition-all ${
+                          v.status === 'ACTIVE'
+                            ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 hover:bg-amber-100 dark:hover:bg-amber-900/30'
+                            : 'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 hover:bg-emerald-100 dark:hover:bg-emerald-900/30'
+                        }`}
+                        title={v.status === 'ACTIVE' ? 'Nhấn để ẩn biến thể' : 'Nhấn để kích hoạt biến thể'}
+                      >
+                        {v.status === 'ACTIVE' ? (
+                          <><Eye className="h-3 w-3" /> <span>{t('active')}</span></>
+                        ) : (
+                          <><EyeOff className="h-3 w-3" /> <span>{t('disabled')}</span></>
+                        )}
+                      </span>
 
-                      {/* Row 2: Size, Color, Stock (Centered & Justified Space-Between) */}
-                      <div className="flex items-center justify-between gap-2 text-xs font-semibold text-slate-700 dark:text-slate-300 w-full pt-0.5">
-                        {v.size && (
-                          <span>
-                            {t('size')}: <strong className="text-slate-900 dark:text-white">{v.size}</strong>
-                          </span>
-                        )}
-                        {v.color && (
-                          <span>
-                            {t('color')}: <strong className="text-slate-900 dark:text-white">{v.color}</strong>
-                          </span>
-                        )}
-                        <span className="text-slate-500 dark:text-slate-400">
-                          {t('stock')}: <strong className="text-slate-900 dark:text-white">{v.stock}</strong>
+                      {v.size && (
+                        <span className="text-xs text-slate-600 dark:text-slate-300 font-semibold">
+                          {t('size')}: <strong className="text-slate-900 dark:text-white">{v.size}</strong>
                         </span>
-                      </div>
+                      )}
+                      {v.color && (
+                        <span className="text-xs text-slate-600 dark:text-slate-300 font-semibold">
+                          {t('color')}: <strong className="text-slate-900 dark:text-white">{v.color}</strong>
+                        </span>
+                      )}
+                      <span className="text-xs text-slate-500 dark:text-slate-400">
+                        {t('stock')}: <strong className="text-slate-900 dark:text-white">{v.stock}</strong>
+                      </span>
                     </div>
 
-                      {/* Cost & Profit Info */}
-                      <div className="flex items-center gap-3 text-xs text-slate-600 dark:text-slate-300 flex-wrap pt-1">
+                    {/* Middle: Cost & Financial Info Breakdown */}
+                    {(v.originalPriceCNY || v.weight || v.totalCostVND) && (
+                      <div className="flex flex-wrap items-center gap-2 text-xs text-slate-600 dark:text-slate-300">
                         {v.originalPriceCNY && (
-                          <span className="flex items-center gap-1 text-amber-600 dark:text-amber-400 font-medium">
-                            <Coins className="h-3 w-3" />
+                          <span className="inline-flex items-center gap-1 text-amber-600 dark:text-amber-400 font-medium bg-amber-500/10 px-2.5 py-1 rounded-lg text-xs">
+                            <Coins className="h-3.5 w-3.5" />
                             {t('originCost')}: ¥{v.originalPriceCNY}{v.exchangeRate ? ` (rate: ${v.exchangeRate.toLocaleString()})` : ''}
                           </span>
                         )}
                         {v.weight !== undefined && v.weight !== null && v.weight > 0 && (
-                          <span className="flex items-center gap-1 text-indigo-600 dark:text-indigo-400 font-medium">
-                            <Truck className="h-3 w-3" />
-                            {t('weight')}: {v.weight}kg {v.shippingCostVND ? `(+${v.shippingCostVND.toLocaleString()}đ ${t('shippingCnFee')})` : ''}
+                          <span className="inline-flex items-center gap-1 text-indigo-600 dark:text-indigo-400 font-medium bg-indigo-500/10 px-2.5 py-1 rounded-lg text-xs">
+                            <Truck className="h-3.5 w-3.5" />
+                            {t('weight')}: {v.weight}kg {v.shippingCostVND ? `(+${v.shippingCostVND.toLocaleString()}đ ${t('chinaShipping')})` : ''}
                           </span>
                         )}
                         {v.totalCostVND && (
-                          <span className="flex items-center gap-1 text-slate-600 dark:text-slate-300 font-semibold bg-indigo-50 dark:bg-white/5 px-2 py-0.5 rounded-lg border border-indigo-100 dark:border-white/10">
+                          <span className="inline-flex items-center gap-1 text-slate-700 dark:text-slate-200 font-semibold bg-slate-100 dark:bg-white/10 px-2.5 py-1 rounded-lg border border-slate-200/50 dark:border-white/10 text-xs">
                             {t('capitalCost')}: <strong className="text-indigo-600 dark:text-indigo-400">{v.totalCostVND.toLocaleString()} đ</strong>
                           </span>
                         )}
                       </div>
+                    )}
 
-                    {/* Right: Selling Price, Profit Margin & Actions */}
-                    <div className="flex items-center justify-between md:justify-end gap-3 shrink-0 pt-2 md:pt-0 border-t md:border-t-0 border-slate-200 dark:border-white/5">
-                      <div className="text-left md:text-right">
+                    {/* Right: Price, Profit & Actions */}
+                    <div className="flex items-center justify-between lg:justify-end gap-4 shrink-0 pt-2 lg:pt-0 border-t lg:border-t-0 border-slate-200/60 dark:border-white/5">
+                      <div className="text-left lg:text-right">
                         <span className="text-[10px] text-slate-400 uppercase tracking-wider block font-semibold">
                           {t('marketPrice')}
                         </span>
                         <span className="font-bold text-slate-900 dark:text-white text-sm">
                           {v.price.toLocaleString()} đ
                         </span>
+                      </div>
 
-                        {v.profitVND !== undefined && v.profitVND !== null && (
-                          <div className="flex items-center justify-start md:justify-end gap-1.5 mt-0.5">
+                      {v.profitVND !== undefined && v.profitVND !== null && (
+                        <div className="text-right">
+                          <span className="text-[10px] text-slate-400 uppercase tracking-wider block font-semibold">
+                            {t('profit')}
+                          </span>
+                          <div className="flex items-center justify-end gap-1.5">
                             <span
                               className={`text-xs font-bold whitespace-nowrap ${v.profitVND >= 0 ? "text-emerald-500" : "text-rose-500"}`}
                             >
@@ -311,30 +312,33 @@ export const ProductCard: React.FC<ProductCardProps> = React.memo(({
                                       ? "info"
                                       : "danger"
                                 }
+                                className="text-[10px] px-1.5 py-0"
                               >
                                 {margin}%
                               </Badge>
                             )}
                           </div>
-                        )}
-                      </div>
+                        </div>
+                      )}
 
                       {/* Variant Action Buttons */}
-                      <div className="flex items-center gap-1 shrink-0">
-                        <Button
-                          variant="ghost"
-                          size="sm"
+                      <div className="flex items-center gap-0.5 shrink-0 pl-2 border-l border-slate-200/60 dark:border-white/10">
+                        <button
+                          type="button"
                           onClick={() => onEditVariant(v)}
+                          className="p-1.5 text-indigo-500 hover:bg-indigo-50 dark:hover:bg-indigo-950/40 rounded-lg transition-colors cursor-pointer"
+                          title={t('edit')}
                         >
-                          <Edit2 className="h-3.5 w-3.5 text-indigo-500" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="sm"
+                          <Edit2 className="h-4 w-4" />
+                        </button>
+                        <button
+                          type="button"
                           onClick={() => onDeleteVariant(v)}
+                          className="p-1.5 text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/40 rounded-lg transition-colors cursor-pointer"
+                          title={t('softDelete')}
                         >
-                          <Trash2 className="h-3.5 w-3.5 text-rose-500" />
-                        </Button>
+                          <Trash2 className="h-4 w-4" />
+                        </button>
                       </div>
                     </div>
                   </div>
