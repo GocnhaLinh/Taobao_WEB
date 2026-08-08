@@ -9,7 +9,7 @@ export * from "../features/admin/users/api/user.api";
 export * from "../features/admin/coupons/api/coupon.api";
 export * from "../features/admin/reviews/api/review.api";
 export * from "../features/admin/settings/api/settings.api";
-export * from "./productService";
+export * from "../features/admin/products/api/product.api";
 export * from "./chatService";
 export * from "./uploadService";
 export * from "./categoryLabelService";
