@@ -1,11 +1,7 @@
 import React from 'react';
-import type { ProductMetrics } from '../types';
 import { Package, AlertTriangle, Trash2, Layers } from 'lucide-react';
 import { useTranslation } from '../../../../lib/i18n';
-
-interface ProductStatCardsProps {
-  metrics: ProductMetrics;
-}
+import type { ProductStatCardsProps } from '../types';
 
 export const ProductStatCards: React.FC<ProductStatCardsProps> = ({ metrics }) => {
   const { t } = useTranslation();
