@@ -45,3 +45,18 @@ export const getDisplayPrice = (value: string): string => {
   if (!cleaned) return '';
   return formatCurrency(cleaned);
 };
+
+/**
+ * Compact VND amount with suffix: 1.2M / 3.5B / 450
+ * Unlike formatCurrency, it never returns an empty string for 0.
+ */
+export const formatCompactVND = (value: number): string => {
+  if (value >= 1e9) {
+    return `${(value / 1e9).toLocaleString('vi-VN', { maximumFractionDigits: 2 })}B`;
+  }
+  if (value >= 1e6) {
+    return `${(value / 1e6).toLocaleString('vi-VN', { maximumFractionDigits: 1 })}M`;
+  }
+  return value.toLocaleString('vi-VN');
+};
+
