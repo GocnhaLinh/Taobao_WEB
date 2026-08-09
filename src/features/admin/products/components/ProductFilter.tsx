@@ -2,14 +2,7 @@ import React from 'react';
 import { Search, Package, Archive } from 'lucide-react';
 import { useTranslation } from '../../../../lib/i18n';
 
-interface ProductFilterProps {
-  activeTab: 'ACTIVE' | 'DELETED';
-  setActiveTab: (tab: 'ACTIVE' | 'DELETED') => void;
-  searchQuery: string;
-  setSearchQuery: (query: string) => void;
-  activeCount: number;
-  deletedCount: number;
-}
+import type { ProductFilterProps } from '../types/product.types';
 
 export const ProductFilter: React.FC<ProductFilterProps> = ({
   activeTab,

@@ -3,7 +3,7 @@ import type { Product, ProductVariant } from '../../../../types';
 import type {
   BulkCreateVariantsData,
   BulkImageUpdateData,
-} from '../types.ts';
+} from '../types';
 
 export const fetchProductsApi = async (): Promise<Product[]> => {
   const res = await axiosClient.get<unknown, Product[] | { products: Product[] }>('/products');

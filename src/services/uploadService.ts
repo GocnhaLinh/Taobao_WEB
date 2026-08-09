@@ -1,4 +1,5 @@
 import { axiosClient } from './axiosClient';
+import { compressImage, compressImages } from '../utils/imageCompressor';
 
 export interface UploadResponse {
   url: string;
@@ -6,8 +7,9 @@ export interface UploadResponse {
 }
 
 export const uploadSingleImageApi = async (file: File): Promise<UploadResponse> => {
+  const compressedFile = await compressImage(file);
   const formData = new FormData();
-  formData.append('image', file);
+  formData.append('image', compressedFile);
 
   return axiosClient.post<any, UploadResponse>('/upload/single', formData, {
     headers: {
@@ -17,8 +19,9 @@ export const uploadSingleImageApi = async (file: File): Promise<UploadResponse> 
 };
 
 export const uploadMultipleImagesApi = async (files: File[]): Promise<UploadResponse[]> => {
+  const compressedFiles = await compressImages(files);
   const formData = new FormData();
-  files.forEach((file) => {
+  compressedFiles.forEach((file) => {
     formData.append('images', file);
   });
 

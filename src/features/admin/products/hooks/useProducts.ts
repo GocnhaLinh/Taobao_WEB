@@ -194,11 +194,11 @@ export const useProducts = (): UseProductsReturn => {
     mutationFn: bulkCreateVariantsApi,
     onSuccess: (res) => {
       refreshAll();
-      showNotification(`Đã tạo ${res.count} biến thể thành công!`, 'success');
+      showNotification(t('bulkVariantCreatedCountSuccess', { count: res.count }), 'success');
       setIsBulkVariantModalOpen(false);
     },
     onError: (err: { message?: string }) => {
-      showNotification(err.message || 'Lỗi khi tạo biến thể hàng loạt', 'error');
+      showNotification(err.message || t('bulkVariantCreateFailed'), 'error');
     },
   });
 
@@ -208,7 +208,7 @@ export const useProducts = (): UseProductsReturn => {
       refreshAll();
     },
     onError: (err: { message?: string }) => {
-      showNotification(err.message || 'Lỗi khi cập nhật biến thể', 'error');
+      showNotification(err.message || t('variantUpdateFailed'), 'error');
     },
   });
 
@@ -218,7 +218,7 @@ export const useProducts = (): UseProductsReturn => {
       refreshAll();
     },
     onError: (err: { message?: string }) => {
-      showNotification(err.message || 'Lỗi khi đổi trạng thái biến thể', 'error');
+      showNotification(err.message || t('variantToggleStatusFailed'), 'error');
     },
   });
 

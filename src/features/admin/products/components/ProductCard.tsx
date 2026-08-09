@@ -16,24 +16,9 @@ import {
 import { useTranslation } from "../../../../lib/i18n";
 import { Badge } from "../../../../components/ui/Badge";
 import { Button } from "../../../../components/ui/Button";
-import type { Product, ProductVariant } from "../../../../types";
-
 import { TrashCountdownBar } from "../../../../components/ui/TrashCountdownBar";
 
-interface ProductCardProps {
-  product: Product;
-  onEditProduct: (p: Product) => void;
-  onDeleteProduct: (p: Product) => void;
-  onAddVariant: (productId: string) => void;
-  onEditVariant: (v: ProductVariant) => void;
-  onDeleteVariant: (v: ProductVariant) => void;
-  onToggleVariant?: (v: ProductVariant) => void;
-  onBulkAddVariant?: (productId: string) => void;
-  onViewDetail?: (p: Product) => void;
-  isDeletedTab?: boolean;
-  onRestoreProduct?: (p: Product) => void;
-  onForceDeleteProduct?: (p: Product) => void;
-}
+import type { ProductCardProps } from "../types/product.types";
 
 export const ProductCard: React.FC<ProductCardProps> = React.memo(({
   product,
@@ -219,100 +204,113 @@ export const ProductCard: React.FC<ProductCardProps> = React.memo(({
                     key={v.id}
                     className="p-3 bg-slate-50 dark:bg-white/5 border border-slate-200/80 dark:border-white/10 rounded-2xl flex flex-col lg:flex-row lg:items-center justify-between gap-3 hover:border-indigo-500/30 transition-all"
                   >
-                    {/* Left: SKU, Status, Size, Color, Stock */}
-                    <div className="flex flex-wrap items-center gap-2.5 min-w-0">
-                      <Badge
-                        variant="neutral"
-                        className="font-mono text-xs tracking-wide shrink-0"
-                      >
-                        {v.sku}
-                      </Badge>
-                      <span
-                        onClick={() => onToggleVariant?.(v)}
-                        className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold cursor-pointer transition-all ${
-                          v.status === 'ACTIVE'
-                            ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 hover:bg-amber-100 dark:hover:bg-amber-900/30'
-                            : 'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 hover:bg-emerald-100 dark:hover:bg-emerald-900/30'
-                        }`}
-                        title={v.status === 'ACTIVE' ? 'Nhấn để ẩn biến thể' : 'Nhấn để kích hoạt biến thể'}
-                      >
-                        {v.status === 'ACTIVE' ? (
-                          <><Eye className="h-3 w-3" /> <span>{t('active')}</span></>
-                        ) : (
-                          <><EyeOff className="h-3 w-3" /> <span>{t('disabled')}</span></>
-                        )}
-                      </span>
+                    {/* Left: SKU, Status (Row 1) & Size, Color, Stock (Row 2) */}
+                    <div className="flex flex-col gap-1.5 min-w-0">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <Badge
+                          variant="neutral"
+                          className="font-mono text-xs tracking-wide shrink-0"
+                        >
+                          {v.sku}
+                        </Badge>
+                        <span
+                          onClick={() => onToggleVariant?.(v)}
+                          className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold cursor-pointer transition-all shrink-0 ${
+                            v.status === 'ACTIVE'
+                              ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 hover:bg-amber-100 dark:hover:bg-amber-900/30'
+                              : 'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 hover:bg-emerald-100 dark:hover:bg-emerald-900/30'
+                          }`}
+                          title={v.status === 'ACTIVE' ? 'Nhấn để ẩn biến thể' : 'Nhấn để kích hoạt biến thể'}
+                        >
+                          {v.status === 'ACTIVE' ? (
+                            <><Eye className="h-3.5 w-3.5 shrink-0" /> <span>{t('active')}</span></>
+                          ) : (
+                            <><EyeOff className="h-3.5 w-3.5 shrink-0" /> <span>{t('disabled')}</span></>
+                          )}
+                        </span>
+                      </div>
 
-                      {v.size && (
-                        <span className="text-xs text-slate-600 dark:text-slate-300 font-semibold">
-                          {t('size')}: <strong className="text-slate-900 dark:text-white">{v.size}</strong>
+                      <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-slate-600 dark:text-slate-300">
+                        {v.size && (
+                          <span>
+                            {t('size')}: <strong className="text-slate-900 dark:text-white font-bold">{v.size}</strong>
+                          </span>
+                        )}
+                        {v.color && (
+                          <span>
+                            {t('color')}: <strong className="text-slate-900 dark:text-white font-bold">{v.color}</strong>
+                          </span>
+                        )}
+                        <span>
+                          {t('stock')}: <strong className="text-slate-900 dark:text-white font-bold">{v.stock}</strong>
                         </span>
-                      )}
-                      {v.color && (
-                        <span className="text-xs text-slate-600 dark:text-slate-300 font-semibold">
-                          {t('color')}: <strong className="text-slate-900 dark:text-white">{v.color}</strong>
-                        </span>
-                      )}
-                      <span className="text-xs text-slate-500 dark:text-slate-400">
-                        {t('stock')}: <strong className="text-slate-900 dark:text-white">{v.stock}</strong>
-                      </span>
+                      </div>
                     </div>
 
                     {/* Middle: Cost & Financial Info Breakdown */}
-                    {(v.originalPriceCNY || v.weight || v.totalCostVND) && (
+                    {(v.originalPriceCNY || v.weight) && (
                       <div className="flex flex-wrap items-center gap-2 text-xs text-slate-600 dark:text-slate-300">
                         {v.originalPriceCNY && (
                           <span className="inline-flex items-center gap-1 text-amber-600 dark:text-amber-400 font-medium bg-amber-500/10 px-2.5 py-1 rounded-lg text-xs">
-                            <Coins className="h-3.5 w-3.5" />
+                            <Coins className="h-3.5 w-3.5 shrink-0" />
                             {t('originCost')}: ¥{v.originalPriceCNY}{v.exchangeRate ? ` (rate: ${v.exchangeRate.toLocaleString()})` : ''}
                           </span>
                         )}
                         {v.weight !== undefined && v.weight !== null && v.weight > 0 && (
                           <span className="inline-flex items-center gap-1 text-indigo-600 dark:text-indigo-400 font-medium bg-indigo-500/10 px-2.5 py-1 rounded-lg text-xs">
-                            <Truck className="h-3.5 w-3.5" />
+                            <Truck className="h-3.5 w-3.5 shrink-0" />
                             {t('weight')}: {v.weight}kg {v.shippingCostVND ? `(+${v.shippingCostVND.toLocaleString()}đ ${t('chinaShipping')})` : ''}
-                          </span>
-                        )}
-                        {v.totalCostVND && (
-                          <span className="inline-flex items-center gap-1 text-slate-700 dark:text-slate-200 font-semibold bg-slate-100 dark:bg-white/10 px-2.5 py-1 rounded-lg border border-slate-200/50 dark:border-white/10 text-xs">
-                            {t('capitalCost')}: <strong className="text-indigo-600 dark:text-indigo-400">{v.totalCostVND.toLocaleString()} đ</strong>
                           </span>
                         )}
                       </div>
                     )}
 
-                    {/* Right: Price, Profit & Actions */}
-                    <div className="flex items-center justify-between lg:justify-end gap-4 shrink-0 pt-2 lg:pt-0 border-t lg:border-t-0 border-slate-200/60 dark:border-white/5">
-                      <div className="text-left lg:text-right">
-                        <span className="text-[10px] text-slate-400 uppercase tracking-wider block font-semibold">
+                    {/* Right: Financial Metrics & Actions */}
+                    <div className="flex flex-wrap items-center justify-between sm:justify-end gap-2.5 sm:gap-4 lg:gap-5 shrink-0 pt-2 lg:pt-0 border-t lg:border-t-0 border-slate-200/60 dark:border-white/5">
+                      {v.totalCostVND && (
+                        <div className="text-left sm:text-right flex-1 sm:flex-initial">
+                          <span className="text-[9px] sm:text-[10px] text-slate-400 uppercase tracking-wider block font-semibold mb-0.5 whitespace-nowrap">
+                            {t('capitalCost')}
+                          </span>
+                          <span className="font-bold text-indigo-600 dark:text-indigo-400 text-xs sm:text-sm whitespace-nowrap">
+                            {v.totalCostVND.toLocaleString()} đ
+                          </span>
+                        </div>
+                      )}
+
+                      <div className="text-left sm:text-right flex-1 sm:flex-initial">
+                        <span className="text-[9px] sm:text-[10px] text-slate-400 uppercase tracking-wider block font-semibold mb-0.5 whitespace-nowrap">
                           {t('marketPrice')}
                         </span>
-                        <span className="font-bold text-slate-900 dark:text-white text-sm">
+                        <span className="font-bold text-slate-900 dark:text-white text-xs sm:text-sm whitespace-nowrap">
                           {v.price.toLocaleString()} đ
                         </span>
                       </div>
 
                       {v.profitVND !== undefined && v.profitVND !== null && (
-                        <div className="text-right">
-                          <span className="text-[10px] text-slate-400 uppercase tracking-wider block font-semibold">
+                        <div className="text-right flex-1 sm:flex-initial">
+                          <span className="text-[9px] sm:text-[10px] text-slate-400 uppercase tracking-wider block font-semibold mb-0.5 whitespace-nowrap">
                             {t('profit')}
                           </span>
-                          <div className="flex items-center justify-end gap-1.5">
+                          <div className="flex items-center justify-end gap-1 sm:gap-1.5 h-5">
                             <span
-                              className={`text-xs font-bold whitespace-nowrap ${v.profitVND >= 0 ? "text-emerald-500" : "text-rose-500"}`}
+                              className={`text-xs sm:text-sm font-bold whitespace-nowrap ${
+                                v.profitVND >= 0 ? 'text-emerald-500' : 'text-rose-500'
+                              }`}
                             >
-                              {v.profitVND >= 0 ? '+' : ''}{v.profitVND.toLocaleString()}đ
+                              {v.profitVND >= 0 ? '+' : ''}
+                              {v.profitVND.toLocaleString()}đ
                             </span>
                             {margin && (
                               <Badge
                                 variant={
                                   parseFloat(margin) >= 30
-                                    ? "success"
+                                    ? 'success'
                                     : parseFloat(margin) > 0
-                                      ? "info"
-                                      : "danger"
+                                      ? 'info'
+                                      : 'danger'
                                 }
-                                className="text-[10px] px-1.5 py-0"
+                                className="text-[9px] sm:text-[10px] px-1 sm:px-1.5 py-0 font-bold"
                               >
                                 {margin}%
                               </Badge>
@@ -322,7 +320,7 @@ export const ProductCard: React.FC<ProductCardProps> = React.memo(({
                       )}
 
                       {/* Variant Action Buttons */}
-                      <div className="flex items-center gap-0.5 shrink-0 pl-2 border-l border-slate-200/60 dark:border-white/10">
+                      <div className="flex items-center gap-0.5 shrink-0 pl-1.5 sm:pl-2 border-l border-slate-200/60 dark:border-white/10">
                         <button
                           type="button"
                           onClick={() => onEditVariant(v)}

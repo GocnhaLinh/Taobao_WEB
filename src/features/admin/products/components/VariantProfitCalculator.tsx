@@ -4,20 +4,7 @@ import { Input } from '../../../../components/ui/Input';
 import { Badge } from '../../../../components/ui/Badge';
 import { Calculator, Sparkles, TrendingUp } from 'lucide-react';
 
-interface ProfitCalculatorValues {
-  originalPriceCNY: string;
-  exchangeRate: string;
-  weight: string;
-  shippingFeePerKg: string;
-  price: string;
-}
-
-interface VariantProfitCalculatorProps {
-  values: ProfitCalculatorValues;
-  onChange: (field: keyof ProfitCalculatorValues, value: string) => void;
-  /** Custom className cho container */
-  className?: string;
-}
+import type { VariantProfitCalculatorProps } from '../types/product.types';
 
 export const VariantProfitCalculator: React.FC<VariantProfitCalculatorProps> = ({
   values,
