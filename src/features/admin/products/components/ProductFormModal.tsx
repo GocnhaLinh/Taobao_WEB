@@ -3,8 +3,9 @@ import { useTranslation } from "../../../../lib/i18n";
 import { Modal } from "../../../../components/ui/Modal";
 import { Input } from "../../../../components/ui/Input";
 import { Button } from "../../../../components/ui/Button";
+import { ConfirmModal } from "../../../../components/ui/ConfirmModal";
 import { CustomSelect } from "../../../../components/ui/CustomSelect";
-import { Upload, Trash2, CheckCircle2, RefreshCw } from "lucide-react";
+import { Upload, Trash2, CheckCircle2, RefreshCw, Loader2 } from "lucide-react";
 import {
   uploadSingleImageApi,
   uploadMultipleImagesApi,
@@ -14,17 +15,7 @@ import { getFeeConfigApi } from "../../settings/api/settings.api";
 import { useNotification } from "../../../../lib/notification";
 import { generateAutoSku } from "../../../../utils/skuHelper";
 import { VariantProfitCalculator } from "./VariantProfitCalculator";
-import type { Product, Category, Brand } from "../../../../types";
-
-interface ProductFormModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  onSubmit: (data: any) => void;
-  isLoading?: boolean;
-  editingProduct?: Product | null;
-  categories: Category[];
-  brands: Brand[];
-}
+import type { ProductFormModalProps } from "../types/product.types";
 
 export const ProductFormModal: React.FC<ProductFormModalProps> = ({
   isOpen,
@@ -131,6 +122,38 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({
     }
   }, [editingProduct, isOpen, categories, brands]);
 
+  const sessionUploadedCloudinaryUrlsRef = useRef<Set<string>>(new Set());
+
+  const trackUploadedUrl = (url: string) => {
+    if (url && (url.includes("cloudinary.com") || url.includes("res.cloudinary.com"))) {
+      sessionUploadedCloudinaryUrlsRef.current.add(url);
+    }
+  };
+
+  const cleanupSessionImages = async () => {
+    const urls = Array.from(sessionUploadedCloudinaryUrlsRef.current);
+    sessionUploadedCloudinaryUrlsRef.current.clear();
+    if (urls.length > 0) {
+      await Promise.all(
+        urls.map((url) =>
+          deleteImageApi(url).catch((err) =>
+            console.warn("Failed to cleanup session image on cancel:", url, err)
+          )
+        )
+      );
+    }
+  };
+
+  const [isCancelConfirmOpen, setIsCancelConfirmOpen] = useState(false);
+
+  const handleAttemptClose = () => {
+    if (sessionUploadedCloudinaryUrlsRef.current.size > 0) {
+      setIsCancelConfirmOpen(true);
+    } else {
+      onClose();
+    }
+  };
+
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const filesList = e.target.files;
     if (!filesList || filesList.length === 0) return;
@@ -142,29 +165,30 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({
       if (filesArray.length === 1) {
         const res = await uploadSingleImageApi(filesArray[0]);
         if (res && res.url) {
+          trackUploadedUrl(res.url);
           const updated = [...images, res.url];
           setImages(updated);
           if (!thumbnail) setThumbnail(res.url);
-          showNotification(
-            t("productAddedSuccess") || "Image uploaded successfully!",
-            "success",
-          );
+          showNotification(t("imageUploadSuccess"), "success");
         }
       } else {
         const resList = await uploadMultipleImagesApi(filesArray);
         if (resList && resList.length > 0) {
-          const newUrls = resList.map((r) => r.url);
+          const newUrls = resList.map((r) => {
+            trackUploadedUrl(r.url);
+            return r.url;
+          });
           const updated = [...images, ...newUrls];
           setImages(updated);
           if (!thumbnail && newUrls[0]) setThumbnail(newUrls[0]);
           showNotification(
-            `${newUrls.length} product images uploaded!`,
-            "success",
+            t("imagesUploadSuccess", { count: newUrls.length }),
+            "success"
           );
         }
       }
     } catch (err: any) {
-      showNotification(err.message || "Image upload failed", "error");
+      showNotification(err.message || t("imageUploadFailed"), "error");
     } finally {
       setIsUploading(false);
       if (fileInputRef.current) {
@@ -181,22 +205,23 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({
       setThumbnail(nextImages[0] || "");
     }
 
+    if (sessionUploadedCloudinaryUrlsRef.current.has(urlToRemove)) {
+      sessionUploadedCloudinaryUrlsRef.current.delete(urlToRemove);
+    }
+
     if (
       urlToRemove.includes("cloudinary.com") ||
       urlToRemove.includes("res.cloudinary.com")
     ) {
       try {
         await deleteImageApi(urlToRemove);
-        showNotification(
-          t("productAddedFailed") || "Image removed!",
-          "success",
-        );
+        showNotification(t("imageCloudinaryDeleteSuccess"), "success");
       } catch (err) {
         console.warn("Image deletion failed:", err);
-        showNotification("Image removed from list!", "info");
+        showNotification(t("imageRemovedFromList"), "info");
       }
     } else {
-      showNotification("Image deleted successfully!", "success");
+      showNotification(t("imageDeleteSuccess"), "success");
     }
   };
 
@@ -212,6 +237,7 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({
       .replace(/[^a-z0-9-]/g, "");
     const finalThumbnail = thumbnail || images[0] || null;
 
+    sessionUploadedCloudinaryUrlsRef.current.clear();
     onSubmit({
       productName,
       slug: slug || `sp-${Date.now()}`,
@@ -231,10 +257,7 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({
                 ),
               price: sellingVND,
               originalPriceCNY: cny > 0 ? cny : undefined,
-              // KHÔNG gửi exchangeRate — backend tự resolve từ fee config hệ thống
-              // tránh sai lệch nếu tỷ giá thay đổi giữa lúc mở modal và lúc submit
               weight: kg > 0 ? kg : undefined,
-              // KHÔNG gửi shippingCostVND — backend tự tính: weight × shippingCnPerKg
               stock: variantStock ? Number(variantStock) : 10,
               size: variantSize.trim() || undefined,
               color: variantColor.trim() || undefined,
@@ -266,21 +289,22 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({
   ];
 
   return (
-    <Modal
-      isOpen={isOpen}
-      onClose={onClose}
-      title={
-        editingProduct
-          ? t("editProduct") || "Edit Product"
-          : t("addProduct") || "Add Product"
-      }
-      maxWidth="5xl"
-      footer={
-        <div className="flex items-center justify-end gap-3">
-          <Button
-            type="button"
-            variant="secondary"
-            onClick={onClose}
+    <>
+      <Modal
+        isOpen={isOpen}
+        onClose={handleAttemptClose}
+        title={
+          editingProduct
+            ? t("editProduct") || "Edit Product"
+            : t("addProduct") || "Add Product"
+        }
+        maxWidth="5xl"
+        footer={
+          <div className="flex items-center justify-end gap-3">
+            <Button
+              type="button"
+              variant="secondary"
+              onClick={handleAttemptClose}
             disabled={isLoading || isUploading}
           >
             {t("cancel")}
@@ -378,8 +402,16 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({
               </div>
             </div>
 
-            {/* Uploaded Images Gallery Grid */}
-            {images.length > 0 && (
+            {/* Uploading Progress Status Banner */}
+            {isUploading && (
+              <div className="flex items-center gap-2.5 p-3 bg-indigo-50/80 dark:bg-indigo-950/40 border border-indigo-200/80 dark:border-indigo-800/50 rounded-xl text-xs text-indigo-700 dark:text-indigo-300 animate-in fade-in duration-200">
+                <Loader2 className="h-4 w-4 animate-spin text-indigo-600 dark:text-indigo-400 shrink-0" />
+                <span className="font-medium">⚡ Đang nén & tải ảnh lên Cloudinary, vui lòng chờ trong giây lát...</span>
+              </div>
+            )}
+
+            {/* Uploaded Images Gallery Grid & Loading Skeleton */}
+            {(images.length > 0 || isUploading) && (
               <div className="grid grid-cols-4 sm:grid-cols-5 gap-2 p-2.5 bg-slate-100/50 dark:bg-slate-800/40 rounded-2xl border border-slate-200 dark:border-white/10">
                 {images.map((imgUrl, index) => {
                   const isMain = thumbnail === imgUrl;
@@ -420,6 +452,13 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({
                     </div>
                   );
                 })}
+
+                {isUploading && (
+                  <div className="relative aspect-square rounded-xl overflow-hidden border-2 border-dashed border-indigo-400/80 dark:border-indigo-500/50 bg-indigo-50/50 dark:bg-indigo-950/30 flex flex-col items-center justify-center text-indigo-600 dark:text-indigo-400 animate-pulse">
+                    <Loader2 className="h-5 w-5 animate-spin mb-1 text-indigo-500" />
+                    <span className="text-[10px] font-semibold text-indigo-600 dark:text-indigo-300">Đang tải...</span>
+                  </div>
+                )}
               </div>
             )}
           </div>
@@ -484,16 +523,14 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({
                   try {
                     const res = await uploadSingleImageApi(file);
                     if (res?.url) {
+                      trackUploadedUrl(res.url);
                       const updated = [...variantImages, res.url];
                       setVariantImages(updated);
                       if (!variantImage) setVariantImage(res.url);
-                      showNotification(
-                        "📸 Ảnh biến thể đã tải lên!",
-                        "success",
-                      );
+                      showNotification(t("imageUploadSuccess"), "success");
                     }
                   } catch (err: any) {
-                    showNotification(err.message || "Upload thất bại", "error");
+                    showNotification(err.message || t("imageUploadFailed"), "error");
                   }
                   if (variantFileInputRef.current)
                     variantFileInputRef.current.value = "";
@@ -616,6 +653,22 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({
         )}
       </form>
     </Modal>
+
+    <ConfirmModal
+      isOpen={isCancelConfirmOpen}
+      onClose={() => setIsCancelConfirmOpen(false)}
+      onConfirm={async () => {
+        setIsCancelConfirmOpen(false);
+        await cleanupSessionImages();
+        onClose();
+      }}
+      title={t('confirmCancelTitle') || 'Xác nhận hủy thay đổi'}
+      description={t('confirmCancelDesc') || 'Bạn có các thay đổi hoặc ảnh vừa tải lên chưa lưu. Tất cả ảnh chưa lưu sẽ tự động bị xóa khỏi Cloudinary.'}
+      confirmText={t('confirmCancelBtn') || 'Hủy thay đổi'}
+      cancelText={t('keepEditingBtn') || 'Tiếp tục chỉnh sửa'}
+      variant="warning"
+    />
+  </>
   );
 };
 

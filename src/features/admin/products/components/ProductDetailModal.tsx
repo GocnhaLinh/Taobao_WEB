@@ -25,19 +25,7 @@ import {
   Eye,
   EyeOff,
 } from 'lucide-react';
-import type { Product, ProductVariant } from '../../../../types';
-
-interface ProductDetailModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  product: Product | null;
-  onEditProduct?: (p: Product) => void;
-  onAddVariant?: (productId: string) => void;
-  onEditVariant?: (v: ProductVariant) => void;
-  onBulkAddVariant?: (productId: string) => void;
-  onInlineUpdateVariant?: (id: string, data: Partial<ProductVariant>) => void;
-  onToggleVariant?: (v: ProductVariant) => void;
-}
+import type { ProductDetailModalProps } from '../types/product.types';
 
 export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
   isOpen,

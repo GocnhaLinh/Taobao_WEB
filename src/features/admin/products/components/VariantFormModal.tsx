@@ -1,36 +1,19 @@
-import React, { useState, useEffect, useRef, useMemo, useCallback } from "react";
-import { useTranslation } from "../../../../lib/i18n";
+import React, { useState } from "react";
 import { Modal } from "../../../../components/ui/Modal";
 import { Input } from "../../../../components/ui/Input";
 import { Button } from "../../../../components/ui/Button";
+import { ConfirmModal } from "../../../../components/ui/ConfirmModal";
 import {
   Upload,
   Trash2,
   RefreshCw,
   AlertTriangle,
+  Loader2,
 } from "lucide-react";
-import {
-  uploadSingleImageApi,
-  uploadMultipleImagesApi,
-  deleteImageApi,
-} from "../../../../services/uploadService";
-import { getFeeConfigApi } from "../../settings/api/settings.api";
-import { useNotification } from "../../../../lib/notification";
 import { generateAutoSku } from "../../../../utils/skuHelper";
 import { VariantProfitCalculator } from "./VariantProfitCalculator";
-import type { ProductVariant } from "../../../../types";
-
-interface VariantFormModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  onSubmit: (data: any) => void;
-  isLoading?: boolean;
-  editingVariant?: ProductVariant | null;
-  productId: string;
-  categoryName?: string;
-  /** Danh sách variants hiện có của product để kiểm tra trùng (size+color) */
-  existingVariants?: ProductVariant[];
-}
+import { useVariantFormModal } from "../hooks/useVariantFormModal";
+import type { VariantFormModalProps } from "../types/product.types";
 
 export const VariantFormModal: React.FC<VariantFormModalProps> = ({
   isOpen,
@@ -40,255 +23,83 @@ export const VariantFormModal: React.FC<VariantFormModalProps> = ({
   editingVariant,
   productId,
   categoryName,
-  existingVariants: existingVariantsProp,
+  existingVariants,
 }) => {
-  const { t } = useTranslation();
-  const { showNotification } = useNotification();
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [isCancelConfirmOpen, setIsCancelConfirmOpen] = useState(false);
 
-  const [sku, setSku] = useState("");
-  const [size, setSize] = useState("");
-  const [color, setColor] = useState("");
-  const [stock, setStock] = useState("10");
-  const [price, setPrice] = useState("");
+  const {
+    t,
+    fileInputRef,
+    sku,
+    setSku,
+    size,
+    setSize,
+    color,
+    setColor,
+    stock,
+    setStock,
+    price,
+    setPrice,
+    originalPriceCNY,
+    setOriginalPriceCNY,
+    exchangeRate,
+    setExchangeRate,
+    weight,
+    setWeight,
+    shippingFeePerKg,
+    setShippingFeePerKg,
+    image,
+    setImage,
+    images,
+    setImages,
+    isUploading,
+    applyImageToSameColor,
+    setApplyImageToSameColor,
+    duplicateComboError,
+    setDuplicateComboError,
+    cleanupSessionImages,
+    hasUploadedImages,
+    handleFileChange,
+    handleRemoveImage,
+    handleSubmit,
+  } = useVariantFormModal({
+    isOpen,
+    onClose,
+    onSubmit,
+    editingVariant,
+    productId,
+    categoryName,
+    existingVariants,
+  });
 
-  const [originalPriceCNY, setOriginalPriceCNY] = useState("");
-  const [exchangeRate, setExchangeRate] = useState("");
-  const [weight, setWeight] = useState("");
-  const [shippingFeePerKg, setShippingFeePerKg] = useState("");
-  const [image, setImage] = useState("");
-  const [images, setImages] = useState<string[]>([]);
-  const [isUploading, setIsUploading] = useState(false);
-  const [applyImageToSameColor, setApplyImageToSameColor] = useState(false);
-  const [duplicateComboError, setDuplicateComboError] = useState<string | null>(null);
-
-  // Danh sách variants hiện có để kiểm tra trùng (size+color)
-  const existingVariants: ProductVariant[] = existingVariantsProp || [];
-
-  // Theo dõi unsaved changes để confirm trước khi đóng
-  const hasUnsavedData = useMemo(() =>
-    !editingVariant && (
-      size.trim() || color.trim() || price ||
-      originalPriceCNY || weight || images.length > 0
-    ),
-    [editingVariant, size, color, price, originalPriceCNY, weight, images.length]
-  );
-
-  const handleCloseConfirm = useCallback(() => {
-    if (hasUnsavedData && !window.confirm('Bạn có muốn hủy các thay đổi chưa lưu không?')) return;
-    onClose();
-  }, [hasUnsavedData, onClose]);
-
-  // Kiểm tra trùng realtime khi user nhập size/color
-  useEffect(() => {
-    if (editingVariant || !size || !color || existingVariants.length === 0) {
-      setDuplicateComboError(null);
-      return;
-    }
-    const isDuplicate = existingVariants.some(
-      (v: ProductVariant) =>
-        v.status !== 'DELETED' &&
-        (v.size || null) === (size || null) &&
-        (v.color || null) === (color || null)
-    );
-    setDuplicateComboError(isDuplicate ? `Biến thể (size: "${size}", màu: "${color}") đã tồn tại!` : null);
-  }, [size, color, editingVariant, existingVariants]);
-
-  const resetForm = () => {
-    setSku(generateAutoSku(categoryName));
-    setSize("");
-    setColor("");
-    setStock("10");
-    setPrice("");
-
-    setOriginalPriceCNY("");
-    setExchangeRate("");
-    setWeight("");
-    setShippingFeePerKg("");
-    setImage("");
-    setImages([]);
-    setIsUploading(false);
-    setApplyImageToSameColor(false);
-  };
-
-  useEffect(() => {
-    if (!isOpen) {
-      resetForm();
-      return;
-    }
-
-    getFeeConfigApi()
-      .then((cfg) => {
-        if (cfg) {
-          if (cfg.shippingCnPerKg) {
-            setShippingFeePerKg(cfg.shippingCnPerKg.toString());
-          }
-          if (cfg.exchangeRate) {
-            // Luôn fill tỷ giá hệ thống vào state feeExchangeRate để dùng làm fallback
-            // Nếu là Create mới hoặc Edit biến thể cũ chưa có tỷ giá → auto-fill vào ô input
-            if (!editingVariant || !editingVariant.exchangeRate) {
-              setExchangeRate(cfg.exchangeRate.toString());
-            }
-          }
-        }
-      })
-      .catch((err) => console.warn("Could not fetch fee config:", err));
-
-    if (editingVariant) {
-      setSku(editingVariant.sku || "");
-      setSize(editingVariant.size || "");
-      setColor(editingVariant.color || "");
-      setStock(editingVariant.stock?.toString() || "0");
-      setPrice(editingVariant.price?.toString() || "");
-
-      setOriginalPriceCNY(editingVariant.originalPriceCNY?.toString() || "");
-      // Nếu biến thể đã có tỷ giá thì dùng, nếu không sẽ được fill bởi getFeeConfigApi() ở trên
-      setExchangeRate(editingVariant.exchangeRate?.toString() || "");
-      setWeight(editingVariant.weight?.toString() || "");
-      if (editingVariant.weight && editingVariant.shippingCostVND) {
-        const perKg = Math.round(
-          editingVariant.shippingCostVND / editingVariant.weight,
-        );
-        setShippingFeePerKg(perKg > 0 ? perKg.toString() : "");
-      }
-      const initialImgs =
-        editingVariant.images && editingVariant.images.length > 0
-          ? editingVariant.images
-          : editingVariant.image
-          ? [editingVariant.image]
-          : [];
-      setImage(editingVariant.image || initialImgs[0] || "");
-      setImages(initialImgs);
+  const handleAttemptClose = () => {
+    if (hasUploadedImages()) {
+      setIsCancelConfirmOpen(true);
     } else {
-      resetForm();
+      onClose();
     }
-  }, [editingVariant, isOpen, categoryName]);
-
-  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const filesList = e.target.files;
-    if (!filesList || filesList.length === 0) return;
-
-    const filesArray = Array.from(filesList);
-    setIsUploading(true);
-
-    try {
-      if (filesArray.length === 1) {
-        const res = await uploadSingleImageApi(filesArray[0]);
-        if (res && res.url) {
-          const updated = [...images, res.url];
-          setImages(updated);
-          if (!image) setImage(res.url);
-          showNotification('📸 Ảnh biến thể đã tải lên thành công!', "success");
-        }
-      } else {
-        const resList = await uploadMultipleImagesApi(filesArray);
-        if (resList && resList.length > 0) {
-          const newUrls = resList.map((r) => r.url);
-          const updated = [...images, ...newUrls];
-          setImages(updated);
-          if (!image && newUrls[0]) setImage(newUrls[0]);
-          showNotification(
-            `📸 ${newUrls.length} ảnh biến thể đã tải lên!`,
-            "success",
-          );
-        }
-      }
-    } catch (err: any) {
-      showNotification(err.message || "Variant image error", "error");
-    } finally {
-      setIsUploading(false);
-      if (fileInputRef.current) {
-        fileInputRef.current.value = "";
-      }
-    }
-  };
-
-  const handleRemoveImage = async (urlToRemove: string) => {
-    const nextImages = images.filter((img) => img !== urlToRemove);
-    setImages(nextImages);
-
-    if (image === urlToRemove) {
-      setImage(nextImages[0] || "");
-    }
-
-    if (
-      urlToRemove.includes("cloudinary.com") ||
-      urlToRemove.includes("res.cloudinary.com")
-    ) {
-      try {
-        await deleteImageApi(urlToRemove);
-        showNotification('🗑️ Ảnh đã được xóa khỏi Cloudinary!', "success");
-      } catch (err) {
-        console.warn("Image deletion failed:", err);
-        showNotification("📋 Ảnh đã xóa khỏi danh sách!", "info");
-      }
-    } else {
-      showNotification("🗑️ Ảnh đã xóa thành công!", "success");
-    }
-  };
-
-  // Real-time Taobao import cost & profit calculations
-  const cny = parseFloat(originalPriceCNY) || 0;
-  const rate = parseFloat(exchangeRate) || 0;
-  const kg = parseFloat(weight) || 0;
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-
-    if (duplicateComboError) {
-      showNotification(`⚠️ ${duplicateComboError}`, 'error');
-      return;
-    }
-
-    const finalImage = image || images[0] || null;
-    const finalImages = images.length > 0 ? images : (image ? [image] : []);
-    onSubmit({
-      productId,
-      sku,
-      size: size || null,
-      color: color || null,
-      stock: parseInt(stock, 10) || 0,
-      price: parseFloat(price) || 0,
-
-      originalPriceCNY: cny > 0 ? cny : null,
-      // Gửi undefined thay vì null khi không có tỷ giá → Backend sẽ tự động lấy tỷ giá hệ thống
-      exchangeRate: rate > 0 ? rate : undefined,
-      weight: kg > 0 ? kg : null,
-      // KHÔNG gửi shippingCostVND, totalCostVND, profitVND:
-      // Backend tự tính lại từ fee config hệ thống (weight × shippingCnPerKg)
-      // → tránh sai lệch khi shippingFeePerKg trên UI bị stale so với DB
-      image: finalImage,
-      images: finalImages,
-      // Flag để parent tự động áp ảnh cho các biến thể cùng màu
-      ...(applyImageToSameColor && color.trim() ? {
-        applyImageToSameColor: true,
-        bulkColor: color.trim(),
-        bulkImage: finalImage,
-        bulkImages: finalImages,
-      } : {}),
-    });
-    resetForm();
   };
 
   return (
-    <Modal
-      isOpen={isOpen}
-      onClose={handleCloseConfirm}
-      title={
-        editingVariant
-          ? (t('editVariant') || 'Edit Variant')
-          : (t('addVariant') || 'Add Variant & Profit')
-      }
-      maxWidth="5xl"
-      footer={
-        <div className="flex justify-end gap-3">
-          <Button
-            variant="outline"
-            onClick={onClose}
-            disabled={isLoading || isUploading}
-          >
-            {t('cancel')}
-          </Button>
+    <>
+      <Modal
+        isOpen={isOpen}
+        onClose={handleAttemptClose}
+        title={
+          editingVariant
+            ? (t('editVariant') || 'Edit Variant')
+            : (t('addVariant') || 'Add Variant & Profit')
+        }
+        maxWidth="5xl"
+        footer={
+          <div className="flex justify-end gap-3">
+            <Button
+              variant="outline"
+              onClick={handleAttemptClose}
+              disabled={isLoading || isUploading}
+            >
+              {t('cancel')}
+            </Button>
           <Button
             variant="primary"
             onClick={handleSubmit}
@@ -388,6 +199,14 @@ export const VariantFormModal: React.FC<VariantFormModalProps> = ({
               </div>
             </div>
 
+            {/* Uploading Progress Status Banner */}
+            {isUploading && (
+              <div className="flex items-center gap-2.5 p-3 bg-indigo-50/80 dark:bg-indigo-950/40 border border-indigo-200/80 dark:border-indigo-800/50 rounded-xl text-xs text-indigo-700 dark:text-indigo-300 animate-in fade-in duration-200">
+                <Loader2 className="h-4 w-4 animate-spin text-indigo-600 dark:text-indigo-400 shrink-0" />
+                <span className="font-medium">⚡ Đang nén & tải ảnh lên Cloudinary, vui lòng chờ trong giây lát...</span>
+              </div>
+            )}
+
             {/* Checkbox: Áp ảnh cho tất cả biến thể cùng màu */}
             {images.length > 0 && color.trim() && (
               <label className="flex items-center gap-2 px-1 py-1.5 cursor-pointer group">
@@ -403,8 +222,8 @@ export const VariantFormModal: React.FC<VariantFormModalProps> = ({
               </label>
             )}
 
-            {/* Uploaded Variant Images Preview */}
-            {images.length > 0 && (
+            {/* Uploaded Variant Images Preview & Loading Skeleton */}
+            {(images.length > 0 || isUploading) && (
               <div className="grid grid-cols-4 sm:grid-cols-5 gap-2 p-2.5 bg-slate-100/50 dark:bg-slate-800/40 rounded-2xl border border-slate-200 dark:border-white/10">
                 {images.map((imgUrl, index) => {
                   const isMain = image === imgUrl;
@@ -437,6 +256,13 @@ export const VariantFormModal: React.FC<VariantFormModalProps> = ({
                     </div>
                   );
                 })}
+
+                {isUploading && (
+                  <div className="relative aspect-square rounded-xl overflow-hidden border-2 border-dashed border-indigo-400/80 dark:border-indigo-500/50 bg-indigo-50/50 dark:bg-indigo-950/30 flex flex-col items-center justify-center text-indigo-600 dark:text-indigo-400 animate-pulse">
+                    <Loader2 className="h-5 w-5 animate-spin mb-1 text-indigo-500" />
+                    <span className="text-[10px] font-semibold text-indigo-600 dark:text-indigo-300">Đang tải ảnh...</span>
+                  </div>
+                )}
               </div>
             )}
           </div>
@@ -495,6 +321,21 @@ export const VariantFormModal: React.FC<VariantFormModalProps> = ({
         </div>
       </form>
     </Modal>
+
+    <ConfirmModal
+      isOpen={isCancelConfirmOpen}
+      onClose={() => setIsCancelConfirmOpen(false)}
+      onConfirm={async () => {
+        setIsCancelConfirmOpen(false);
+        await cleanupSessionImages();
+        onClose();
+      }}
+      title={t('confirmCancelTitle') || 'Xác nhận hủy thay đổi'}
+      description={t('confirmCancelDesc') || 'Bạn có các thay đổi hoặc ảnh vừa tải lên chưa lưu. Tất cả ảnh chưa lưu sẽ tự động bị xóa khỏi Cloudinary.'}
+      confirmText={t('confirmCancelBtn') || 'Hủy thay đổi'}
+      cancelText={t('keepEditingBtn') || 'Tiếp tục chỉnh sửa'}
+      variant="warning"
+    />
+  </>
   );
 };
-
