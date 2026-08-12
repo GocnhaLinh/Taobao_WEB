@@ -20,6 +20,7 @@ const NotFoundPage = lazy(() => import('./pages/admin/NotFoundPage').then(m => (
 export const routeConfig: RouteObject[] = [
   { path: '/', element: <ClientHomePage /> },
   { path: '/shop', element: <ClientHomePage /> },
+  { path: '/client/*', element: <ClientHomePage /> },
   { path: '/admin', element: <OverviewPage /> },
   { path: '/products', element: <ProductsPage /> },
   { path: '/categories', element: <CategoriesPage /> },

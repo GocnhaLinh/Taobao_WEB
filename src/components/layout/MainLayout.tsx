@@ -13,7 +13,7 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const location = useLocation();
 
-  if (location.pathname === '/' || location.pathname.startsWith('/shop')) {
+  if (location.pathname === '/' || location.pathname.startsWith('/shop') || location.pathname.startsWith('/client')) {
     return <>{children}</>;
   }
 
