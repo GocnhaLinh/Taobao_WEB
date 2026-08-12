@@ -3,6 +3,7 @@ import { useRoutes, type RouteObject } from 'react-router-dom';
 import { PageLoader } from './components/common/PageLoader';
 
 // Lazy loading pages for optimal performance and smooth transition
+const ClientHomePage = lazy(() => import('./pages/client/ClientHomePage').then(m => ({ default: m.ClientHomePage })));
 const OverviewPage = lazy(() => import('./pages/admin/OverviewPage').then(m => ({ default: m.OverviewPage })));
 const ProductsPage = lazy(() => import('./pages/admin/ProductsPage').then(m => ({ default: m.ProductsPage })));
 const CategoriesPage = lazy(() => import('./pages/admin/CategoriesPage').then(m => ({ default: m.CategoriesPage })));
@@ -17,6 +18,7 @@ const SettingsPage = lazy(() => import('./pages/admin/SettingsPage').then(m => (
 const NotFoundPage = lazy(() => import('./pages/admin/NotFoundPage').then(m => ({ default: m.NotFoundPage })));
 
 export const routeConfig: RouteObject[] = [
+  { path: '/shop', element: <ClientHomePage /> },
   { path: '/', element: <OverviewPage /> },
   { path: '/products', element: <ProductsPage /> },
   { path: '/categories', element: <CategoriesPage /> },

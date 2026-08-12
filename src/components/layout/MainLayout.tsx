@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useLocation } from 'react-router-dom';
 import logoImg from '../../assets/logo.jpg';
 import { Menu } from 'lucide-react';
 import { Sidebar } from './Sidebar';
@@ -10,6 +11,11 @@ interface MainLayoutProps {
 
 export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
   const [isMobileOpen, setIsMobileOpen] = useState(false);
+  const location = useLocation();
+
+  if (location.pathname.startsWith('/shop')) {
+    return <>{children}</>;
+  }
 
   return (
     <div className="h-screen w-full max-w-full bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 flex flex-col md:flex-row overflow-x-hidden overflow-y-hidden transition-colors">
