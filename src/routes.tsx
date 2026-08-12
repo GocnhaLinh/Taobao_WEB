@@ -18,8 +18,9 @@ const SettingsPage = lazy(() => import('./pages/admin/SettingsPage').then(m => (
 const NotFoundPage = lazy(() => import('./pages/admin/NotFoundPage').then(m => ({ default: m.NotFoundPage })));
 
 export const routeConfig: RouteObject[] = [
+  { path: '/', element: <ClientHomePage /> },
   { path: '/shop', element: <ClientHomePage /> },
-  { path: '/', element: <OverviewPage /> },
+  { path: '/admin', element: <OverviewPage /> },
   { path: '/products', element: <ProductsPage /> },
   { path: '/categories', element: <CategoriesPage /> },
   { path: '/brands', element: <BrandsPage /> },
