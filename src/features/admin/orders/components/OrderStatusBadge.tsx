@@ -11,7 +11,11 @@ export const OrderStatusBadge: React.FC<OrderStatusBadgeProps> = ({ status, clas
     case 'PENDING_ORDER':
     case 'PENDING':
       return (
-        <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20 whitespace-nowrap ${className}`}>
+        <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20 whitespace-nowrap ${className}`}>
+          <span className="relative flex h-2 w-2 shrink-0">
+            <span className="absolute inline-flex h-full w-full rounded-full bg-amber-500 opacity-60 animate-ping" />
+            <span className="relative inline-flex h-2 w-2 rounded-full bg-amber-500" />
+          </span>
           <Clock className="h-3 w-3 shrink-0" />
           {t('statusPendingOrder') || 'Đợi đặt hàng'}
         </span>

@@ -61,6 +61,7 @@ export interface ProductVariant {
   size?: string;
   color?: string;
   price: number; // Giá bán ra thị trường Việt (VNĐ)
+  salePrice?: number; // Giá khuyến mãi / giá ưu đãi
   originalPriceCNY?: number; // Giá gốc Tệ bên Trung (¥ CNY)
   exchangeRate?: number; // Tỷ giá NDT -> VNĐ
   shippingCostVND?: number; // Phí vận chuyển, ship, kho VNĐ
