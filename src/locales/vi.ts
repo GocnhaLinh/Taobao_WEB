@@ -372,7 +372,7 @@ export const vi = {
 
   // Orders Page
   allClientOrders: "Tất cả đơn hàng của khách",
-  warehouseOrdersAll: "Đơn hàng tại Kho & Hoàn thành",
+  warehouseOrdersAll: "Đơn kho & Hoàn tất",
   warehouseOrdersDesc: "Theo dõi quy trình đơn hàng đã về kho Việt Nam và lịch sử hoàn tất.",
   createOrder: "Tạo Đơn Hàng",
   transactionLog: "Nhật ký giao dịch",
