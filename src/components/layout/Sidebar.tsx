@@ -84,7 +84,7 @@ export const Sidebar: React.FC<SidebarProps> = React.memo(({
   const salesItems = useMemo(
     () => [
       { path: "/orders", label: t("orders"), icon: Receipt },
-      { path: "/warehouse-orders", label: t("warehouseOrdersAll") || "Đơn kho & Hoàn thành", icon: Boxes },
+      { path: "/warehouse-orders", label: t("warehouseOrdersAll") || "Đơn kho & Hoàn tất", icon: Boxes },
       { path: "/users", label: t("users"), icon: Users },
       { path: "/chat", label: t("chat"), icon: MessageCircle },
     ],
