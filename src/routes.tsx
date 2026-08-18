@@ -9,6 +9,7 @@ const CategoriesPage = lazy(() => import('./pages/admin/CategoriesPage').then(m 
 const BrandsPage = lazy(() => import('./pages/admin/BrandsPage').then(m => ({ default: m.BrandsPage })));
 const WarehousesPage = lazy(() => import('./pages/admin/WarehousesPage').then(m => ({ default: m.WarehousesPage })));
 const OrdersPage = lazy(() => import('./pages/admin/OrdersPage').then(m => ({ default: m.OrdersPage })));
+const WarehouseOrdersPage = lazy(() => import('./pages/admin/WarehouseOrdersPage').then(m => ({ default: m.WarehouseOrdersPage })));
 const UsersPage = lazy(() => import('./pages/admin/UsersPage').then(m => ({ default: m.UsersPage })));
 const CouponsPage = lazy(() => import('./pages/admin/CouponsPage').then(m => ({ default: m.CouponsPage })));
 const ReviewsPage = lazy(() => import('./pages/admin/ReviewsPage').then(m => ({ default: m.ReviewsPage })));
@@ -23,6 +24,7 @@ export const routeConfig: RouteObject[] = [
   { path: '/brands', element: <BrandsPage /> },
   { path: '/warehouses', element: <WarehousesPage /> },
   { path: '/orders', element: <OrdersPage /> },
+  { path: '/warehouse-orders', element: <WarehouseOrdersPage /> },
   { path: '/users', element: <UsersPage /> },
   { path: '/coupons', element: <CouponsPage /> },
   { path: '/reviews', element: <ReviewsPage /> },
