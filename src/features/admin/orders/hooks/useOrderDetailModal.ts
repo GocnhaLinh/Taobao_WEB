@@ -3,7 +3,11 @@ import { useTranslation } from '../../../../lib/i18n';
 import { updateOrderStatusApi } from '../api/order.api';
 import type { UseOrderDetailModalParams, UseOrderDetailModalReturn } from '../types';
 
-export const useOrderDetailModal = ({ order, onRefresh }: UseOrderDetailModalParams): UseOrderDetailModalReturn => {
+export const useOrderDetailModal = ({
+  order,
+  onRefresh,
+  onSaved,
+}: UseOrderDetailModalParams): UseOrderDetailModalReturn => {
   const { t } = useTranslation();
 
   const [status, setStatus] = useState<string>('PENDING_ORDER');
@@ -83,6 +87,9 @@ export const useOrderDetailModal = ({ order, onRefresh }: UseOrderDetailModalPar
         depositPercentage
       );
       setMessage({ type: 'success', text: t('orderUpdateSuccess') });
+      // KHÔNG đóng modal: làm mới danh sách phía sau + cập nhật bản chi tiết đang xem
+      // để admin thấy được message thành công và trạng thái mới ngay trong modal.
+      if (onSaved) onSaved();
       if (onRefresh) onRefresh();
     } catch (err: any) {
       setMessage({
@@ -102,6 +109,7 @@ export const useOrderDetailModal = ({ order, onRefresh }: UseOrderDetailModalPar
     depositAmount,
     depositPercentage,
     onRefresh,
+    onSaved,
     t,
   ]);
 

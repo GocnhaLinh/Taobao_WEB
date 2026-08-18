@@ -1,12 +1,28 @@
 import { axiosClient } from '../../../../services/axiosClient';
-import type { Order, GetOrdersParams, GetOrdersResponse } from '../types';
+import type {
+  Order,
+  GetOrdersParams,
+  GetOrdersResponse,
+  CreateOrderData,
+  CancelOrderData,
+  OrderCancellation,
+} from '../types';
+import type { Address } from '../../../../types';
 
 export const getOrdersApi = async (params?: GetOrdersParams): Promise<GetOrdersResponse> => {
-  return axiosClient.get<any, GetOrdersResponse>('/orders', { params });
+  return axiosClient.get<GetOrdersResponse, GetOrdersResponse>('/orders', { params });
+};
+
+export const createOrderApi = async (data: CreateOrderData): Promise<Order> => {
+  return axiosClient.post<Order, Order>('/orders', data);
+};
+
+export const getAddressesByUserIdApi = async (userId: string): Promise<Address[]> => {
+  return axiosClient.get<Address[], Address[]>(`/addresses/user/${userId}`);
 };
 
 export const getOrderByIdApi = async (id: string): Promise<Order> => {
-  return axiosClient.get<any, Order>(`/orders/${id}`);
+  return axiosClient.get<Order, Order>(`/orders/${id}`);
 };
 
 export const updateOrderStatusApi = async (
@@ -19,7 +35,7 @@ export const updateOrderStatusApi = async (
   depositAmount?: number,
   depositPercentage?: number
 ): Promise<Order> => {
-  return axiosClient.put<any, Order>(`/orders/${id}/status`, {
+  return axiosClient.put<Order, Order>(`/orders/${id}/status`, {
     status,
     note,
     taobaoOrderId,
@@ -30,6 +46,15 @@ export const updateOrderStatusApi = async (
   });
 };
 
-export const cancelOrderApi = async (id: string, reason: string): Promise<any> => {
-  return axiosClient.post<any, any>(`/orders/${id}/cancel`, { reason });
+export const cancelOrderApi = async (id: string, data: CancelOrderData): Promise<OrderCancellation> => {
+  return axiosClient.post<OrderCancellation, OrderCancellation>(`/orders/${id}/cancel`, data);
+};
+
+export const updateCancellationStatusApi = async (
+  cancellationId: string,
+  status: string
+): Promise<OrderCancellation> => {
+  return axiosClient.put<OrderCancellation, OrderCancellation>(`/orders/cancellations/${cancellationId}/status`, {
+    status,
+  });
 };

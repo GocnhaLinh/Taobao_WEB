@@ -13,6 +13,7 @@ export const OrderFilter: React.FC<OrderFilterProps> = ({
   onStatusChange,
   paymentFilter,
   onPaymentChange,
+  allowedStatuses,
 }) => {
   const { t } = useTranslation();
 
@@ -35,7 +36,7 @@ export const OrderFilter: React.FC<OrderFilterProps> = ({
           <CustomSelect
             value={statusFilter}
             onChange={onStatusChange}
-            options={getOrderStatusOptions(t, true)}
+            options={getOrderStatusOptions(t, true, allowedStatuses)}
             className="w-full text-xs"
             size="sm"
           />

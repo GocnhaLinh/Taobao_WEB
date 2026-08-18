@@ -7,7 +7,7 @@ export type Language = 'en' | 'vi' | 'zh';
 
 const translations = { en, vi, zh };
 
-export type TranslationKey = keyof typeof en;
+export type TranslationKey = keyof typeof vi;
 export type TranslateFn = (key: TranslationKey, params?: Record<string, string | number>) => string;
 
 interface LanguageContextType {
@@ -31,7 +31,9 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
   const t = useCallback(
     (key: TranslationKey, params?: Record<string, string | number>) => {
-      let value = translations[language][key] || translations['en'][key] || key;
+      const currentDict = translations[language] as Record<string, string>;
+      const fallbackDict = translations['vi'] as Record<string, string>;
+      let value = currentDict[key] || fallbackDict[key] || key;
       if (params) {
         Object.entries(params).forEach(([k, v]) => {
           value = value.replace(`{${k}}`, String(v));
