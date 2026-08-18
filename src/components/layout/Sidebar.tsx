@@ -42,7 +42,7 @@ export const Sidebar: React.FC<SidebarProps> = React.memo(({
     "/brands",
     "/warehouses",
   ].includes(location.pathname);
-  const isSalesRoute = ["/orders", "/users", "/chat"].includes(
+  const isSalesRoute = ["/orders", "/warehouse-orders", "/users", "/chat"].includes(
     location.pathname,
   );
   const isPromoRoute = ["/coupons", "/reviews", "/settings"].includes(
@@ -84,6 +84,7 @@ export const Sidebar: React.FC<SidebarProps> = React.memo(({
   const salesItems = useMemo(
     () => [
       { path: "/orders", label: t("orders"), icon: Receipt },
+      { path: "/warehouse-orders", label: t("warehouseOrdersAll") || "Đơn kho & Hoàn thành", icon: Boxes },
       { path: "/users", label: t("users"), icon: Users },
       { path: "/chat", label: t("chat"), icon: MessageCircle },
     ],
