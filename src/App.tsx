@@ -1,36 +1,71 @@
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { BrowserRouter } from 'react-router-dom';
-import { LanguageProvider } from './lib/i18n';
-import { ThemeProvider } from './lib/theme';
-import { NotificationProvider } from './lib/notification';
-import { MainLayout } from './components/layout/MainLayout';
-import { AppRoutes } from './routes';
+import { useMemo, useState } from 'react'
+import {
+  ArrowRight, ChevronLeft, CircleUserRound, CreditCard,
+  Heart, Languages, Menu, Package, Plus, Search, Send, ShoppingBag,
+  Star, Truck, UserRound, X, Zap,
+} from 'lucide-react'
+import './App.css'
 
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      refetchOnWindowFocus: false,
-      staleTime: 5 * 60 * 1000,  // 5 phút: data được coi là "còn mới" — ko gọi lại API
-      gcTime: 30 * 60 * 1000,    // 30 phút: giữ cache sau khi unmount
-      retry: 1,                  // Chỉ retry 1 lần nếu lỗi
-    },
-  },
-});
+type Page = 'home' | 'products' | 'about' | 'contact' | 'account' | 'cart' | 'checkout' | 'login' | 'register' | 'detail'
+type Product = { id:number; name:string; category:string; price:number; oldPrice?:number; image:string; badge?:string; rating:number; reviews:number; description:string }
+
+const products: Product[] = [
+  { id:1, name:'Keychron Q1 Pro', category:'Bàn phím', price:3290000, oldPrice:3890000, image:'https://images.unsplash.com/photo-1618384887929-16ec33fab9ef?auto=format&fit=crop&w=900&q=90', badge:'Bán chạy', rating:4.9, reviews:128, description:'Bàn phím cơ wireless premium với vỏ nhôm CNC, switch Gateron Jupiter và QMK/VIA.' },
+  { id:2, name:'Logitech G Pro X Superlight 2', category:'Chuột', price:2790000, oldPrice:3290000, image:'https://images.unsplash.com/photo-1527814050087-3793815479db?auto=format&fit=crop&w=900&q=90', badge:'-15%', rating:4.8, reviews:96, description:'Chuột gaming siêu nhẹ 60g, cảm biến HERO 2 chính xác và pin 95 giờ.' },
+  { id:3, name:'Sony INZONE H9', category:'Tai nghe', price:5990000, image:'https://images.unsplash.com/photo-1599669454699-248893623440?auto=format&fit=crop&w=900&q=90', badge:'Mới', rating:4.7, reviews:64, description:'Tai nghe gaming không dây với chống ồn chủ động, âm thanh 360 Spatial Sound.' },
+  { id:4, name:'ASUS ROG Swift OLED', category:'Màn hình', price:18990000, oldPrice:21990000, image:'https://images.unsplash.com/photo-1527443224154-c4a3942d3acf?auto=format&fit=crop&w=900&q=90', badge:'Hot', rating:5, reviews:42, description:'Màn hình OLED 27 inch 1440p 240Hz, thời gian phản hồi 0.03ms.' },
+  { id:5, name:'Razer BlackWidow V4 Pro', category:'Bàn phím', price:4490000, image:'https://images.unsplash.com/photo-1587829741301-dc798b83add3?auto=format&fit=crop&w=900&q=90', rating:4.8, reviews:78, description:'Bàn phím cơ gaming full-size với Command Dial đa chức năng.' },
+  { id:6, name:'SteelSeries Arctis Nova 7', category:'Tai nghe', price:3690000, image:'https://images.unsplash.com/photo-1484704849700-f032a568e944?auto=format&fit=crop&w=900&q=90', rating:4.8, reviews:83, description:'Tai nghe đa nền tảng, kết nối đồng thời 2.4GHz và Bluetooth.' },
+]
+
+const money = (v:number) => new Intl.NumberFormat('vi-VN').format(v) + '₫'
 
 export default function App() {
-  return (
-    <QueryClientProvider client={queryClient}>
-      <ThemeProvider>
-        <LanguageProvider>
-          <NotificationProvider>
-            <BrowserRouter>
-              <MainLayout>
-                <AppRoutes />
-              </MainLayout>
-            </BrowserRouter>
-          </NotificationProvider>
-        </LanguageProvider>
-      </ThemeProvider>
-    </QueryClientProvider>
-  );
+  const [page,setPage] = useState<Page>('home')
+  const [lang,setLang] = useState<'VI'|'EN'>('VI')
+  const [cart,setCart] = useState<number[]>([1,2])
+  const [selected,setSelected] = useState<Product>(products[0])
+  const [menu,setMenu] = useState(false)
+  const [query,setQuery] = useState('')
+  const [category,setCategory] = useState('Tất cả')
+  const [notice,setNotice] = useState('')
+  const filtered = useMemo(() => products.filter(p => (category==='Tất cả'||p.category===category) && p.name.toLowerCase().includes(query.toLowerCase())), [category,query])
+  const add = (p:Product) => { setCart(c => c.includes(p.id)?c:[...c,p.id]); setNotice('Đã thêm vào giỏ hàng'); setTimeout(()=>setNotice(''),1800) }
+  const goProduct = (p:Product) => { setSelected(p); setPage('detail') }
+  const nav = (p:Page) => { setPage(p); setMenu(false); window.scrollTo({top:0,behavior:'smooth'}) }
+  const t = lang==='VI'
+  return <div className="app">
+    <header className="header"><button className="mobile-menu" onClick={()=>setMenu(!menu)}><Menu/></button><button className="brand" onClick={()=>nav('home')}><span className="brand-mark"><Zap/></span><span>GEAR<span className="brand-accent">NEST</span></span></button>
+      <nav className={menu?'nav open':'nav'}><button className={page==='home'?'active':''} onClick={()=>nav('home')}>{t?'Trang chủ':'Home'}</button><button className={page==='products'?'active':''} onClick={()=>nav('products')}>{t?'Sản phẩm':'Products'}</button><button onClick={()=>nav('about')}>{t?'Về chúng tôi':'About'}</button><button onClick={()=>nav('contact')}>{t?'Liên hệ':'Contact'}</button></nav>
+      <div className="header-actions"><div className="search"><Search/><input value={query} onChange={e=>{setQuery(e.target.value);nav('products')}} placeholder={t?'Tìm gear...':'Search gear...'}/></div><button className="icon-btn" onClick={()=>setLang(lang==='VI'?'EN':'VI')}><Languages/><small>{lang}</small></button><button className="icon-btn" onClick={()=>nav('account')}><CircleUserRound/></button><button className="cart-btn" onClick={()=>nav('cart')}><ShoppingBag/><b>{cart.length}</b></button></div>
+    </header>
+    {notice && <div className="toast">✓ {notice}</div>}
+    {page==='home' && <Home nav={nav} add={add} goProduct={goProduct} t={t}/>} 
+    {page==='products' && <Products products={filtered} category={category} setCategory={setCategory} goProduct={goProduct} add={add} t={t}/>} 
+    {page==='detail' && <Detail product={selected} add={add} nav={nav} t={t}/>} 
+    {page==='about' && <About t={t}/>} {page==='contact' && <Contact/>} {page==='account' && <Account nav={nav}/>} 
+    {page==='cart' && <Cart cart={cart} setCart={setCart} nav={nav}/>} {page==='checkout' && <Checkout nav={nav}/>} 
+    {(page==='login'||page==='register') && <Auth page={page} setPage={setPage} nav={nav}/>} 
+    <footer><div className="brand"><span className="brand-mark"><Zap/></span>GEAR<span className="brand-accent">NEST</span></div><span>{t?'Gear xịn. Setup đỉnh. Chơi hết mình.':'Premium gear for your next level.'}</span><span>© 2025 GearNest</span></footer>
+  </div>
 }
+
+function Home({nav,add,goProduct,t}:any){return <main><section className="hero"><div className="hero-copy"><div className="eyebrow"><span/> SETUP YOUR NEXT LEVEL</div><h1>Level up<br/><em>your game.</em></h1><p>{t?'Thiết bị gaming tuyển chọn cho những pha clutch không tưởng.':'Curated gaming gear for moments that matter.'}</p><div className="hero-buttons"><button className="btn primary" onClick={()=>nav('products')}>{t?'Khám phá gear':'Explore gear'} <ArrowRight/></button><button className="text-btn" onClick={()=>nav('about')}>{t?'Câu chuyện GearNest':'Our story'} <ArrowRight/></button></div><div className="hero-stats"><div><strong>4.9/5</strong><span>Đánh giá khách hàng</span></div><div><strong>2K+</strong><span>Setup đã nâng cấp</span></div></div></div><div className="hero-visual"><div className="hero-glow"/><img src="https://images.unsplash.com/photo-1593305841991-05c297ba4575?auto=format&fit=crop&w=1200&q=90" alt="Gaming setup"/><div className="floating-card"><span>01 / 06</span><b>Build the<br/>ultimate setup</b><ArrowRight/></div></div></section><section className="section featured"><div className="section-head"><div><span className="eyebrow">CURATED FOR YOU</span><h2>Gear nổi bật</h2></div><button className="text-btn" onClick={()=>nav('products')}>Xem tất cả <ArrowRight/></button></div><div className="product-grid">{products.slice(0,4).map(p=><ProductCard key={p.id} p={p} add={add} go={goProduct}/>)}</div></section><section className="marquee"><span>PLAY BETTER</span><i>✦</i><span>FEEL MORE</span><i>✦</i><span>WIN TOGETHER</span><i>✦</i></section></main>}
+
+function Products({products,category,setCategory,goProduct,add,t}:any){return <main className="page"><div className="page-intro"><span className="eyebrow">THE GEAR LIBRARY</span><h1>Find your <em>edge.</em></h1><p>{t?'Mọi thứ bạn cần để biến góc chơi thành đấu trường.':'Everything you need to upgrade your arena.'}</p></div><div className="filter-row"><div className="pills">{['Tất cả','Bàn phím','Chuột','Tai nghe','Màn hình'].map(c=><button className={category===c?'selected':''} onClick={()=>setCategory(c)} key={c}>{c}</button>)}</div><span>{products.length} sản phẩm</span></div><div className="product-grid all">{products.map((p:Product)=><ProductCard key={p.id} p={p} add={add} go={goProduct}/>)}</div></main>}
+
+function ProductCard({p,add,go}:{p:Product,add:(p:Product)=>void,go:(p:Product)=>void}){return <article className="product-card"><div className="product-image" onClick={()=>go(p)}><img src={p.image} alt={p.name}/>{p.badge&&<span className="badge">{p.badge}</span>}<button className="heart"><Heart/></button></div><div className="product-info"><span className="category">{p.category}</span><h3 onClick={()=>go(p)}>{p.name}</h3><div className="rating"><Star fill="currentColor"/> {p.rating} <small>({p.reviews})</small></div><div className="price"><strong>{money(p.price)}</strong>{p.oldPrice&&<del>{money(p.oldPrice)}</del>}<button onClick={()=>add(p)}><Plus/></button></div></div></article>}
+
+function Detail({product:p,add,nav,t}:any){return <main className="page detail"><button className="back" onClick={()=>nav('products')}><ChevronLeft/> {t?'Quay lại sản phẩm':'Back to products'}</button><div className="detail-layout"><div className="detail-image"><img src={p.image} alt={p.name}/></div><div className="detail-copy"><span className="eyebrow">{p.category.toUpperCase()} / PREMIUM SERIES</span><h1>{p.name}</h1><div className="detail-rating"><span className="rating"><Star fill="currentColor"/> {p.rating}</span> <u>{p.reviews} đánh giá</u></div><p>{p.description}</p><div className="detail-price">{money(p.price)} {p.oldPrice&&<del>{money(p.oldPrice)}</del>}</div><div className="detail-actions"><button className="btn primary" onClick={()=>add(p)}><ShoppingBag/> {t?'Thêm vào giỏ':'Add to cart'}</button><button className="btn outline"><Heart/> Lưu lại</button></div><div className="shipping"><div><Truck/><span><b>Miễn phí vận chuyển</b><small>Đơn hàng từ 500.000₫</small></span></div><div><Package/><span><b>Bảo hành chính hãng</b><small>Đổi trả trong 30 ngày</small></span></div></div><div className="reviews"><h3>Đánh giá sản phẩm <span>★★★★★</span></h3><p>“Chất lượng hoàn thiện cực kỳ tốt, cảm giác dùng đã tay. Đúng là khoản đầu tư xứng đáng cho setup.”</p><small>— Minh Anh · Đã mua hàng</small></div></div></div></main>}
+
+function Cart({cart,setCart,nav}:any){const items=products.filter(p=>cart.includes(p.id));const total=items.reduce((s,p)=>s+p.price,0);return <main className="page cart-page"><div className="page-intro compact"><span className="eyebrow">YOUR LOADOUT</span><h1>Giỏ hàng <em>({items.length})</em></h1></div>{items.length?<div className="cart-layout"><div className="cart-items">{items.map(p=><div className="cart-item" key={p.id}><img src={p.image} alt={p.name}/><div><span className="category">{p.category}</span><h3>{p.name}</h3><strong>{money(p.price)}</strong></div><button onClick={()=>setCart(cart.filter((id:number)=>id!==p.id))}><X/></button></div>)}</div><aside className="summary"><h2>Tóm tắt đơn hàng</h2><div><span>Tạm tính</span><b>{money(total)}</b></div><div><span>Vận chuyển</span><b className="green">Miễn phí</b></div><hr/><div className="total"><span>Tổng cộng</span><b>{money(total)}</b></div><button className="btn primary full" onClick={()=>nav('checkout')}>Tiến hành thanh toán <ArrowRight/></button></aside></div>:<div className="empty"><ShoppingBag/><h2>Giỏ hàng đang trống</h2><button className="btn primary" onClick={()=>nav('products')}>Khám phá sản phẩm</button></div>}</main>}
+
+function Checkout({nav}:any){return <main className="page checkout"><div className="page-intro compact"><span className="eyebrow">SECURE CHECKOUT</span><h1>Hoàn tất <em>đơn hàng.</em></h1></div><div className="checkout-layout"><div className="form-card"><h2>Thông tin giao hàng</h2><div className="form-grid"><label>Họ và tên<input placeholder="Nguyễn Văn A"/></label><label>Số điện thoại<input placeholder="090 123 4567"/></label></div><label>Địa chỉ nhận hàng<input placeholder="Số nhà, đường, phường/xã..."/></label><label>Ghi chú<textarea placeholder="Ghi chú cho người giao hàng (không bắt buộc)"/></label><h2>Phương thức thanh toán</h2><button className="payment selected"><CreditCard/><span><b>Thanh toán khi nhận hàng</b><small>COD · Thanh toán tiền mặt</small></span><span className="radio"/></button><button className="btn primary full" onClick={()=>{alert('Đặt hàng thành công!');nav('home')}}>Đặt hàng <ArrowRight/></button></div><aside className="summary"><h2>Đơn hàng của bạn</h2><div className="summary-product"><img src={products[0].image} alt=""/><span>Keychron Q1 Pro<small>× 1</small></span><b>{money(products[0].price)}</b></div><hr/><div className="total"><span>Tổng cộng</span><b>{money(products[0].price)}</b></div></aside></div></main>}
+
+function About({t}:any){return <main className="page about"><div className="about-hero"><span className="eyebrow">THE GEAR NEST MANIFESTO</span><h1>Play is not a<br/><em>waste of time.</em></h1><p>{t?'Chúng tôi tin rằng thiết bị tốt không chỉ giúp bạn chơi hay hơn — nó giúp bạn tận hưởng từng khoảnh khắc nhiều hơn.':'We believe great gear does more than help you play better — it helps you enjoy every moment more.'}</p></div><div className="about-grid"><div><strong>01</strong><h2>Chọn lọc có chủ đích</h2><p>Mỗi sản phẩm tại GearNest đều được test trong thực tế, từ switch bàn phím đến độ trễ chuột.</p></div><div><strong>02</strong><h2>Cộng đồng là trọng tâm</h2><p>Chúng tôi xây dựng cho những người chơi, bởi những người chơi. Setup của bạn là câu chuyện của bạn.</p></div><div><strong>03</strong><h2>Nâng cấp bền vững</h2><p>Mua ít hơn, chọn tốt hơn. Những món gear được thiết kế để đồng hành qua nhiều mùa game.</p></div></div></main>}
+
+function Contact(){return <main className="page contact"><div><span className="eyebrow">WE'RE HERE TO HELP</span><h1>Let's talk<br/><em>gear.</em></h1><p>Đội ngũ GearNest luôn sẵn sàng giúp bạn build setup trong mơ.</p><div className="contact-info"><span>hello@gearnest.vn</span><span>0909 242 424</span><span>Hà Nội · TP. Hồ Chí Minh</span></div></div><form className="contact-form" onSubmit={e=>{e.preventDefault();alert('Cảm ơn bạn! Chúng tôi sẽ liên hệ sớm.')}}><label>Tên của bạn<input placeholder="Tên của bạn" required/></label><label>Email<input type="email" placeholder="you@example.com" required/></label><label>Bạn cần hỗ trợ gì?<textarea placeholder="Viết tin nhắn..." required/></label><button className="btn primary">Gửi tin nhắn <Send/></button></form></main>}
+
+function Account({nav}:any){return <main className="page account"><div className="account-head"><div className="avatar">MA</div><div><span className="eyebrow">WELCOME BACK</span><h1>Minh Anh</h1><p>minhanh@email.com</p></div><button className="btn outline" onClick={()=>nav('login')}>Đăng xuất</button></div><div className="account-grid"><div className="account-card"><Package/><h3>Đơn hàng của tôi</h3><p>Theo dõi và quản lý các đơn hàng</p><button className="text-btn">Xem đơn hàng <ArrowRight/></button></div><div className="account-card"><UserRound/><h3>Thông tin cá nhân</h3><p>Cập nhật thông tin và địa chỉ giao hàng</p><button className="text-btn">Chỉnh sửa <ArrowRight/></button></div></div></main>}
+
+function Auth({page,setPage,nav}:any){return <main className="auth"><div className="auth-visual"><div className="brand"><span className="brand-mark"><Zap/></span>GEAR<span className="brand-accent">NEST</span></div><h1>Build your<br/><em>next level.</em></h1></div><div className="auth-form"><span className="eyebrow">{page==='login'?'WELCOME BACK':'JOIN THE NEST'}</span><h2>{page==='login'?'Đăng nhập':'Tạo tài khoản'}</h2><p>{page==='login'?'Tiếp tục hành trình nâng cấp setup của bạn.':'Bắt đầu hành trình gaming của bạn hôm nay.'}</p>{page==='register'&&<input placeholder="Họ và tên"/>}<input type="email" placeholder="Email"/><input type="password" placeholder="Mật khẩu"/><button className="btn primary full" onClick={()=>nav('home')}>{page==='login'?'Đăng nhập':'Tạo tài khoản'} <ArrowRight/></button><div className="auth-switch">{page==='login'?'Chưa có tài khoản?':'Đã có tài khoản?'} <button onClick={()=>setPage(page==='login'?'register':'login')}>{page==='login'?'Đăng ký ngay':'Đăng nhập'}</button></div></div></main>}
